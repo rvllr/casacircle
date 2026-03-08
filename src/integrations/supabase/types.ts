@@ -733,6 +733,10 @@ export type Database = {
       }
       get_house_id_from_unit: { Args: { _unit_id: string }; Returns: string }
       get_house_id_from_vote: { Args: { _vote_id: string }; Returns: string }
+      is_co_member: {
+        Args: { _target_user_id: string; _viewer_id: string }
+        Returns: boolean
+      }
       is_family_admin: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
