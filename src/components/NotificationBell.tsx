@@ -59,7 +59,7 @@ const NotificationBell = () => {
     if (!user) return;
     const { data } = await supabase
       .from("notifications")
-      .select("id, type, title, body, is_read, created_at, house_id")
+      .select("id, type, title, body, is_read, created_at, house_id, metadata")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(30);
