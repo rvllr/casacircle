@@ -63,6 +63,7 @@ const BookingsPage = () => {
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [blockedPeriods, setBlockedPeriods] = useState<BlockedPeriod[]>([]);
+  const [pricingActiveHouseIds, setPricingActiveHouseIds] = useState<Set<string>>(new Set());
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [newBookingOpen, setNewBookingOpen] = useState(false);
@@ -79,7 +80,7 @@ const BookingsPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const [{ data: bookingsData }, { data: blockedData }] = await Promise.all([
+    const [{ data: bookingsData }, { data: blockedData }, { data: pricingData }] = await Promise.all([
       supabase
         .from("bookings")
         .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, payment_status, total_price, amount_paid, houses(name, family_id), house_units(name, type)")
@@ -87,7 +88,13 @@ const BookingsPage = () => {
       supabase
         .from("blocked_periods")
         .select("id, house_id, start_date, end_date, reason"),
+      supabase
+        .from("house_pricing")
+        .select("house_id, is_active")
+        .eq("is_active", true),
     ]);
+
+    setPricingActiveHouseIds(new Set((pricingData || []).map((p) => p.house_id)));
 
     setBlockedPeriods((blockedData || []) as BlockedPeriod[]);
 
