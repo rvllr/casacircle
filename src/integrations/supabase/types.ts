@@ -688,6 +688,10 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      is_house_active_member: {
+        Args: { _house_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_house_admin: {
         Args: { _house_id: string; _user_id: string }
         Returns: boolean
@@ -703,7 +707,6 @@ export type Database = {
       family_role: "admin" | "member"
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
-      house_role: "admin" | "member" | "guest"
       ticket_status: "open" | "in_progress" | "resolved"
       unit_type: "building" | "room"
       vote_response: "yes" | "no" | "abstain"
@@ -839,7 +842,6 @@ export const Constants = {
       family_role: ["admin", "member"],
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],
-      house_role: ["admin", "member", "guest"],
       ticket_status: ["open", "in_progress", "resolved"],
       unit_type: ["building", "room"],
       vote_response: ["yes", "no", "abstain"],
