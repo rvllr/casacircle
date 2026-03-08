@@ -66,6 +66,7 @@ const HousesPage = () => {
   const [families, setFamilies] = useState<FamilyWithDetails[]>([]);
   const [directHouses, setDirectHouses] = useState<House[]>([]);
   const [houseMembers, setHouseMembers] = useState<Record<string, HouseMember[]>>({});
+  const [houseUnits, setHouseUnits] = useState<Record<string, HouseUnit[]>>({});
   const [adminFamilies, setAdminFamilies] = useState<Family[]>([]);
   const [loading, setLoading] = useState(true);
 
