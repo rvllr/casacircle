@@ -42,6 +42,7 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
   const [photoUrl, setPhotoUrl] = useState(house.photo_url || "");
   const [photoPreview, setPhotoPreview] = useState<string | null>(house.photo_url || null);
   const [isPublic, setIsPublic] = useState(house.is_public || false);
+  const [autoApprove, setAutoApprove] = useState(house.booking_auto_approve || false);
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
