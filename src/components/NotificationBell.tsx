@@ -24,11 +24,13 @@ interface Notification {
   house_id: string | null;
 }
 
-const typeIcons: Record<string, { icon: typeof Bell; color: string }> = {
+const typeIcons: Record<string, { icon: typeof Bell; color: string; badge?: string; badgeVariant?: "destructive" | "secondary" }> = {
   booking_new: { icon: CalendarDays, color: "text-primary" },
   booking_approved: { icon: Check, color: "text-accent" },
   booking_refused: { icon: X, color: "text-destructive" },
   booking_cancelled: { icon: X, color: "text-muted-foreground" },
+  payment_overdue: { icon: AlertCircle, color: "text-destructive", badge: "Paiement", badgeVariant: "destructive" },
+  payment_overdue_admin: { icon: AlertCircle, color: "text-destructive", badge: "Paiement", badgeVariant: "destructive" },
 };
 
 const NotificationBell = () => {
