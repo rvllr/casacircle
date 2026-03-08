@@ -412,22 +412,44 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
           {pricing?.is_active && startDate && endDate && endDate > startDate && (() => {
             const nights = differenceInCalendarDays(endDate, startDate);
             const persons = parseInt(guestCount) || 1;
-            let cost = 0;
-            if (pricing.pricing_mode === "per_night") cost = pricing.base_price * nights;
-            else if (pricing.pricing_mode === "per_person") cost = pricing.base_price * persons;
-            else cost = pricing.base_price * persons * nights;
-            if (pricing.cap_amount && cost > pricing.cap_amount) cost = pricing.cap_amount;
+            const { total: cost, breakdown } = calculateBookingCost(
+              startDate,
+              endDate,
+              persons,
+              { pricing_mode: pricing.pricing_mode, base_price: pricing.base_price, cap_amount: pricing.cap_amount },
+              pricingPeriods
+            );
             const cleaning = wantsCleaning && pricing.cleaning_fee ? pricing.cleaning_fee : 0;
             const total = cost + cleaning;
+            const hasPeriods = breakdown.length > 1 || (breakdown.length === 1 && breakdown[0].periodName !== "Tarif de base");
             return (
               <div className="p-3 rounded-md bg-primary/5 border border-primary/20 text-sm space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    Séjour ({nights} nuit{nights > 1 ? "s" : ""}
-                    {pricing.pricing_mode !== "per_night" ? `, ${persons} pers.` : ""})
-                  </span>
-                  <span className="text-foreground">{cost.toFixed(2)} €</span>
-                </div>
+                {hasPeriods ? (
+                  breakdown.map((b, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <span className="text-muted-foreground">
+                        {b.periodName} ({b.nights} nuit{b.nights > 1 ? "s" : ""} × {b.pricePerUnit.toFixed(2)} €
+                        {pricing.pricing_mode !== "per_night" ? ` × ${persons} pers.` : ""})
+                      </span>
+                      <span className="text-foreground">
+                        {(pricing.pricing_mode === "per_person_per_night"
+                          ? b.pricePerUnit * b.nights * persons
+                          : pricing.pricing_mode === "per_person"
+                          ? b.pricePerUnit * persons
+                          : b.pricePerUnit * b.nights
+                        ).toFixed(2)} €
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      Séjour ({nights} nuit{nights > 1 ? "s" : ""}
+                      {pricing.pricing_mode !== "per_night" ? `, ${persons} pers.` : ""})
+                    </span>
+                    <span className="text-foreground">{cost.toFixed(2)} €</span>
+                  </div>
+                )}
                 {cleaning > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">🧹 Ménage</span>
