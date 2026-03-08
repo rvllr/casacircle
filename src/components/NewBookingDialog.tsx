@@ -352,6 +352,36 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
             </div>
           )}
 
+          {/* Cleaning fee option */}
+          {pricing?.is_active && pricing.cleaning_mode !== "included" && pricing.cleaning_fee && (
+            <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border border-border text-sm">
+              <div className="flex items-center gap-2">
+                <span>🧹</span>
+                <div>
+                  <p className="font-medium text-foreground">
+                    Ménage — {pricing.cleaning_fee} €
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {pricing.cleaning_mode === "mandatory" ? "Obligatoire" : "Optionnel"}
+                  </p>
+                </div>
+              </div>
+              {pricing.cleaning_mode === "optional" ? (
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={wantsCleaning}
+                    onChange={(e) => setWantsCleaning(e.target.checked)}
+                    className="rounded border-border"
+                  />
+                  <span className="text-xs">Ajouter</span>
+                </label>
+              ) : (
+                <span className="text-xs text-primary font-medium">Inclus</span>
+              )}
+            </div>
+          )}
+
           {/* Cost estimate */}
           {pricing?.is_active && startDate && endDate && endDate > startDate && (() => {
             const nights = differenceInCalendarDays(endDate, startDate);
@@ -361,13 +391,27 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
             else if (pricing.pricing_mode === "per_person") cost = pricing.base_price * persons;
             else cost = pricing.base_price * persons * nights;
             if (pricing.cap_amount && cost > pricing.cap_amount) cost = pricing.cap_amount;
+            const cleaning = wantsCleaning && pricing.cleaning_fee ? pricing.cleaning_fee : 0;
+            const total = cost + cleaning;
             return (
-              <div className="flex items-center justify-between p-3 rounded-md bg-primary/5 border border-primary/20 text-sm">
-                <span className="text-muted-foreground">
-                  Coût estimé ({nights} nuit{nights > 1 ? "s" : ""}
-                  {pricing.pricing_mode !== "per_night" ? `, ${persons} pers.` : ""})
-                </span>
-                <span className="font-bold text-foreground">{cost.toFixed(2)} €</span>
+              <div className="p-3 rounded-md bg-primary/5 border border-primary/20 text-sm space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    Séjour ({nights} nuit{nights > 1 ? "s" : ""}
+                    {pricing.pricing_mode !== "per_night" ? `, ${persons} pers.` : ""})
+                  </span>
+                  <span className="text-foreground">{cost.toFixed(2)} €</span>
+                </div>
+                {cleaning > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">🧹 Ménage</span>
+                    <span className="text-foreground">{cleaning.toFixed(2)} €</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between pt-1 border-t border-primary/10">
+                  <span className="font-medium text-foreground">Total</span>
+                  <span className="font-bold text-foreground">{total.toFixed(2)} €</span>
+                </div>
               </div>
             );
           })()}
