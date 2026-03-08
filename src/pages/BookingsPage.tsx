@@ -69,6 +69,7 @@ const BookingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [newBookingOpen, setNewBookingOpen] = useState(false);
   const [newBookingStartDate, setNewBookingStartDate] = useState<Date | undefined>();
+  const [paymentFilter, setPaymentFilter] = useState<string>("all");
 
   const handleCalendarDayClick = (date: Date) => {
     // Only open dialog for available (future) days
@@ -436,33 +437,58 @@ const BookingsPage = () => {
             </TabsContent>
 
             <TabsContent value="all">
-              {filteredBookings.length === 0 ? (
-                <Card>
-                  <CardContent className="py-8 text-center">
-                    <p className="text-muted-foreground">Aucune réservation.</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-3">
-                  {filteredBookings.map((b) => (
-                    <BookingCard
-                      key={b.id}
-                      booking={b}
-                      label={getBookingLabel(b)}
-                      userName={getUserName(b)}
-                      formatDate={formatDate}
-                      canManage={b.status === "pending" && canManageBooking(b)}
-                      canCancel={b.user_id === user?.id && (b.status === "pending" || b.status === "approved")}
-                      hasPricing={pricingActiveHouseIds.has(b.house_id)}
-                      onApprove={() => updateBookingStatus(b.id, "approved")}
-                      onRefuse={() => updateBookingStatus(b.id, "refused")}
-                      onCancel={() => updateBookingStatus(b.id, "cancelled")}
-                      onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
-                      onAmountPaidChange={(amount) => updatePaymentStatus(b.id, b.payment_status, amount)}
-                    />
-                  ))}
-                </div>
-              )}
+              <div className="flex items-center gap-2 mb-3">
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+                <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                  <SelectTrigger className="w-[180px] h-8 text-xs">
+                    <SelectValue placeholder="Statut paiement" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les paiements</SelectItem>
+                    <SelectItem value="unpaid">Non payé</SelectItem>
+                    <SelectItem value="partial">Partiel</SelectItem>
+                    <SelectItem value="paid">Payé</SelectItem>
+                    <SelectItem value="not_applicable">N/A</SelectItem>
+                  </SelectContent>
+                </Select>
+                {paymentFilter !== "all" && (
+                  <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setPaymentFilter("all")}>
+                    <X className="h-3.5 w-3.5 mr-1" /> Réinitialiser
+                  </Button>
+                )}
+              </div>
+              {(() => {
+                const displayed = paymentFilter === "all"
+                  ? filteredBookings
+                  : filteredBookings.filter((b) => b.payment_status === paymentFilter);
+                return displayed.length === 0 ? (
+                  <Card>
+                    <CardContent className="py-8 text-center">
+                      <p className="text-muted-foreground">Aucune réservation{paymentFilter !== "all" ? " avec ce statut de paiement" : ""}.</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-3">
+                    {displayed.map((b) => (
+                      <BookingCard
+                        key={b.id}
+                        booking={b}
+                        label={getBookingLabel(b)}
+                        userName={getUserName(b)}
+                        formatDate={formatDate}
+                        canManage={b.status === "pending" && canManageBooking(b)}
+                        canCancel={b.user_id === user?.id && (b.status === "pending" || b.status === "approved")}
+                        hasPricing={pricingActiveHouseIds.has(b.house_id)}
+                        onApprove={() => updateBookingStatus(b.id, "approved")}
+                        onRefuse={() => updateBookingStatus(b.id, "refused")}
+                        onCancel={() => updateBookingStatus(b.id, "cancelled")}
+                        onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
+                        onAmountPaidChange={(amount) => updatePaymentStatus(b.id, b.payment_status, amount)}
+                      />
+                    ))}
+                  </div>
+                );
+              })()}
             </TabsContent>
           </Tabs>
         )}
