@@ -1,17 +1,17 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
+import HouseSelector from "@/components/HouseSelector";
 import NewExpenseDialog from "@/components/NewExpenseDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Receipt, ArrowUpRight, ArrowDownRight, Scale } from "lucide-react";
+import { Receipt, ArrowUpRight, ArrowDownRight, Scale } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-interface House { id: string; name: string; family_id: string; }
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
 interface Expense {
   id: string; house_id: string; paid_by: string;
@@ -19,14 +19,12 @@ interface Expense {
   houses: { name: string } | null;
 }
 interface ExpenseShare { id: string; expense_id: string; user_id: string; amount: number; }
-
 interface BalanceEntry { userId: string; name: string; paid: number; owes: number; balance: number; }
 interface Settlement { from: string; to: string; amount: number; }
 
 const ExpensesPage = () => {
   const { user } = useAuth();
-  const [houses, setHouses] = useState<House[]>([]);
-  const [selectedHouse, setSelectedHouse] = useState("all");
+  const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [shares, setShares] = useState<ExpenseShare[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -35,9 +33,6 @@ const ExpensesPage = () => {
   const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-
-    const { data: housesData } = await supabase.from("houses").select("id, name, family_id");
-    setHouses(housesData || []);
 
     const { data: expData } = await supabase
       .from("expenses")
@@ -72,9 +67,9 @@ const ExpensesPage = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const filteredExpenses = selectedHouse === "all"
+  const filteredExpenses = selectedHouseId === "all"
     ? expenses
-    : expenses.filter((e) => e.house_id === selectedHouse);
+    : expenses.filter((e) => e.house_id === selectedHouseId);
 
   const filteredShares = useMemo(() => {
     const expIds = new Set(filteredExpenses.map((e) => e.id));
@@ -89,33 +84,27 @@ const ExpensesPage = () => {
 
   const totalExpenses = filteredExpenses.reduce((s, e) => s + e.amount, 0);
 
-  // Balance calculation
   const balances: BalanceEntry[] = useMemo(() => {
     const map = new Map<string, { paid: number; owes: number }>();
-
     filteredExpenses.forEach((e) => {
       const entry = map.get(e.paid_by) || { paid: 0, owes: 0 };
       entry.paid += e.amount;
       map.set(e.paid_by, entry);
     });
-
     filteredShares.forEach((s) => {
       const entry = map.get(s.user_id) || { paid: 0, owes: 0 };
       entry.owes += s.amount;
       map.set(s.user_id, entry);
     });
-
     return Array.from(map.entries()).map(([userId, { paid, owes }]) => ({
       userId, name: getName(userId), paid, owes, balance: paid - owes,
     })).sort((a, b) => b.balance - a.balance);
   }, [filteredExpenses, filteredShares, profiles]);
 
-  // Settlements (who pays whom)
   const settlements: Settlement[] = useMemo(() => {
     const debtors = balances.filter((b) => b.balance < 0).map((b) => ({ ...b, remaining: -b.balance }));
     const creditors = balances.filter((b) => b.balance > 0).map((b) => ({ ...b, remaining: b.balance }));
     const result: Settlement[] = [];
-
     let di = 0, ci = 0;
     while (di < debtors.length && ci < creditors.length) {
       const amount = Math.min(debtors[di].remaining, creditors[ci].remaining);
@@ -135,7 +124,7 @@ const ExpensesPage = () => {
     catch { return d; }
   };
 
-  if (loading) {
+  if (loading || housesLoading) {
     return (
       <AppLayout title="Dépenses">
         <div className="flex items-center justify-center h-64">
@@ -148,7 +137,6 @@ const ExpensesPage = () => {
   return (
     <AppLayout title="Dépenses">
       <div className="space-y-6 max-w-5xl">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-display text-foreground">Dépenses</h2>
@@ -157,23 +145,7 @@ const ExpensesPage = () => {
           <NewExpenseDialog onCreated={fetchData} />
         </div>
 
-        {/* House filter */}
-        {houses.length > 1 && (
-          <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-            <Select value={selectedHouse} onValueChange={setSelectedHouse}>
-              <SelectTrigger className="w-64">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les maisons</SelectItem>
-                {houses.map((h) => (
-                  <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        <HouseSelector />
 
         {houses.length === 0 ? (
           <Card>
@@ -190,9 +162,7 @@ const ExpensesPage = () => {
               <TabsTrigger value="list">Historique</TabsTrigger>
             </TabsList>
 
-            {/* Summary tab */}
             <TabsContent value="summary" className="space-y-4">
-              {/* Total */}
               <Card>
                 <CardContent className="py-6">
                   <div className="text-center">
@@ -202,7 +172,6 @@ const ExpensesPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Balances */}
               {balances.length > 0 && (
                 <Card>
                   <CardHeader>
@@ -234,7 +203,6 @@ const ExpensesPage = () => {
                 </Card>
               )}
 
-              {/* Settlements */}
               {settlements.length > 0 && (
                 <Card>
                   <CardHeader>
@@ -269,7 +237,6 @@ const ExpensesPage = () => {
               )}
             </TabsContent>
 
-            {/* List tab */}
             <TabsContent value="list">
               {filteredExpenses.length === 0 ? (
                 <Card>
