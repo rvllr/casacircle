@@ -321,31 +321,52 @@ const HouseDetailPage = () => {
             )}
 
             <div className="grid sm:grid-cols-2 gap-3">
-              {members.map((m) => (
-                <Card key={m.id}>
-                  <CardContent className="flex items-center gap-3 p-4">
-                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                      {m.role === "owner" ? (
-                        <Crown className="h-5 w-5 text-primary" />
-                      ) : (
-                        <User className="h-5 w-5 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {m.profile?.first_name || "Membre"}
-                        {m.profile?.last_name ? ` ${m.profile.last_name}` : ""}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {m.profile?.email}
-                      </p>
-                    </div>
-                    <Badge variant={m.role === "owner" ? "default" : "secondary"} className="text-xs">
-                      {m.role === "owner" ? "Propriétaire" : "Membre"}
-                    </Badge>
-                  </CardContent>
-                </Card>
-              ))}
+              {members.map((m) => {
+                const roleConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline"; icon: typeof Crown }> = {
+                  admin: { label: "Admin", variant: "default", icon: Crown },
+                  member: { label: "Membre", variant: "secondary", icon: User },
+                  guest: { label: "Invité", variant: "outline", icon: User },
+                };
+                const rc = roleConfig[m.role] || roleConfig.member;
+                const RoleIcon = rc.icon;
+
+                return (
+                  <Card key={m.id}>
+                    <CardContent className="flex items-center gap-3 p-4">
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                        <RoleIcon className={`h-5 w-5 ${m.role === "admin" ? "text-primary" : "text-muted-foreground"}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {m.profile?.first_name || "Membre"}
+                          {m.profile?.last_name ? ` ${m.profile.last_name}` : ""}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {m.profile?.email}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isAdmin && m.user_id !== user?.id ? (
+                          <select
+                            value={m.role}
+                            onChange={async (e) => {
+                              await supabase.from("house_members").update({ role: e.target.value }).eq("id", m.id);
+                              fetchHouse();
+                            }}
+                            className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground"
+                          >
+                            <option value="admin">Admin</option>
+                            <option value="member">Membre</option>
+                            <option value="guest">Invité</option>
+                          </select>
+                        ) : (
+                          <Badge variant={rc.variant} className="text-xs">{rc.label}</Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
         </Tabs>
