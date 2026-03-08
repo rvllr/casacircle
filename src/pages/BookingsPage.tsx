@@ -6,11 +6,12 @@ import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
 import BookingCalendar from "@/components/BookingCalendar";
 import NewBookingDialog from "@/components/NewBookingDialog";
+import BlockPeriodDialog from "@/components/BlockPeriodDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Check, X, Users, BarChart3, Plus } from "lucide-react";
+import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2 } from "lucide-react";
 import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -36,11 +37,20 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
   cancelled: { label: "Annulée", variant: "outline" },
 };
 
+interface BlockedPeriod {
+  id: string;
+  house_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string | null;
+}
+
 const BookingsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [bookings, setBookings] = useState<BookingRow[]>([]);
+  const [blockedPeriods, setBlockedPeriods] = useState<BlockedPeriod[]>([]);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [newBookingOpen, setNewBookingOpen] = useState(false);
@@ -57,10 +67,17 @@ const BookingsPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const { data: bookingsData } = await supabase
-      .from("bookings")
-      .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, houses(name, family_id), house_units(name, type)")
-      .order("start_date", { ascending: true });
+    const [{ data: bookingsData }, { data: blockedData }] = await Promise.all([
+      supabase
+        .from("bookings")
+        .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, houses(name, family_id), house_units(name, type)")
+        .order("start_date", { ascending: true }),
+      supabase
+        .from("blocked_periods")
+        .select("id, house_id, start_date, end_date, reason"),
+    ]);
+
+    setBlockedPeriods((blockedData || []) as BlockedPeriod[]);
 
     const userIds = [...new Set((bookingsData || []).map((b) => b.user_id))];
     const { data: profiles } = userIds.length > 0
