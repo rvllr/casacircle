@@ -69,6 +69,7 @@ const BookingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [newBookingOpen, setNewBookingOpen] = useState(false);
   const [newBookingStartDate, setNewBookingStartDate] = useState<Date | undefined>();
+  const [paymentFilter, setPaymentFilter] = useState<string>("all");
 
   const handleCalendarDayClick = (date: Date) => {
     // Only open dialog for available (future) days
