@@ -58,6 +58,7 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       setPhotoUrl(house.photo_url || "");
       setPhotoPreview(house.photo_url || null);
       setIsPublic(house.is_public || false);
+      setAutoApprove(house.booking_auto_approve || false);
       setCopied(false);
     }
     setOpen(isOpen);
@@ -118,6 +119,7 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
         capacity: capacity ? parseInt(capacity, 10) : null,
         photo_url: photoUrl.trim() || null,
         is_public: isPublic,
+        booking_auto_approve: autoApprove,
       } as any)
       .eq("id", house.id);
 
