@@ -307,8 +307,18 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
             </div>
           )}
 
+          {houseId && (
+            <p className="text-xs text-muted-foreground text-center">
+              {houses.find((h) => h.id === houseId)?.booking_auto_approve
+                ? "✅ Cette maison accepte les réservations automatiquement"
+                : "⏳ Cette maison nécessite une validation admin"}
+            </p>
+          )}
+
           <Button type="submit" className="w-full" disabled={loading || !houseId || !startDate || !endDate || !!conflict || checkingConflict}>
-            {checkingConflict ? "Vérification..." : loading ? "Envoi..." : "Demander la réservation"}
+            {checkingConflict ? "Vérification..." : loading ? "Envoi..." : 
+              houses.find((h) => h.id === houseId)?.booking_auto_approve ? "Réserver" : "Demander la réservation"
+            }
           </Button>
         </form>
       </DialogContent>
