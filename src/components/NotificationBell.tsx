@@ -204,8 +204,9 @@ const NotificationBell = () => {
                   </button>
                 );
               })}
-            </div>
-          )}
+              </div>
+            );
+          })()}
         </ScrollArea>
       </PopoverContent>
     </Popover>
