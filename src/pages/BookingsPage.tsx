@@ -11,8 +11,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2, Download } from "lucide-react";
+import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2, Download, CreditCard } from "lucide-react";
 import { exportBookingsCsv } from "@/lib/csvExport";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -26,10 +27,20 @@ interface BookingRow {
   end_date: string;
   status: string;
   created_at: string;
+  payment_status: string;
+  total_price: number | null;
+  amount_paid: number | null;
   houses: { name: string; family_id: string | null } | null;
   house_units: { name: string; type: string } | null;
   users_profiles: { first_name: string | null; last_name: string | null } | null;
 }
+
+const paymentStatusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  not_applicable: { label: "N/A", variant: "outline" },
+  unpaid: { label: "Non payé", variant: "destructive" },
+  partial: { label: "Partiel", variant: "secondary" },
+  paid: { label: "Payé", variant: "default" },
+};
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "En attente", variant: "secondary" },
@@ -52,6 +63,7 @@ const BookingsPage = () => {
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [blockedPeriods, setBlockedPeriods] = useState<BlockedPeriod[]>([]);
+  const [pricingActiveHouseIds, setPricingActiveHouseIds] = useState<Set<string>>(new Set());
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [newBookingOpen, setNewBookingOpen] = useState(false);
@@ -68,15 +80,21 @@ const BookingsPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const [{ data: bookingsData }, { data: blockedData }] = await Promise.all([
+    const [{ data: bookingsData }, { data: blockedData }, { data: pricingData }] = await Promise.all([
       supabase
         .from("bookings")
-        .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, houses(name, family_id), house_units(name, type)")
+        .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, payment_status, total_price, amount_paid, houses(name, family_id), house_units(name, type)")
         .order("start_date", { ascending: true }),
       supabase
         .from("blocked_periods")
         .select("id, house_id, start_date, end_date, reason"),
+      supabase
+        .from("house_pricing")
+        .select("house_id, is_active")
+        .eq("is_active", true),
     ]);
+
+    setPricingActiveHouseIds(new Set((pricingData || []).map((p) => p.house_id)));
 
     setBlockedPeriods((blockedData || []) as BlockedPeriod[]);
 
@@ -182,6 +200,20 @@ const BookingsPage = () => {
     } else {
       const messages = { approved: "Réservation confirmée !", refused: "Réservation refusée.", cancelled: "Réservation annulée." };
       toast({ title: messages[status] });
+      fetchData();
+    }
+  };
+
+  const updatePaymentStatus = async (bookingId: string, paymentStatus: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ payment_status: paymentStatus as any })
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Statut de paiement mis à jour" });
       fetchData();
     }
   };
@@ -335,9 +367,11 @@ const BookingsPage = () => {
                       formatDate={formatDate}
                       canManage={canManageBooking(b)}
                       canCancel={b.user_id === user?.id}
+                      hasPricing={pricingActiveHouseIds.has(b.house_id)}
                       onApprove={() => updateBookingStatus(b.id, "approved")}
                       onRefuse={() => updateBookingStatus(b.id, "refused")}
                       onCancel={() => updateBookingStatus(b.id, "cancelled")}
+                      onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
                     />
                   ))}
                 </div>
@@ -406,9 +440,11 @@ const BookingsPage = () => {
                       formatDate={formatDate}
                       canManage={b.status === "pending" && canManageBooking(b)}
                       canCancel={b.user_id === user?.id && (b.status === "pending" || b.status === "approved")}
+                      hasPricing={pricingActiveHouseIds.has(b.house_id)}
                       onApprove={() => updateBookingStatus(b.id, "approved")}
                       onRefuse={() => updateBookingStatus(b.id, "refused")}
                       onCancel={() => updateBookingStatus(b.id, "cancelled")}
+                      onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
                     />
                   ))}
                 </div>
@@ -428,9 +464,11 @@ const BookingCard = ({
   formatDate,
   canManage,
   canCancel = false,
+  hasPricing = false,
   onApprove,
   onRefuse,
   onCancel,
+  onPaymentStatusChange,
 }: {
   booking: BookingRow;
   label: string;
@@ -438,25 +476,40 @@ const BookingCard = ({
   formatDate: (d: string) => string;
   canManage: boolean;
   canCancel?: boolean;
+  hasPricing?: boolean;
   onApprove: () => void;
   onRefuse: () => void;
   onCancel?: () => void;
-}) => (
-  <Card className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
-    <CardContent className="p-4 sm:py-4 sm:px-5">
-      <div className="flex flex-col gap-2.5">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-medium text-sm sm:text-base text-foreground">{label}</p>
-            <Badge variant={statusConfig[booking.status]?.variant || "secondary"} className="text-[10px] sm:text-xs">
-              {statusConfig[booking.status]?.label || booking.status}
-            </Badge>
+  onPaymentStatusChange?: (status: string) => void;
+}) => {
+  const showPayment = hasPricing && booking.payment_status !== "not_applicable";
+  const showPaymentSelector = hasPricing && canManage;
+
+  return (
+    <Card className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
+      <CardContent className="p-4 sm:py-4 sm:px-5">
+        <div className="flex flex-col gap-2.5">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-medium text-sm sm:text-base text-foreground">{label}</p>
+              <Badge variant={statusConfig[booking.status]?.variant || "secondary"} className="text-[10px] sm:text-xs">
+                {statusConfig[booking.status]?.label || booking.status}
+              </Badge>
+              {showPayment && (
+                <Badge variant={paymentStatusConfig[booking.payment_status]?.variant || "outline"} className="text-[10px] sm:text-xs">
+                  <CreditCard className="h-3 w-3 mr-1" />
+                  {paymentStatusConfig[booking.payment_status]?.label || booking.payment_status}
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              {userName} · {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
+              {booking.total_price != null && (
+                <span className="ml-2 font-medium text-foreground">{Number(booking.total_price).toFixed(2)} €</span>
+              )}
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            {userName} · {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
-          </p>
-        </div>
-        {(canManage || canCancel) && (
+
           <div className="flex items-center gap-2 flex-wrap">
             {canManage && (
               <>
@@ -473,11 +526,24 @@ const BookingCard = ({
                 <X className="h-3.5 w-3.5 mr-1" /> Annuler
               </Button>
             )}
+            {showPaymentSelector && onPaymentStatusChange && (
+              <Select value={booking.payment_status} onValueChange={onPaymentStatusChange}>
+                <SelectTrigger className="h-8 w-[130px] text-xs rounded-lg">
+                  <CreditCard className="h-3.5 w-3.5 mr-1" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unpaid">Non payé</SelectItem>
+                  <SelectItem value="partial">Partiel</SelectItem>
+                  <SelectItem value="paid">Payé</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-);
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default BookingsPage;
