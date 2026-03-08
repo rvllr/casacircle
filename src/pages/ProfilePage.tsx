@@ -17,6 +17,7 @@ const ProfilePage = () => {
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -27,12 +28,13 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
       const { data } = await supabase
         .from("users_profiles")
-        .select("first_name, last_name, avatar_url")
+        .select("first_name, last_name, avatar_url, phone")
         .eq("user_id", user.id)
         .single();
       if (data) {
         setFirstName(data.first_name || "");
         setLastName(data.last_name || "");
+        setPhone((data as any).phone || "");
         setAvatarUrl(data.avatar_url);
       }
       setLoading(false);
@@ -93,7 +95,8 @@ const ProfilePage = () => {
       .update({
         first_name: firstName.trim() || null,
         last_name: lastName.trim() || null,
-      })
+        phone: phone.trim() || null,
+      } as any)
       .eq("user_id", user.id);
 
     if (error) {
@@ -186,6 +189,10 @@ const ProfilePage = () => {
                 <Label>Nom</Label>
                 <Input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Votre nom" maxLength={50} />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Téléphone</Label>
+              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="06 12 34 56 78" maxLength={20} />
             </div>
             <Button onClick={handleSave} disabled={saving} className="w-full">
               <Save className="h-4 w-4 mr-2" />

@@ -32,7 +32,7 @@ interface HouseMember {
   id: string;
   user_id: string;
   role: string;
-  profile?: { first_name: string | null; last_name: string | null; email: string | null };
+  profile?: { first_name: string | null; last_name: string | null; email: string | null; phone: string | null };
 }
 
 interface HouseUnit {
@@ -98,7 +98,7 @@ const HouseDetailPage = () => {
     const membersList = membersData || [];
     const userIds = membersList.map((m) => m.user_id);
     const { data: profiles } = userIds.length > 0
-      ? await supabase.from("users_profiles").select("user_id, first_name, last_name, email").in("user_id", userIds)
+      ? await supabase.from("users_profiles").select("user_id, first_name, last_name, email, phone").in("user_id", userIds)
       : { data: [] };
     const profMap = Object.fromEntries((profiles || []).map((p) => [p.user_id, p]));
 
@@ -324,7 +324,7 @@ const HouseDetailPage = () => {
               </div>
             )}
 
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="space-y-3">
               {members.map((m) => {
                 const roleConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline"; icon: typeof Crown }> = {
                   admin: { label: "Admin", variant: "default", icon: Crown },
@@ -333,39 +333,46 @@ const HouseDetailPage = () => {
                 };
                 const rc = roleConfig[m.role] || roleConfig.member;
                 const RoleIcon = rc.icon;
+                const fullName = [m.profile?.first_name, m.profile?.last_name].filter(Boolean).join(" ") || "Membre";
 
                 return (
                   <Card key={m.id}>
-                    <CardContent className="flex items-center gap-3 p-4">
-                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                    <CardContent className="flex items-start gap-4 p-4">
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
                         <RoleIcon className={`h-5 w-5 ${m.role === "admin" ? "text-primary" : "text-muted-foreground"}`} />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {m.profile?.first_name || "Membre"}
-                          {m.profile?.last_name ? ` ${m.profile.last_name}` : ""}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {m.profile?.email}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {isAdmin && m.user_id !== user?.id ? (
-                          <select
-                            value={m.role}
-                            onChange={async (e) => {
-                              await supabase.from("house_members").update({ role: e.target.value }).eq("id", m.id);
-                              fetchHouse();
-                            }}
-                            className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground"
-                          >
-                            <option value="admin">Admin</option>
-                            <option value="member">Membre</option>
-                            <option value="guest">Invité</option>
-                          </select>
-                        ) : (
-                          <Badge variant={rc.variant} className="text-xs">{rc.label}</Badge>
-                        )}
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-foreground truncate">{fullName}</p>
+                          {isAdmin && m.user_id !== user?.id ? (
+                            <select
+                              value={m.role}
+                              onChange={async (e) => {
+                                await supabase.from("house_members").update({ role: e.target.value }).eq("id", m.id);
+                                fetchHouse();
+                              }}
+                              className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground ml-auto shrink-0"
+                            >
+                              <option value="admin">Admin</option>
+                              <option value="member">Membre</option>
+                              <option value="guest">Invité</option>
+                            </select>
+                          ) : (
+                            <Badge variant={rc.variant} className="text-xs ml-auto shrink-0">{rc.label}</Badge>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                          {m.profile?.email && (
+                            <span className="flex items-center gap-1">
+                              ✉️ {m.profile.email}
+                            </span>
+                          )}
+                          {m.profile?.phone && (
+                            <span className="flex items-center gap-1">
+                              📞 {m.profile.phone}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

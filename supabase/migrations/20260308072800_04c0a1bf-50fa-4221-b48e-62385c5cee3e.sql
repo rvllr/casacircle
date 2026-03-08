@@ -1,0 +1,1 @@
+ALTER TABLE public.users_profiles ADD COLUMN phone text DEFAULT NULL;
