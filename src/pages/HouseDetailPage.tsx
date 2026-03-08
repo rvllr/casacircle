@@ -6,6 +6,7 @@ import AppLayout from "@/components/AppLayout";
 import AddUnitDialog from "@/components/AddUnitDialog";
 import InviteToHouseDialog from "@/components/InviteToHouseDialog";
 import HouseGuideEditor from "@/components/HouseGuideEditor";
+import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -152,10 +153,7 @@ const HouseDetailPage = () => {
             <div className="space-y-2">
               <h1 className="text-3xl md:text-4xl font-display text-foreground">{house.name}</h1>
               {house.location && (
-                <p className="text-muted-foreground flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4 flex-shrink-0" />
-                  {house.location}
-                </p>
+                <LocationMap location={house.location} />
               )}
               {house.description && (
                 <p className="text-muted-foreground max-w-xl">{house.description}</p>
