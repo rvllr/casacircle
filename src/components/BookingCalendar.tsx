@@ -8,6 +8,8 @@ import { fr } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Calendar as CalIcon, Columns3, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
 interface CalendarBooking {
@@ -232,12 +234,29 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <button
-            onClick={goToToday}
-            className="font-display text-sm sm:text-lg text-foreground capitalize hover:text-primary transition-colors"
-          >
-            {getHeaderLabel()}
-          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="font-display text-sm sm:text-lg text-foreground capitalize hover:text-primary transition-colors"
+              >
+                {getHeaderLabel()}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="center">
+              <Calendar
+                mode="single"
+                selected={view === "month" ? month : currentDate}
+                onSelect={(date) => {
+                  if (!date) return;
+                  setCurrentDate(date);
+                  onMonthChange(startOfMonth(date));
+                  setSelectedDay(null);
+                }}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(1)}>
             <ChevronRight className="h-4 w-4" />
           </Button>
