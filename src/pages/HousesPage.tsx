@@ -127,6 +127,24 @@ const HousesPage = () => {
       setHouseMembers(grouped);
     }
 
+    // Fetch house_units for all houses
+    const allHouseIds = houses.map((h) => h.id);
+    if (allHouseIds.length > 0) {
+      const { data: unitsData } = await supabase
+        .from("house_units")
+        .select("id, house_id, name, type, parent_id, capacity")
+        .in("house_id", allHouseIds)
+        .order("type", { ascending: true })
+        .order("name", { ascending: true });
+
+      const unitsGrouped: Record<string, HouseUnit[]> = {};
+      (unitsData || []).forEach((u: any) => {
+        if (!unitsGrouped[u.house_id]) unitsGrouped[u.house_id] = [];
+        unitsGrouped[u.house_id].push(u);
+      });
+      setHouseUnits(unitsGrouped);
+    }
+
     // Fetch family members + profiles
     const allMemberUserIds: string[] = [];
     let allMembers: any[] = [];
