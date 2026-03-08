@@ -8,7 +8,8 @@ import NewExpenseDialog from "@/components/NewExpenseDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Receipt, ArrowUpRight, ArrowDownRight, Scale } from "lucide-react";
+import { Receipt, ArrowUpRight, ArrowDownRight, Scale, Download } from "lucide-react";
+import { exportExpensesCsv } from "@/lib/csvExport";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -158,10 +159,32 @@ const ExpensesPage = () => {
           </Card>
         ) : (
           <Tabs defaultValue="summary" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="summary">Résumé</TabsTrigger>
-              <TabsTrigger value="list">Historique</TabsTrigger>
-            </TabsList>
+            <div className="flex items-center justify-between">
+              <TabsList>
+                <TabsTrigger value="summary">Résumé</TabsTrigger>
+                <TabsTrigger value="list">Historique</TabsTrigger>
+              </TabsList>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={() => {
+                  exportExpensesCsv(
+                    filteredExpenses.map((e) => ({
+                      description: e.description,
+                      amount: e.amount,
+                      category: e.category || "autre",
+                      paidBy: getName(e.paid_by),
+                      houseName: e.houses?.name || "Maison",
+                      date: e.expense_date || e.created_at,
+                    }))
+                  );
+                }}
+              >
+                <Download className="h-3.5 w-3.5 mr-1" />
+                Export CSV
+              </Button>
+            </div>
 
             <TabsContent value="summary" className="space-y-4">
               <Card>
