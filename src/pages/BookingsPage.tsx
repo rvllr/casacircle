@@ -252,7 +252,7 @@ const BookingsPage = () => {
                       end_date: bp.end_date,
                       reason: bp.reason,
                     }))}
-                  
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
