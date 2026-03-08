@@ -131,8 +131,43 @@ const BookingsPage = () => {
       .sort((a, b) => b.days - a.days);
   }, [filteredBookings]);
 
+  const [adminHouseIds, setAdminHouseIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("house_members")
+      .select("house_id, role")
+      .eq("user_id", user.id)
+      .in("role", ["admin", "owner"])
+      .then(({ data }) => {
+        const ids = new Set((data || []).map((d) => d.house_id));
+        // Also check family admin status via houses with family_id
+        supabase
+          .from("family_members")
+          .select("family_id")
+          .eq("user_id", user.id)
+          .eq("role", "admin")
+          .then(({ data: famData }) => {
+            if (famData && famData.length > 0) {
+              const familyIds = famData.map((f) => f.family_id);
+              supabase
+                .from("houses")
+                .select("id")
+                .in("family_id", familyIds)
+                .then(({ data: famHouses }) => {
+                  (famHouses || []).forEach((h) => ids.add(h.id));
+                  setAdminHouseIds(new Set(ids));
+                });
+            } else {
+              setAdminHouseIds(ids);
+            }
+          });
+      });
+  }, [user]);
+
   const canManageBooking = (booking: BookingRow) => {
-    return booking.user_id !== user?.id;
+    return adminHouseIds.has(booking.house_id);
   };
 
   const updateBookingStatus = async (bookingId: string, status: "approved" | "refused" | "cancelled") => {
