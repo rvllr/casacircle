@@ -392,6 +392,71 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
         </div>
       )}
 
+      {/* YEAR VIEW */}
+      {view === "year" && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {Array.from({ length: 12 }, (_, monthIdx) => {
+            const yearDate = new Date(month.getFullYear(), monthIdx, 1);
+            const monthStart = startOfMonth(yearDate);
+            const monthEnd = endOfMonth(yearDate);
+            const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+            const startPad = (getDay(monthStart) + 6) % 7;
+            const paddedDays: (Date | null)[] = [...Array(startPad).fill(null), ...days];
+
+            return (
+              <div
+                key={monthIdx}
+                className="space-y-1"
+              >
+                <button
+                  onClick={() => {
+                    onMonthChange(yearDate);
+                    setView("month");
+                  }}
+                  className="text-xs sm:text-sm font-display text-foreground capitalize hover:text-primary transition-colors w-full text-left px-1"
+                >
+                  {format(yearDate, "MMMM", { locale: fr })}
+                </button>
+                <div className="grid grid-cols-7 gap-px">
+                  {["L", "M", "M", "J", "V", "S", "D"].map((d, i) => (
+                    <div key={i} className="text-center text-[7px] sm:text-[8px] text-muted-foreground font-medium py-0.5">
+                      {d}
+                    </div>
+                  ))}
+                  {paddedDays.map((day, i) => {
+                    if (!day) return <div key={`pad-${i}`} />;
+                    const status = getDayStatus(day);
+                    const dayBookings = getBookingsForDay(day);
+                    return (
+                      <button
+                        key={day.toISOString()}
+                        onClick={() => {
+                          onMonthChange(startOfMonth(day));
+                          setCurrentDate(day);
+                          setView("day");
+                        }}
+                        className={cn(
+                          "aspect-square flex items-center justify-center text-[8px] sm:text-[10px] rounded-sm transition-colors",
+                          status === "available" && "text-foreground hover:bg-accent/40",
+                          status === "pending" && "bg-secondary text-secondary-foreground",
+                          status === "booked" && "bg-destructive/20 text-destructive font-semibold",
+                          status === "blocked" && "bg-muted text-muted-foreground/40 line-through",
+                          status === "past" && "text-muted-foreground/30",
+                          isToday(day) && "ring-1 ring-primary font-bold",
+                        )}
+                        title={dayBookings.length > 0 ? dayBookings.map(b => b.userName || "Réservation").join(", ") : undefined}
+                      >
+                        {format(day, "d")}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Selected day detail (month/week views) */}
       {view !== "day" && selectedDay && (
         <div className="border border-border rounded-lg p-3 space-y-2 bg-muted/30">
