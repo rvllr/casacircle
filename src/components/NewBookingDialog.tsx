@@ -366,6 +366,22 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
             );
           })()}
 
+          {/* Payment info */}
+          {pricing?.is_active && (pricing.payment_method === "declarative" || pricing.payment_method === "both") && (
+            <div className="p-3 rounded-lg bg-muted/50 border border-border text-sm space-y-1.5">
+              <p className="font-medium text-foreground text-xs">💳 Paiement accepté</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(pricing.accepted_payments || []).map((p: string) => {
+                  const labels: Record<string, string> = { virement: "Virement", cheque: "Chèque", liquide: "Espèces" };
+                  return <span key={p} className="inline-flex items-center px-2 py-0.5 rounded-full bg-background border border-border text-xs text-muted-foreground">{labels[p] || p}</span>;
+                })}
+              </div>
+              {pricing.payment_instructions && (
+                <p className="text-xs text-muted-foreground whitespace-pre-line mt-1">{pricing.payment_instructions}</p>
+              )}
+            </div>
+          )}
+
           {houseId && (
             <p className="text-xs text-muted-foreground text-center">
               {houses.find((h) => h.id === houseId)?.booking_auto_approve
