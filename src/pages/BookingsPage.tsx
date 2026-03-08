@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
 import BookingCalendar from "@/components/BookingCalendar";
 import NewBookingDialog from "@/components/NewBookingDialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,18 +17,20 @@ import { useToast } from "@/hooks/use-toast";
 interface House {
   id: string;
   name: string;
-  family_id: string;
+  family_id: string | null;
 }
 
 interface BookingRow {
   id: string;
   house_id: string;
+  unit_id: string | null;
   user_id: string;
   start_date: string;
   end_date: string;
   status: string;
   created_at: string;
-  houses: { name: string; family_id: string } | null;
+  houses: { name: string; family_id: string | null } | null;
+  house_units: { name: string; type: string } | null;
   users_profiles: { first_name: string | null; last_name: string | null } | null;
 }
 
@@ -46,38 +48,23 @@ const BookingsPage = () => {
   const [selectedHouse, setSelectedHouse] = useState<string>("all");
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
-  const [adminFamilyIds, setAdminFamilyIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
 
-    // Get admin families
-    const { data: memberData } = await supabase
-      .from("family_members")
-      .select("family_id, role")
-      .eq("user_id", user.id);
-
-    const adminIds = (memberData || [])
-      .filter((m) => m.role === "admin")
-      .map((m) => m.family_id);
-    setAdminFamilyIds(adminIds);
-
-    // Get houses
     const { data: housesData } = await supabase
       .from("houses")
       .select("id, name, family_id");
-
     setHouses(housesData || []);
 
-    // Get bookings with profile info (separate query since no FK)
+    // Get bookings with unit info
     const { data: bookingsData } = await supabase
       .from("bookings")
-      .select("id, house_id, user_id, start_date, end_date, status, created_at, houses(name, family_id)")
+      .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, houses(name, family_id), house_units(name, type)")
       .order("start_date", { ascending: true });
 
-    // Get profiles for booking users
     const userIds = [...new Set((bookingsData || []).map((b) => b.user_id))];
     const { data: profiles } = userIds.length > 0
       ? await supabase.from("users_profiles").select("user_id, first_name, last_name").in("user_id", userIds)
@@ -88,6 +75,7 @@ const BookingsPage = () => {
     const enriched: BookingRow[] = (bookingsData || []).map((b) => ({
       ...b,
       houses: b.houses as BookingRow["houses"],
+      house_units: b.house_units as BookingRow["house_units"],
       users_profiles: profileMap[b.user_id] || null,
     }));
 
@@ -106,13 +94,11 @@ const BookingsPage = () => {
   const calendarBookings = filteredBookings.filter(
     (b) => b.status === "approved" || b.status === "pending"
   );
-
   const pendingBookings = filteredBookings.filter((b) => b.status === "pending");
-  const allBookings = filteredBookings;
 
   const canManageBooking = (booking: BookingRow) => {
-    const familyId = booking.houses?.family_id;
-    return familyId ? adminFamilyIds.includes(familyId) : false;
+    // House admin check is done via house_members or family admin
+    return booking.user_id !== user?.id; // Show buttons for others' bookings
   };
 
   const updateBookingStatus = async (bookingId: string, status: "approved" | "refused") => {
@@ -140,6 +126,15 @@ const BookingsPage = () => {
     return "Membre";
   };
 
+  const getBookingLabel = (b: BookingRow) => {
+    const houseName = b.houses?.name || "Maison";
+    if (b.house_units) {
+      const icon = b.house_units.type === "building" ? "🏘️" : "🛏️";
+      return `${houseName} — ${icon} ${b.house_units.name}`;
+    }
+    return houseName;
+  };
+
   if (loading) {
     return (
       <AppLayout title="Réservations">
@@ -153,7 +148,6 @@ const BookingsPage = () => {
   return (
     <AppLayout title="Réservations">
       <div className="space-y-6 max-w-5xl">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-display text-foreground">Réservations</h2>
@@ -162,7 +156,6 @@ const BookingsPage = () => {
           <NewBookingDialog onCreated={fetchData} />
         </div>
 
-        {/* House filter */}
         {houses.length > 1 && (
           <div className="flex items-center gap-3">
             <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -185,7 +178,7 @@ const BookingsPage = () => {
             <CardContent className="py-12 text-center">
               <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-xl text-foreground mb-2">Aucune maison</h3>
-              <p className="text-muted-foreground">Créez d'abord une famille et une maison pour commencer à réserver.</p>
+              <p className="text-muted-foreground">Créez d'abord une maison pour commencer à réserver.</p>
             </CardContent>
           </Card>
         ) : (
@@ -203,7 +196,6 @@ const BookingsPage = () => {
               <TabsTrigger value="all">Toutes</TabsTrigger>
             </TabsList>
 
-            {/* Calendar tab */}
             <TabsContent value="calendar">
               <Card>
                 <CardContent className="pt-6">
@@ -216,7 +208,6 @@ const BookingsPage = () => {
               </Card>
             </TabsContent>
 
-            {/* Pending tab */}
             <TabsContent value="pending">
               {pendingBookings.length === 0 ? (
                 <Card>
@@ -227,51 +218,23 @@ const BookingsPage = () => {
               ) : (
                 <div className="space-y-3">
                   {pendingBookings.map((b) => (
-                    <Card key={b.id}>
-                      <CardContent className="py-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium text-foreground">{b.houses?.name}</p>
-                              <Badge variant="secondary">En attente</Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {getUserName(b)} · {formatDate(b.start_date)} → {formatDate(b.end_date)}
-                            </p>
-                          </div>
-                          {canManageBooking(b) && (
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-sage border-sage/30 hover:bg-sage/10"
-                                onClick={() => updateBookingStatus(b.id, "approved")}
-                              >
-                                <Check className="h-4 w-4 mr-1" />
-                                Accepter
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-destructive border-destructive/30 hover:bg-destructive/10"
-                                onClick={() => updateBookingStatus(b.id, "refused")}
-                              >
-                                <X className="h-4 w-4 mr-1" />
-                                Refuser
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <BookingCard
+                      key={b.id}
+                      booking={b}
+                      label={getBookingLabel(b)}
+                      userName={getUserName(b)}
+                      formatDate={formatDate}
+                      canManage={canManageBooking(b)}
+                      onApprove={() => updateBookingStatus(b.id, "approved")}
+                      onRefuse={() => updateBookingStatus(b.id, "refused")}
+                    />
                   ))}
                 </div>
               )}
             </TabsContent>
 
-            {/* All bookings tab */}
             <TabsContent value="all">
-              {allBookings.length === 0 ? (
+              {filteredBookings.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center">
                     <p className="text-muted-foreground">Aucune réservation.</p>
@@ -279,46 +242,17 @@ const BookingsPage = () => {
                 </Card>
               ) : (
                 <div className="space-y-3">
-                  {allBookings.map((b) => (
-                    <Card key={b.id}>
-                      <CardContent className="py-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium text-foreground">{b.houses?.name}</p>
-                              <Badge variant={statusConfig[b.status]?.variant || "secondary"}>
-                                {statusConfig[b.status]?.label || b.status}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {getUserName(b)} · {formatDate(b.start_date)} → {formatDate(b.end_date)}
-                            </p>
-                          </div>
-                          {b.status === "pending" && canManageBooking(b) && (
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-sage border-sage/30 hover:bg-sage/10"
-                                onClick={() => updateBookingStatus(b.id, "approved")}
-                              >
-                                <Check className="h-4 w-4 mr-1" />
-                                Accepter
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-destructive border-destructive/30 hover:bg-destructive/10"
-                                onClick={() => updateBookingStatus(b.id, "refused")}
-                              >
-                                <X className="h-4 w-4 mr-1" />
-                                Refuser
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
+                  {filteredBookings.map((b) => (
+                    <BookingCard
+                      key={b.id}
+                      booking={b}
+                      label={getBookingLabel(b)}
+                      userName={getUserName(b)}
+                      formatDate={formatDate}
+                      canManage={b.status === "pending" && canManageBooking(b)}
+                      onApprove={() => updateBookingStatus(b.id, "approved")}
+                      onRefuse={() => updateBookingStatus(b.id, "refused")}
+                    />
                   ))}
                 </div>
               )}
@@ -329,5 +263,51 @@ const BookingsPage = () => {
     </AppLayout>
   );
 };
+
+const BookingCard = ({
+  booking,
+  label,
+  userName,
+  formatDate,
+  canManage,
+  onApprove,
+  onRefuse,
+}: {
+  booking: BookingRow;
+  label: string;
+  userName: string;
+  formatDate: (d: string) => string;
+  canManage: boolean;
+  onApprove: () => void;
+  onRefuse: () => void;
+}) => (
+  <Card>
+    <CardContent className="py-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="font-medium text-foreground">{label}</p>
+            <Badge variant={statusConfig[booking.status]?.variant || "secondary"}>
+              {statusConfig[booking.status]?.label || booking.status}
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {userName} · {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
+          </p>
+        </div>
+        {canManage && (
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={onApprove}>
+              <Check className="h-4 w-4 mr-1" /> Accepter
+            </Button>
+            <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onRefuse}>
+              <X className="h-4 w-4 mr-1" /> Refuser
+            </Button>
+          </div>
+        )}
+      </div>
+    </CardContent>
+  </Card>
+);
 
 export default BookingsPage;
