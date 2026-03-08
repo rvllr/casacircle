@@ -291,8 +291,16 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !houseId || !startDate || !endDate}>
-            {loading ? "Envoi..." : "Demander la réservation"}
+          {/* Conflict warning */}
+          {conflict && (
+            <div className="flex items-start gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+              <span className="shrink-0 mt-0.5">⚠️</span>
+              <span>{conflict}</span>
+            </div>
+          )}
+
+          <Button type="submit" className="w-full" disabled={loading || !houseId || !startDate || !endDate || !!conflict || checkingConflict}>
+            {checkingConflict ? "Vérification..." : loading ? "Envoi..." : "Demander la réservation"}
           </Button>
         </form>
       </DialogContent>
