@@ -43,6 +43,15 @@ const BookingsPage = () => {
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
+  const [newBookingOpen, setNewBookingOpen] = useState(false);
+  const [newBookingStartDate, setNewBookingStartDate] = useState<Date | undefined>();
+
+  const handleCalendarDayClick = (date: Date) => {
+    // Only open dialog for available (future) days
+    if (date < new Date(new Date().toDateString())) return;
+    setNewBookingStartDate(date);
+    setNewBookingOpen(true);
+  };
 
   const fetchData = useCallback(async () => {
     if (!user) return;
@@ -162,7 +171,12 @@ const BookingsPage = () => {
             <h2 className="text-2xl md:text-3xl font-display text-foreground">Réservations</h2>
             <p className="text-muted-foreground mt-1">Planifiez et gérez les séjours.</p>
           </div>
-          <NewBookingDialog onCreated={fetchData} />
+          <NewBookingDialog
+            onCreated={fetchData}
+            externalOpen={newBookingOpen}
+            onExternalOpenChange={setNewBookingOpen}
+            initialStartDate={newBookingStartDate}
+          />
         </div>
 
         <HouseSelector />
@@ -200,6 +214,7 @@ const BookingsPage = () => {
                   <BookingCalendar
                     month={calendarMonth}
                     onMonthChange={setCalendarMonth}
+                    onDayClick={handleCalendarDayClick}
                     bookings={calendarBookings.map((b) => ({
                       start_date: b.start_date,
                       end_date: b.end_date,
@@ -207,7 +222,8 @@ const BookingsPage = () => {
                       userName: [b.users_profiles?.first_name, b.users_profiles?.last_name].filter(Boolean).join(" ") || undefined,
                       houseName: selectedHouseId === "all" ? (b.houses?.name || undefined) : undefined,
                       unitName: b.house_units?.name || undefined,
-                    }))}
+                    }))
+                  }
                   />
                 </CardContent>
               </Card>
