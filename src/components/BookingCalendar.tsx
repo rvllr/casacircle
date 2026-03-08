@@ -249,6 +249,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
             { mode: "day" as ViewMode, icon: CalIcon, label: "Jour" },
             { mode: "week" as ViewMode, icon: Columns3, label: "Semaine" },
             { mode: "month" as ViewMode, icon: LayoutGrid, label: "Mois" },
+            { mode: "year" as ViewMode, icon: Grid3X3, label: "Année" },
           ]).map(({ mode, icon: Icon, label }) => (
             <button
               key={mode}
