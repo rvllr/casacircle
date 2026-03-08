@@ -244,6 +244,7 @@ const HousesPage = () => {
                       key={house.id}
                       house={house}
                       members={houseMembers[house.id] || []}
+                      units={houseUnits[house.id] || []}
                       isOwner={house.owner_id === user?.id}
                       onRefresh={fetchData}
                     />
@@ -265,6 +266,7 @@ const HousesPage = () => {
                           key={house.id}
                           house={house}
                           members={[]}
+                          units={houseUnits[house.id] || []}
                           isOwner={family.userRole === "admin"}
                           onRefresh={fetchData}
                           familyName={family.name}
@@ -336,6 +338,7 @@ const HousesPage = () => {
                             key={house.id}
                             house={house}
                             members={[]}
+                            units={houseUnits[house.id] || []}
                             isOwner={family.userRole === "admin"}
                             onRefresh={fetchData}
                           />
