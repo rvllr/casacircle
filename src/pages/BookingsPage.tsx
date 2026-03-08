@@ -109,7 +109,7 @@ const BookingsPage = () => {
     return booking.user_id !== user?.id;
   };
 
-  const updateBookingStatus = async (bookingId: string, status: "approved" | "refused") => {
+  const updateBookingStatus = async (bookingId: string, status: "approved" | "refused" | "cancelled") => {
     const { error } = await supabase
       .from("bookings")
       .update({ status })
@@ -118,7 +118,8 @@ const BookingsPage = () => {
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: status === "approved" ? "Réservation confirmée !" : "Réservation refusée." });
+      const messages = { approved: "Réservation confirmée !", refused: "Réservation refusée.", cancelled: "Réservation annulée." };
+      toast({ title: messages[status] });
       fetchData();
     }
   };
@@ -229,8 +230,10 @@ const BookingsPage = () => {
                       userName={getUserName(b)}
                       formatDate={formatDate}
                       canManage={canManageBooking(b)}
+                      canCancel={b.user_id === user?.id}
                       onApprove={() => updateBookingStatus(b.id, "approved")}
                       onRefuse={() => updateBookingStatus(b.id, "refused")}
+                      onCancel={() => updateBookingStatus(b.id, "cancelled")}
                     />
                   ))}
                 </div>
@@ -298,8 +301,10 @@ const BookingsPage = () => {
                       userName={getUserName(b)}
                       formatDate={formatDate}
                       canManage={b.status === "pending" && canManageBooking(b)}
+                      canCancel={b.user_id === user?.id && (b.status === "pending" || b.status === "approved")}
                       onApprove={() => updateBookingStatus(b.id, "approved")}
                       onRefuse={() => updateBookingStatus(b.id, "refused")}
+                      onCancel={() => updateBookingStatus(b.id, "cancelled")}
                     />
                   ))}
                 </div>
@@ -318,16 +323,20 @@ const BookingCard = ({
   userName,
   formatDate,
   canManage,
+  canCancel = false,
   onApprove,
   onRefuse,
+  onCancel,
 }: {
   booking: BookingRow;
   label: string;
   userName: string;
   formatDate: (d: string) => string;
   canManage: boolean;
+  canCancel?: boolean;
   onApprove: () => void;
   onRefuse: () => void;
+  onCancel?: () => void;
 }) => (
   <Card>
     <CardContent className="py-4">
@@ -343,16 +352,23 @@ const BookingCard = ({
             {userName} · {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
           </p>
         </div>
-        {canManage && (
-          <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={onApprove}>
-              <Check className="h-4 w-4 mr-1" /> Accepter
+        <div className="flex items-center gap-2">
+          {canManage && (
+            <>
+              <Button size="sm" variant="outline" onClick={onApprove}>
+                <Check className="h-4 w-4 mr-1" /> Accepter
+              </Button>
+              <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onRefuse}>
+                <X className="h-4 w-4 mr-1" /> Refuser
+              </Button>
+            </>
+          )}
+          {canCancel && onCancel && (
+            <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onCancel}>
+              <X className="h-4 w-4 mr-1" /> Annuler
             </Button>
-            <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onRefuse}>
-              <X className="h-4 w-4 mr-1" /> Refuser
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </CardContent>
   </Card>
