@@ -240,6 +240,46 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
               placeholder="Ex : 8"
             />
           </div>
+
+          {/* Public toggle */}
+          <Separator />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-primary" />
+                  Page publique
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Partagez une page avec les infos du bien
+                </p>
+              </div>
+              <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+            </div>
+            {isPublic && (
+              <div className="flex items-center gap-2">
+                <Input
+                  readOnly
+                  value={`${window.location.origin}/p/${house.id}`}
+                  className="text-xs h-8 bg-muted"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 h-8"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/p/${house.id}`);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                >
+                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                </Button>
+              </div>
+            )}
+          </div>
+
           <Button type="submit" className="w-full" disabled={loading || !name.trim()}>
             {loading ? "Enregistrement..." : "Enregistrer"}
           </Button>
