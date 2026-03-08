@@ -35,7 +35,7 @@ interface BookingCalendarProps {
   onDayClick?: (date: Date) => void;
 }
 
-type ViewMode = "month" | "week" | "day";
+type ViewMode = "month" | "week" | "day" | "year";
 
 const WEEKDAYS_SHORT = ["L", "M", "M", "J", "V", "S", "D"];
 const WEEKDAYS_FULL = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
