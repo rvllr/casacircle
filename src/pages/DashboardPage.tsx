@@ -82,17 +82,25 @@ const DashboardPage = () => {
         .order("created_at", { ascending: false })
         .limit(5);
 
+      let newsQuery = supabase
+        .from("house_news")
+        .select("id, title, content, created_at, created_by, house_id, houses(name)")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
       if (selectedHouseId !== "all") {
         bookingsQuery = bookingsQuery.eq("house_id", selectedHouseId);
         expensesQuery = expensesQuery.eq("house_id", selectedHouseId);
         memoriesQuery = memoriesQuery.eq("house_id", selectedHouseId);
+        newsQuery = newsQuery.eq("house_id", selectedHouseId);
       }
 
-      const [profileRes, bookingsRes, expensesRes, memoriesRes] = await Promise.all([
+      const [profileRes, bookingsRes, expensesRes, memoriesRes, newsRes] = await Promise.all([
         supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
         bookingsQuery,
         expensesQuery,
         memoriesQuery,
+        newsQuery,
       ]);
 
       if (profileRes.data) setMyProfile(profileRes.data);
