@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          created_at: string
+          end_date: string
+          house_id: string
+          id: string
+          start_date: string
+          status: Database["public"]["Enums"]["booking_status"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          house_id: string
+          id?: string
+          start_date: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          house_id?: string
+          id?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       families: {
         Row: {
           created_at: string
@@ -67,6 +105,152 @@ export type Database = {
           },
         ]
       }
+      house_memories: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          house_id: string
+          id: string
+          title: string
+          visit_end: string | null
+          visit_start: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          house_id: string
+          id?: string
+          title: string
+          visit_end?: string | null
+          visit_start?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          house_id?: string
+          id?: string
+          title?: string
+          visit_end?: string | null
+          visit_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "house_memories_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      house_news: {
+        Row: {
+          content: string | null
+          created_at: string
+          created_by: string
+          house_id: string
+          id: string
+          title: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          created_by: string
+          house_id: string
+          id?: string
+          title: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          created_by?: string
+          house_id?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "house_news_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      houses: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          description: string | null
+          family_id: string
+          id: string
+          location: string | null
+          name: string
+          photo_url: string | null
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          family_id: string
+          id?: string
+          location?: string | null
+          name: string
+          photo_url?: string | null
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          family_id?: string
+          id?: string
+          location?: string | null
+          name?: string
+          photo_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "houses_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memory_photos: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          memory_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          memory_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          memory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_photos_memory_id_fkey"
+            columns: ["memory_id"]
+            isOneToOne: false
+            referencedRelation: "house_memories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users_profiles: {
         Row: {
           avatar_url: string | null
@@ -105,6 +289,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_family_id_from_house: { Args: { _house_id: string }; Returns: string }
+      get_house_id_from_memory: {
+        Args: { _memory_id: string }
+        Returns: string
+      }
       is_family_admin: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
@@ -115,6 +304,7 @@ export type Database = {
       }
     }
     Enums: {
+      booking_status: "pending" | "approved" | "refused" | "cancelled"
       family_role: "admin" | "member"
     }
     CompositeTypes: {
@@ -243,6 +433,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      booking_status: ["pending", "approved", "refused", "cancelled"],
       family_role: ["admin", "member"],
     },
   },
