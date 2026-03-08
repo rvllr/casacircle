@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Bell, Check, CalendarDays, X } from "lucide-react";
+import { Bell, Check, CalendarDays, X, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -24,11 +24,13 @@ interface Notification {
   house_id: string | null;
 }
 
-const typeIcons: Record<string, { icon: typeof Bell; color: string }> = {
+const typeIcons: Record<string, { icon: typeof Bell; color: string; badge?: string; badgeVariant?: "destructive" | "secondary" }> = {
   booking_new: { icon: CalendarDays, color: "text-primary" },
   booking_approved: { icon: Check, color: "text-accent" },
   booking_refused: { icon: X, color: "text-destructive" },
   booking_cancelled: { icon: X, color: "text-muted-foreground" },
+  payment_overdue: { icon: AlertCircle, color: "text-destructive", badge: "Paiement", badgeVariant: "destructive" },
+  payment_overdue_admin: { icon: AlertCircle, color: "text-destructive", badge: "Paiement", badgeVariant: "destructive" },
 };
 
 const NotificationBell = () => {
@@ -122,7 +124,7 @@ const NotificationBell = () => {
           ) : (
             <div className="divide-y divide-border">
               {notifications.map((n) => {
-                const config = typeIcons[n.type] || typeIcons.booking_new;
+                const config = typeIcons[n.type] || { icon: Bell, color: "text-primary" };
                 const Icon = config.icon;
                 return (
                   <button
@@ -132,7 +134,8 @@ const NotificationBell = () => {
                     }}
                     className={cn(
                       "w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex gap-3",
-                      !n.is_read && "bg-primary/5"
+                      !n.is_read && "bg-primary/5",
+                      config.badge && !n.is_read && "bg-destructive/5"
                     )}
                   >
                     <div className={cn("mt-0.5 shrink-0", config.color)}>
@@ -143,6 +146,11 @@ const NotificationBell = () => {
                         <p className={cn("text-sm truncate", !n.is_read ? "font-medium text-foreground" : "text-muted-foreground")}>
                           {n.title}
                         </p>
+                        {config.badge && (
+                          <Badge variant={config.badgeVariant || "secondary"} className="text-[9px] px-1.5 py-0 h-4 shrink-0">
+                            {config.badge}
+                          </Badge>
+                        )}
                         {!n.is_read && (
                           <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
                         )}
