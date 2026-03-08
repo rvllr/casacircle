@@ -1,1 +1,4 @@
 project_id = "rvibaxrzubrsjummeggh"
+
+[functions.check-late-payments]
+verify_jwt = false
