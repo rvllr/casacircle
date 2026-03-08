@@ -84,6 +84,27 @@ const BookingsPage = () => {
   );
   const pendingBookings = filteredBookings.filter((b) => b.status === "pending");
 
+  const memberStats = useMemo(() => {
+    const approvedBookings = filteredBookings.filter((b) => b.status === "approved");
+    const statsMap = new Map<string, { name: string; days: number; bookings: number }>();
+    
+    for (const b of approvedBookings) {
+      const days = Math.max(1, differenceInCalendarDays(new Date(b.end_date), new Date(b.start_date)));
+      const name = [b.users_profiles?.first_name, b.users_profiles?.last_name].filter(Boolean).join(" ") || "Membre";
+      const existing = statsMap.get(b.user_id);
+      if (existing) {
+        existing.days += days;
+        existing.bookings += 1;
+      } else {
+        statsMap.set(b.user_id, { name, days, bookings: 1 });
+      }
+    }
+    
+    return [...statsMap.entries()]
+      .map(([userId, s]) => ({ userId, ...s }))
+      .sort((a, b) => b.days - a.days);
+  }, [filteredBookings]);
+
   const canManageBooking = (booking: BookingRow) => {
     return booking.user_id !== user?.id;
   };
