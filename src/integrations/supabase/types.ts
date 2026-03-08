@@ -54,6 +54,7 @@ export type Database = {
           id: string
           start_date: string
           status: Database["public"]["Enums"]["booking_status"]
+          unit_id: string | null
           user_id: string
         }
         Insert: {
@@ -63,6 +64,7 @@ export type Database = {
           id?: string
           start_date: string
           status?: Database["public"]["Enums"]["booking_status"]
+          unit_id?: string | null
           user_id: string
         }
         Update: {
@@ -72,6 +74,7 @@ export type Database = {
           id?: string
           start_date?: string
           status?: Database["public"]["Enums"]["booking_status"]
+          unit_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -80,6 +83,13 @@ export type Database = {
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "house_units"
             referencedColumns: ["id"]
           },
         ]
@@ -385,6 +395,54 @@ export type Database = {
           },
         ]
       }
+      house_units: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          description: string | null
+          house_id: string
+          id: string
+          name: string
+          parent_id: string | null
+          type: Database["public"]["Enums"]["unit_type"]
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          house_id: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          type?: Database["public"]["Enums"]["unit_type"]
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          house_id?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          type?: Database["public"]["Enums"]["unit_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "house_units_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "house_units_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "house_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       houses: {
         Row: {
           capacity: number | null
@@ -620,6 +678,7 @@ export type Database = {
         Args: { _memory_id: string }
         Returns: string
       }
+      get_house_id_from_unit: { Args: { _unit_id: string }; Returns: string }
       get_house_id_from_vote: { Args: { _vote_id: string }; Returns: string }
       is_family_admin: {
         Args: { _family_id: string; _user_id: string }
@@ -645,6 +704,7 @@ export type Database = {
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
       ticket_status: "open" | "in_progress" | "resolved"
+      unit_type: "building" | "room"
       vote_response: "yes" | "no" | "abstain"
     }
     CompositeTypes: {
@@ -779,6 +839,7 @@ export const Constants = {
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],
       ticket_status: ["open", "in_progress", "resolved"],
+      unit_type: ["building", "room"],
       vote_response: ["yes", "no", "abstain"],
     },
   },

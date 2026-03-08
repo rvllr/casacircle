@@ -6,10 +6,11 @@ import CreateFamilyDialog from "@/components/CreateFamilyDialog";
 import CreateHouseDialog from "@/components/CreateHouseDialog";
 import InviteMemberDialog from "@/components/InviteMemberDialog";
 import InviteToHouseDialog from "@/components/InviteToHouseDialog";
+import AddUnitDialog from "@/components/AddUnitDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, MapPin, Users, Crown, User, UserPlus } from "lucide-react";
+import { Building2, MapPin, Users, Crown, User, DoorOpen } from "lucide-react";
 
 interface Family {
   id: string;
@@ -45,6 +46,15 @@ interface HouseMember {
   profile?: { first_name: string | null; last_name: string | null; email: string | null };
 }
 
+interface HouseUnit {
+  id: string;
+  house_id: string;
+  name: string;
+  type: "building" | "room";
+  parent_id: string | null;
+  capacity: number | null;
+}
+
 interface FamilyWithDetails extends Family {
   members: FamilyMember[];
   houses: House[];
@@ -56,6 +66,7 @@ const HousesPage = () => {
   const [families, setFamilies] = useState<FamilyWithDetails[]>([]);
   const [directHouses, setDirectHouses] = useState<House[]>([]);
   const [houseMembers, setHouseMembers] = useState<Record<string, HouseMember[]>>({});
+  const [houseUnits, setHouseUnits] = useState<Record<string, HouseUnit[]>>({});
   const [adminFamilies, setAdminFamilies] = useState<Family[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -114,6 +125,24 @@ const HousesPage = () => {
         grouped[key].push({ ...m, profile: profMap[m.user_id] });
       });
       setHouseMembers(grouped);
+    }
+
+    // Fetch house_units for all houses
+    const allHouseIds = houses.map((h) => h.id);
+    if (allHouseIds.length > 0) {
+      const { data: unitsData } = await supabase
+        .from("house_units")
+        .select("id, house_id, name, type, parent_id, capacity")
+        .in("house_id", allHouseIds)
+        .order("type", { ascending: true })
+        .order("name", { ascending: true });
+
+      const unitsGrouped: Record<string, HouseUnit[]> = {};
+      (unitsData || []).forEach((u: any) => {
+        if (!unitsGrouped[u.house_id]) unitsGrouped[u.house_id] = [];
+        unitsGrouped[u.house_id].push(u);
+      });
+      setHouseUnits(unitsGrouped);
     }
 
     // Fetch family members + profiles
@@ -215,6 +244,7 @@ const HousesPage = () => {
                       key={house.id}
                       house={house}
                       members={houseMembers[house.id] || []}
+                      units={houseUnits[house.id] || []}
                       isOwner={house.owner_id === user?.id}
                       onRefresh={fetchData}
                     />
@@ -236,6 +266,7 @@ const HousesPage = () => {
                           key={house.id}
                           house={house}
                           members={[]}
+                          units={houseUnits[house.id] || []}
                           isOwner={family.userRole === "admin"}
                           onRefresh={fetchData}
                           familyName={family.name}
@@ -307,6 +338,7 @@ const HousesPage = () => {
                             key={house.id}
                             house={house}
                             members={[]}
+                            units={houseUnits[house.id] || []}
                             isOwner={family.userRole === "admin"}
                             onRefresh={fetchData}
                           />
@@ -327,73 +359,119 @@ const HousesPage = () => {
 const HouseCard = ({
   house,
   members,
+  units,
   isOwner,
   onRefresh,
   familyName,
 }: {
   house: House;
   members: HouseMember[];
+  units: HouseUnit[];
   isOwner: boolean;
   onRefresh: () => void;
   familyName?: string;
-}) => (
-  <Card className="hover:shadow-md transition-shadow">
-    <CardHeader className="pb-2">
-      <CardTitle className="text-base font-display flex items-center gap-2">
-        <Building2 className="h-4 w-4 text-primary" />
-        {house.name}
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="space-y-3">
-      {house.location && (
-        <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-          {house.location}
-        </p>
-      )}
-      {house.capacity && (
-        <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-          <Users className="h-3.5 w-3.5 flex-shrink-0" />
-          {house.capacity} personnes
-        </p>
-      )}
-      {house.description && (
-        <p className="text-sm text-muted-foreground line-clamp-2">{house.description}</p>
-      )}
-      {familyName && (
-        <Badge variant="outline" className="text-xs">{familyName}</Badge>
-      )}
+}) => {
+  const buildings = units.filter((u) => u.type === "building");
+  const standaloneRooms = units.filter((u) => u.type === "room" && !u.parent_id);
 
-      {/* Members list for direct houses */}
-      {members.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {members.map((m) => (
-            <div
-              key={m.id}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted text-xs"
-            >
-              {m.role === "owner" ? (
-                <Crown className="h-3 w-3 text-primary" />
-              ) : (
-                <User className="h-3 w-3 text-muted-foreground" />
-              )}
-              {m.profile?.first_name || m.profile?.email || "Membre"}
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-display flex items-center gap-2">
+          <Building2 className="h-4 w-4 text-primary" />
+          {house.name}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {house.location && (
+          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+            {house.location}
+          </p>
+        )}
+        {house.capacity && (
+          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5 flex-shrink-0" />
+            {house.capacity} personnes
+          </p>
+        )}
+        {house.description && (
+          <p className="text-sm text-muted-foreground line-clamp-2">{house.description}</p>
+        )}
+        {familyName && (
+          <Badge variant="outline" className="text-xs">{familyName}</Badge>
+        )}
+
+        {/* Units */}
+        {units.length > 0 && (
+          <div className="space-y-1.5 pt-1">
+            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+              <DoorOpen className="h-3 w-3" /> Espaces réservables
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {buildings.map((b) => {
+                const childRooms = units.filter((u) => u.parent_id === b.id);
+                return (
+                  <div key={b.id} className="space-y-1">
+                    <Badge variant="secondary" className="text-xs">
+                      🏘️ {b.name}{b.capacity ? ` · ${b.capacity} pers.` : ""}
+                    </Badge>
+                    {childRooms.map((r) => (
+                      <Badge key={r.id} variant="outline" className="text-xs ml-2">
+                        🛏️ {r.name}{r.capacity ? ` · ${r.capacity} pers.` : ""}
+                      </Badge>
+                    ))}
+                  </div>
+                );
+              })}
+              {standaloneRooms.map((r) => (
+                <Badge key={r.id} variant="outline" className="text-xs">
+                  🛏️ {r.name}{r.capacity ? ` · ${r.capacity} pers.` : ""}
+                </Badge>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
 
-      {isOwner && !house.family_id && (
-        <div className="pt-1">
-          <InviteToHouseDialog
-            houseId={house.id}
-            houseName={house.name}
-            onInvited={onRefresh}
-          />
-        </div>
-      )}
-    </CardContent>
-  </Card>
-);
+        {/* Members list for direct houses */}
+        {members.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {members.map((m) => (
+              <div
+                key={m.id}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted text-xs"
+              >
+                {m.role === "owner" ? (
+                  <Crown className="h-3 w-3 text-primary" />
+                ) : (
+                  <User className="h-3 w-3 text-muted-foreground" />
+                )}
+                {m.profile?.first_name || m.profile?.email || "Membre"}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isOwner && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {!house.family_id && (
+              <InviteToHouseDialog
+                houseId={house.id}
+                houseName={house.name}
+                onInvited={onRefresh}
+              />
+            )}
+            <AddUnitDialog
+              houseId={house.id}
+              houseName={house.name}
+              existingBuildings={buildings}
+              onCreated={onRefresh}
+            />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 export default HousesPage;
