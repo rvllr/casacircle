@@ -24,8 +24,28 @@ interface BookingCalendarProps {
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
+const PERSON_COLORS = [
+  { bg: "bg-blue-500/20", text: "text-blue-700", dot: "bg-blue-500" },
+  { bg: "bg-emerald-500/20", text: "text-emerald-700", dot: "bg-emerald-500" },
+  { bg: "bg-amber-500/20", text: "text-amber-700", dot: "bg-amber-500" },
+  { bg: "bg-purple-500/20", text: "text-purple-700", dot: "bg-purple-500" },
+  { bg: "bg-rose-500/20", text: "text-rose-700", dot: "bg-rose-500" },
+  { bg: "bg-cyan-500/20", text: "text-cyan-700", dot: "bg-cyan-500" },
+  { bg: "bg-orange-500/20", text: "text-orange-700", dot: "bg-orange-500" },
+  { bg: "bg-indigo-500/20", text: "text-indigo-700", dot: "bg-indigo-500" },
+];
+
 const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: BookingCalendarProps) => {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+
+  const personColorMap = useMemo(() => {
+    const uniqueNames = [...new Set(bookings.map((b) => b.userName || "?"))];
+    const map: Record<string, typeof PERSON_COLORS[0]> = {};
+    uniqueNames.forEach((name, i) => {
+      map[name] = PERSON_COLORS[i % PERSON_COLORS.length];
+    });
+    return map;
+  }, [bookings]);
 
   const days = useMemo(() => {
     const start = startOfMonth(month);
