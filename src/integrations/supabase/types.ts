@@ -277,6 +277,38 @@ export type Database = {
           },
         ]
       }
+      house_members: {
+        Row: {
+          created_at: string
+          house_id: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          house_id: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          house_id?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "house_members_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       house_memories: {
         Row: {
           created_at: string
@@ -358,30 +390,33 @@ export type Database = {
           capacity: number | null
           created_at: string
           description: string | null
-          family_id: string
+          family_id: string | null
           id: string
           location: string | null
           name: string
+          owner_id: string | null
           photo_url: string | null
         }
         Insert: {
           capacity?: number | null
           created_at?: string
           description?: string | null
-          family_id: string
+          family_id?: string | null
           id?: string
           location?: string | null
           name: string
+          owner_id?: string | null
           photo_url?: string | null
         }
         Update: {
           capacity?: number | null
           created_at?: string
           description?: string | null
-          family_id?: string
+          family_id?: string | null
           id?: string
           location?: string | null
           name?: string
+          owner_id?: string | null
           photo_url?: string | null
         }
         Relationships: [
@@ -592,6 +627,14 @@ export type Database = {
       }
       is_family_member: {
         Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_house_admin: {
+        Args: { _house_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_house_member: {
+        Args: { _house_id: string; _user_id: string }
         Returns: boolean
       }
     }
