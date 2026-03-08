@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
@@ -371,11 +372,12 @@ const HouseCard = ({
   onRefresh: () => void;
   familyName?: string;
 }) => {
+  const navigate = useNavigate();
   const buildings = units.filter((u) => u.type === "building");
   const standaloneRooms = units.filter((u) => u.type === "room" && !u.parent_id);
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/houses/${house.id}`)}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-display flex items-center gap-2">
           <Building2 className="h-4 w-4 text-primary" />
