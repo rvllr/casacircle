@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import AddressSearchInput from "@/components/AddressSearchInput";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +15,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Upload, X, Loader2, ImageIcon } from "lucide-react";
+import { Settings, Upload, X, Loader2, ImageIcon, Globe, Copy, Check } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 interface EditHouseDialogProps {
   house: {
@@ -24,6 +26,7 @@ interface EditHouseDialogProps {
     description: string | null;
     capacity: number | null;
     photo_url: string | null;
+    is_public?: boolean;
   };
   onSaved: () => void;
 }
@@ -36,6 +39,8 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
   const [capacity, setCapacity] = useState(house.capacity?.toString() || "");
   const [photoUrl, setPhotoUrl] = useState(house.photo_url || "");
   const [photoPreview, setPhotoPreview] = useState<string | null>(house.photo_url || null);
+  const [isPublic, setIsPublic] = useState(house.is_public || false);
+  const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,6 +54,8 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       setCapacity(house.capacity?.toString() || "");
       setPhotoUrl(house.photo_url || "");
       setPhotoPreview(house.photo_url || null);
+      setIsPublic(house.is_public || false);
+      setCopied(false);
     }
     setOpen(isOpen);
   };
@@ -107,7 +114,8 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
         description: description.trim() || null,
         capacity: capacity ? parseInt(capacity, 10) : null,
         photo_url: photoUrl.trim() || null,
-      })
+        is_public: isPublic,
+      } as any)
       .eq("id", house.id);
 
     if (error) {
@@ -233,6 +241,46 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
               placeholder="Ex : 8"
             />
           </div>
+
+          {/* Public toggle */}
+          <Separator />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-primary" />
+                  Page publique
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Partagez une page avec les infos du bien
+                </p>
+              </div>
+              <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+            </div>
+            {isPublic && (
+              <div className="flex items-center gap-2">
+                <Input
+                  readOnly
+                  value={`${window.location.origin}/p/${house.id}`}
+                  className="text-xs h-8 bg-muted"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 h-8"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/p/${house.id}`);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                >
+                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                </Button>
+              </div>
+            )}
+          </div>
+
           <Button type="submit" className="w-full" disabled={loading || !name.trim()}>
             {loading ? "Enregistrement..." : "Enregistrer"}
           </Button>
