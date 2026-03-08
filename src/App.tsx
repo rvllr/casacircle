@@ -57,6 +57,7 @@ const App = () => (
             <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
             <Route path="/journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/p/:id" element={<PublicHousePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </HouseProvider>
