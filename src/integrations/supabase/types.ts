@@ -50,6 +50,13 @@ export type Database = {
             referencedRelation: "houses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "blocked_periods_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
         ]
       }
       booking_guests: {
@@ -136,6 +143,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
@@ -178,6 +192,13 @@ export type Database = {
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
             referencedColumns: ["id"]
           },
         ]
@@ -248,6 +269,13 @@ export type Database = {
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
             referencedColumns: ["id"]
           },
         ]
@@ -341,6 +369,13 @@ export type Database = {
             referencedRelation: "houses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "house_guides_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
         ]
       }
       house_members: {
@@ -371,6 +406,13 @@ export type Database = {
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "house_members_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
             referencedColumns: ["id"]
           },
         ]
@@ -414,6 +456,13 @@ export type Database = {
             referencedRelation: "houses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "house_memories_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
         ]
       }
       house_news: {
@@ -447,6 +496,13 @@ export type Database = {
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "house_news_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
             referencedColumns: ["id"]
           },
         ]
@@ -505,6 +561,13 @@ export type Database = {
             referencedRelation: "houses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "house_pricing_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: true
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
         ]
       }
       house_units: {
@@ -544,6 +607,13 @@ export type Database = {
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "house_units_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
             referencedColumns: ["id"]
           },
           {
@@ -659,6 +729,13 @@ export type Database = {
             referencedRelation: "houses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "maintenance_tickets_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
         ]
       }
       memory_photos: {
@@ -732,6 +809,13 @@ export type Database = {
             referencedRelation: "houses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "notifications_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pricing_periods: {
@@ -789,6 +873,13 @@ export type Database = {
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_periods_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
             referencedColumns: ["id"]
           },
         ]
@@ -897,11 +988,64 @@ export type Database = {
             referencedRelation: "houses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "votes_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      public_houses: {
+        Row: {
+          booking_auto_approve: boolean | null
+          capacity: number | null
+          created_at: string | null
+          description: string | null
+          family_id: string | null
+          id: string | null
+          is_public: boolean | null
+          location: string | null
+          name: string | null
+          photo_url: string | null
+        }
+        Insert: {
+          booking_auto_approve?: boolean | null
+          capacity?: number | null
+          created_at?: string | null
+          description?: string | null
+          family_id?: string | null
+          id?: string | null
+          is_public?: boolean | null
+          location?: string | null
+          name?: string | null
+          photo_url?: string | null
+        }
+        Update: {
+          booking_auto_approve?: boolean | null
+          capacity?: number | null
+          created_at?: string | null
+          description?: string | null
+          family_id?: string | null
+          id?: string | null
+          is_public?: boolean | null
+          location?: string | null
+          name?: string | null
+          photo_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "houses_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_family_id_from_house: { Args: { _house_id: string }; Returns: string }
