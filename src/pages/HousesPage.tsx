@@ -106,7 +106,7 @@ const HousesPage = () => {
         .map((m) => ({
           ...m,
           role: m.role as "admin" | "member",
-          users_profiles: m.users_profiles as FamilyMember["users_profiles"],
+          users_profiles: profilesMap[m.user_id] || null,
         })),
     }));
 
