@@ -88,6 +88,7 @@ const HouseDetailPage = () => {
   const [members, setMembers] = useState<HouseMember[]>([]);
   const [units, setUnits] = useState<HouseUnit[]>([]);
   const [guides, setGuides] = useState<HouseGuide[]>([]);
+  const [tickets, setTickets] = useState<MaintenanceTicket[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
