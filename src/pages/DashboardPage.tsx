@@ -340,6 +340,36 @@ const DashboardPage = () => {
             )}
           </section>
         </div>
+
+        {/* Actualités */}
+        {news.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2">
+                <Megaphone className="h-5 w-5 text-primary" />
+                Actualités
+              </h3>
+            </div>
+            <div className="space-y-3">
+              {news.map((n) => (
+                <Card key={n.id}>
+                  <CardContent className="py-4 space-y-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium text-foreground text-sm">{n.title}</p>
+                      <Badge variant="outline" className="text-xs whitespace-nowrap">{n.houses?.name}</Badge>
+                    </div>
+                    {n.content && (
+                      <p className="text-sm text-muted-foreground line-clamp-2">{n.content}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {getAuthorName(n.created_by)} · {formatDate(n.created_at)}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </AppLayout>
   );
