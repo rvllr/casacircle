@@ -33,10 +33,25 @@ const typeIcons: Record<string, { icon: typeof Bell; color: string; badge?: stri
   payment_overdue_admin: { icon: AlertCircle, color: "text-destructive", badge: "Paiement", badgeVariant: "destructive" },
 };
 
+type FilterType = "all" | "booking" | "payment";
+
+const filterLabels: { value: FilterType; label: string }[] = [
+  { value: "all", label: "Tout" },
+  { value: "booking", label: "Réservations" },
+  { value: "payment", label: "Paiements" },
+];
+
+const getFilterCategory = (type: string): FilterType => {
+  if (type.startsWith("payment_overdue")) return "payment";
+  if (type.startsWith("booking_")) return "booking";
+  return "booking";
+};
+
 const NotificationBell = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState<FilterType>("all");
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
