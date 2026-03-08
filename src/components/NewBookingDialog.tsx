@@ -39,10 +39,18 @@ interface HouseUnit {
 interface NewBookingDialogProps {
   onCreated: () => void;
   preselectedHouseId?: string;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
+  initialStartDate?: Date;
 }
 
-const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogProps) => {
-  const [open, setOpen] = useState(false);
+const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExternalOpenChange, initialStartDate }: NewBookingDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = (v: boolean) => {
+    if (onExternalOpenChange) onExternalOpenChange(v);
+    else setInternalOpen(v);
+  };
   const [houses, setHouses] = useState<House[]>([]);
   const [units, setUnits] = useState<HouseUnit[]>([]);
   const [houseId, setHouseId] = useState(preselectedHouseId || "");
@@ -63,7 +71,10 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
       .then(({ data }) => {
         if (data) setHouses(data as unknown as House[]);
       });
-  }, [open]);
+    if (initialStartDate) {
+      setStartDate(initialStartDate);
+    }
+  }, [open, initialStartDate]);
 
   // Load units when house changes
   useEffect(() => {
@@ -179,12 +190,14 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle réservation
-        </Button>
-      </DialogTrigger>
+      {!externalOpen && externalOpen !== false && (
+        <DialogTrigger asChild>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle réservation
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-display">Nouvelle réservation</DialogTitle>
