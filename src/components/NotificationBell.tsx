@@ -124,7 +124,7 @@ const NotificationBell = () => {
           ) : (
             <div className="divide-y divide-border">
               {notifications.map((n) => {
-                const config = typeIcons[n.type] || typeIcons.booking_new;
+                const config = typeIcons[n.type] || { icon: Bell, color: "text-primary" };
                 const Icon = config.icon;
                 return (
                   <button
@@ -134,7 +134,8 @@ const NotificationBell = () => {
                     }}
                     className={cn(
                       "w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex gap-3",
-                      !n.is_read && "bg-primary/5"
+                      !n.is_read && "bg-primary/5",
+                      config.badge && !n.is_read && "bg-destructive/5"
                     )}
                   >
                     <div className={cn("mt-0.5 shrink-0", config.color)}>
@@ -145,6 +146,11 @@ const NotificationBell = () => {
                         <p className={cn("text-sm truncate", !n.is_read ? "font-medium text-foreground" : "text-muted-foreground")}>
                           {n.title}
                         </p>
+                        {config.badge && (
+                          <Badge variant={config.badgeVariant || "secondary"} className="text-[9px] px-1.5 py-0 h-4 shrink-0">
+                            {config.badge}
+                          </Badge>
+                        )}
                         {!n.is_read && (
                           <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
                         )}
