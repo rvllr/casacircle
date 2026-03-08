@@ -78,10 +78,24 @@ const HousesPage = () => {
       .in("family_id", familyIds);
 
     // Fetch all members for these families with profiles
+    // Fetch members
     const { data: allMembers } = await supabase
       .from("family_members")
-      .select("id, family_id, user_id, role, users_profiles!inner(first_name, last_name, email)")
-      .in("family_id", familyIds) as any;
+      .select("id, family_id, user_id, role")
+      .in("family_id", familyIds);
+
+    // Fetch profiles for all member user_ids
+    const memberUserIds = [...new Set((allMembers || []).map((m) => m.user_id))];
+    const { data: profilesData } = memberUserIds.length > 0
+      ? await supabase
+          .from("users_profiles")
+          .select("user_id, first_name, last_name, email")
+          .in("user_id", memberUserIds)
+      : { data: [] };
+
+    const profilesMap = Object.fromEntries(
+      (profilesData || []).map((p) => [p.user_id, p])
+    );
 
     const result: FamilyWithDetails[] = (familiesData || []).map((f) => ({
       ...f,
