@@ -188,13 +188,22 @@ const MaintenancePage = () => {
               return (
                 <Card key={ticket.id} className="overflow-hidden">
                   <CardContent className="p-4 sm:flex sm:items-start sm:justify-between gap-4">
-                    <div className="flex-1 space-y-1.5">
+                     <div className="flex-1 space-y-1.5">
                       <div className="flex items-start gap-2 flex-wrap">
                         <h3 className="font-medium text-foreground">{ticket.title}</h3>
                         <Badge variant="outline" className={`text-xs ${cfg.color}`}>
                           <StatusIcon className="h-3 w-3 mr-1" />
                           {cfg.label}
                         </Badge>
+                        {ticket.priority && ticket.priority !== "medium" && (
+                          <Badge variant="outline" className={`text-xs ${
+                            ticket.priority === "urgent" ? "bg-destructive/15 text-destructive border-destructive/30" :
+                            ticket.priority === "high" ? "bg-primary/15 text-primary border-primary/30" :
+                            "bg-muted text-muted-foreground border-border"
+                          }`}>
+                            {ticket.priority === "urgent" ? "🔴 Urgent" : ticket.priority === "high" ? "🟠 Important" : "🟢 Faible"}
+                          </Badge>
+                        )}
                       </div>
                       {ticket.description && (
                         <p className="text-sm text-muted-foreground line-clamp-2">{ticket.description}</p>
