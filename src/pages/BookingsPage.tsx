@@ -1,24 +1,19 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
+import HouseSelector from "@/components/HouseSelector";
 import BookingCalendar from "@/components/BookingCalendar";
 import NewBookingDialog from "@/components/NewBookingDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Check, X, Building2 } from "lucide-react";
+import { CalendarDays, Check, X } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
-
-interface House {
-  id: string;
-  name: string;
-  family_id: string | null;
-}
 
 interface BookingRow {
   id: string;
@@ -44,8 +39,7 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
 const BookingsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [houses, setHouses] = useState<House[]>([]);
-  const [selectedHouse, setSelectedHouse] = useState<string>("all");
+  const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
@@ -54,12 +48,6 @@ const BookingsPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const { data: housesData } = await supabase
-      .from("houses")
-      .select("id, name, family_id");
-    setHouses(housesData || []);
-
-    // Get bookings with unit info
     const { data: bookingsData } = await supabase
       .from("bookings")
       .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, houses(name, family_id), house_units(name, type)")
@@ -87,9 +75,9 @@ const BookingsPage = () => {
     fetchData();
   }, [fetchData]);
 
-  const filteredBookings = selectedHouse === "all"
+  const filteredBookings = selectedHouseId === "all"
     ? bookings
-    : bookings.filter((b) => b.house_id === selectedHouse);
+    : bookings.filter((b) => b.house_id === selectedHouseId);
 
   const calendarBookings = filteredBookings.filter(
     (b) => b.status === "approved" || b.status === "pending"
@@ -97,8 +85,7 @@ const BookingsPage = () => {
   const pendingBookings = filteredBookings.filter((b) => b.status === "pending");
 
   const canManageBooking = (booking: BookingRow) => {
-    // House admin check is done via house_members or family admin
-    return booking.user_id !== user?.id; // Show buttons for others' bookings
+    return booking.user_id !== user?.id;
   };
 
   const updateBookingStatus = async (bookingId: string, status: "approved" | "refused") => {
@@ -135,7 +122,7 @@ const BookingsPage = () => {
     return houseName;
   };
 
-  if (loading) {
+  if (loading || housesLoading) {
     return (
       <AppLayout title="Réservations">
         <div className="flex items-center justify-center h-64">
@@ -156,22 +143,7 @@ const BookingsPage = () => {
           <NewBookingDialog onCreated={fetchData} />
         </div>
 
-        {houses.length > 1 && (
-          <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-            <Select value={selectedHouse} onValueChange={setSelectedHouse}>
-              <SelectTrigger className="w-64">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les maisons</SelectItem>
-                {houses.map((h) => (
-                  <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        <HouseSelector />
 
         {houses.length === 0 ? (
           <Card>

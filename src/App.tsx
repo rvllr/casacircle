@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { HouseProvider } from "@/contexts/HouseContext";
 import LandingPage from "./pages/LandingPage";
 import HousesPage from "./pages/HousesPage";
 import HouseDetailPage from "./pages/HouseDetailPage";
@@ -41,6 +42,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <HouseProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
@@ -56,6 +58,7 @@ const App = () => (
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </HouseProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
