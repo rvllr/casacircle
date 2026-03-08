@@ -23,6 +23,7 @@ interface InviteToHouseDialogProps {
 const InviteToHouseDialog = ({ houseId, houseName, onInvited }: InviteToHouseDialogProps) => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [selectedRole, setSelectedRole] = useState("member");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -72,10 +73,10 @@ const InviteToHouseDialog = ({ houseId, houseName, onInvited }: InviteToHouseDia
       return;
     }
 
-    // Add as member
+    // Add with selected role
     const { error: insertError } = await supabase
       .from("house_members")
-      .insert({ house_id: houseId, user_id: profile.user_id, role: "member" });
+      .insert({ house_id: houseId, user_id: profile.user_id, role: selectedRole });
 
     if (insertError) {
       toast({ title: "Erreur", description: insertError.message, variant: "destructive" });
@@ -119,6 +120,18 @@ const InviteToHouseDialog = ({ houseId, houseName, onInvited }: InviteToHouseDia
             <p className="text-xs text-muted-foreground">
               Le membre doit avoir un compte Maison Commune.
             </p>
+          </div>
+          <div className="space-y-2">
+            <Label>Rôle</Label>
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background text-foreground"
+            >
+              <option value="member">Membre — peut réserver et ajouter des dépenses</option>
+              <option value="guest">Invité — consultation seule</option>
+              <option value="admin">Admin — gère la maison</option>
+            </select>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Invitation..." : "Ajouter le membre"}
