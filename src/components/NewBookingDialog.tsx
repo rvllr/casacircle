@@ -59,7 +59,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
     if (!open) return;
     supabase
       .from("houses")
-      .select("id, name, families(name)")
+      .select("id, name, families(name), booking_auto_approve")
       .then(({ data }) => {
         if (data) setHouses(data as unknown as House[]);
       });
