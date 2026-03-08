@@ -24,6 +24,7 @@ interface House {
   id: string;
   name: string;
   families: { name: string } | null;
+  booking_auto_approve?: boolean;
 }
 
 interface HouseUnit {
