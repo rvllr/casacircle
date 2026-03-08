@@ -28,6 +28,7 @@ interface EditHouseDialogProps {
     capacity: number | null;
     photo_url: string | null;
     is_public?: boolean;
+    booking_auto_approve?: boolean;
   };
   onSaved: () => void;
 }
