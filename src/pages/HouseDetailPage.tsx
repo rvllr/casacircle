@@ -121,9 +121,10 @@ const HouseDetailPage = () => {
 
     // Fetch member profiles
     const membersList = membersData || [];
-    const userIds = membersList.map((m) => m.user_id);
-    const { data: profiles } = userIds.length > 0
-      ? await supabase.from("users_profiles").select("user_id, first_name, last_name, email, phone").in("user_id", userIds)
+    const ticketCreatorIds = [...new Set((ticketsData || []).map((t) => t.created_by))];
+    const allUserIds = [...new Set([...membersList.map((m) => m.user_id), ...ticketCreatorIds])];
+    const { data: profiles } = allUserIds.length > 0
+      ? await supabase.from("users_profiles").select("user_id, first_name, last_name, email, phone").in("user_id", allUserIds)
       : { data: [] };
     const profMap = Object.fromEntries((profiles || []).map((p) => [p.user_id, p]));
 
@@ -132,6 +133,17 @@ const HouseDetailPage = () => {
       profile: profMap[m.user_id],
     }));
     setMembers(enrichedMembers);
+
+    // Enrich tickets with author names
+    const enrichedTickets: MaintenanceTicket[] = (ticketsData || []).map((t) => {
+      const prof = profMap[t.created_by];
+      return {
+        ...t,
+        status: t.status as MaintenanceTicket["status"],
+        authorName: [prof?.first_name, prof?.last_name].filter(Boolean).join(" ") || "Membre",
+      };
+    });
+    setTickets(enrichedTickets);
 
     // Check admin status
     const isHouseAdmin = enrichedMembers.some((m) => m.user_id === user.id && m.role === "admin");
