@@ -301,7 +301,64 @@ const DashboardPage = () => {
           ))}
         </div>
 
-        {/* Annual Stats + Charts */}
+        {/* Paiements en attente */}
+        {(() => {
+          const pendingPayments = [...bookings, ...allBookings]
+            .filter((b, i, arr) => arr.findIndex(x => x.id === b.id) === i)
+            .filter(b => b.status !== "cancelled" && b.status !== "refused" && (b.payment_status === "unpaid" || b.payment_status === "partial"));
+          
+          if (pendingPayments.length === 0) return null;
+
+          const totalDue = pendingPayments.reduce((sum, b) => {
+            const total = Number(b.total_price) || 0;
+            const paid = Number(b.amount_paid) || 0;
+            return sum + (total - paid);
+          }, 0);
+
+          return (
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
+                  <AlertCircle className="h-5 w-5 text-destructive" />
+                  Paiements en attente
+                  <Badge variant="destructive" className="ml-1 text-xs">{pendingPayments.length}</Badge>
+                </h3>
+                <Link to="/bookings" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+                  Voir les réservations <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+
+              <Card className="border-destructive/20 bg-destructive/5 shadow-soft">
+                <CardContent className="py-4 px-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm text-muted-foreground">Total restant dû</span>
+                    <span className="text-xl font-bold text-destructive">{totalDue.toFixed(2)} €</span>
+                  </div>
+                  <div className="space-y-2">
+                    {pendingPayments.slice(0, 5).map((b) => {
+                      const remaining = (Number(b.total_price) || 0) - (Number(b.amount_paid) || 0);
+                      return (
+                        <div key={b.id} className="flex items-center justify-between gap-2 text-sm">
+                          <div className="min-w-0 flex items-center gap-2">
+                            <Badge variant={b.payment_status === "unpaid" ? "destructive" : "secondary"} className="text-[10px] flex-shrink-0">
+                              {b.payment_status === "unpaid" ? "Impayé" : "Partiel"}
+                            </Badge>
+                            <span className="text-foreground truncate">{b.houses?.name}</span>
+                            <span className="text-muted-foreground text-xs whitespace-nowrap">
+                              {formatDate(b.start_date)} → {formatDate(b.end_date)}
+                            </span>
+                          </div>
+                          <span className="font-semibold text-foreground flex-shrink-0">{remaining.toFixed(2)} €</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          );
+        })()}
+
         {(allBookings.length > 0 || allExpenses.length > 0) && (
           <section className="space-y-4">
             <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
