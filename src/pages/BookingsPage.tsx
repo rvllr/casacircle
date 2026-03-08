@@ -237,6 +237,50 @@ const BookingsPage = () => {
               )}
             </TabsContent>
 
+            <TabsContent value="stats">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Users className="h-5 w-5 text-primary" />
+                    <h3 className="font-display text-lg text-foreground">Jours par membre</h3>
+                    <Badge variant="outline" className="ml-auto text-xs">Réservations confirmées</Badge>
+                  </div>
+                  {memberStats.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">Aucune réservation confirmée.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {memberStats.map((m, idx) => {
+                        const maxDays = memberStats[0]?.days || 1;
+                        const pct = Math.round((m.days / maxDays) * 100);
+                        return (
+                          <div key={m.userId} className="space-y-1">
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                                  {idx + 1}
+                                </span>
+                                <span className="font-medium text-foreground">{m.name}</span>
+                              </div>
+                              <div className="flex items-center gap-3 text-muted-foreground">
+                                <span>{m.bookings} séjour{m.bookings > 1 ? "s" : ""}</span>
+                                <span className="font-semibold text-foreground">{m.days} jour{m.days > 1 ? "s" : ""}</span>
+                              </div>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-primary rounded-full transition-all duration-500"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="all">
               {filteredBookings.length === 0 ? (
                 <Card>
