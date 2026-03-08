@@ -22,7 +22,7 @@ interface BookingCalendarProps {
   onDayClick?: (date: Date) => void;
 }
 
-const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+const WEEKDAYS_SHORT = ["L", "M", "M", "J", "V", "S", "D"];
 
 const PERSON_COLORS = [
   { bg: "bg-blue-500/20", text: "text-blue-700", dot: "bg-blue-500" },
@@ -104,16 +104,16 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
       </div>
 
       {/* Weekdays */}
-      <div className="grid grid-cols-7 gap-1">
-        {WEEKDAYS.map((d) => (
-          <div key={d} className="text-center text-xs font-medium text-muted-foreground py-1">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+        {WEEKDAYS_SHORT.map((d, i) => (
+          <div key={i} className="text-center text-[10px] sm:text-xs font-medium text-muted-foreground py-1">
             {d}
           </div>
         ))}
       </div>
 
       {/* Days */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
         {days.map((day, i) => {
           if (!day) return <div key={`pad-${i}`} />;
 
@@ -121,14 +121,13 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
           const current = isSameMonth(day, month);
           const dayBookings = getBookingsForDay(day);
           const isSelected = selectedDay && day.getTime() === selectedDay.getTime();
-          const occupantCount = dayBookings.length;
 
           return (
             <button
               key={day.toISOString()}
               onClick={() => handleDayClick(day)}
               className={cn(
-                "min-h-[3.5rem] sm:min-h-[4.5rem] flex flex-col items-start justify-start rounded-md text-sm transition-colors relative p-1 sm:p-1.5 overflow-hidden",
+                "min-h-[2.75rem] sm:min-h-[4.5rem] flex flex-col items-start justify-start rounded-md text-sm transition-colors relative p-0.5 sm:p-1.5 overflow-hidden",
                 !current && "opacity-30",
                 status === "available" && "bg-accent/30 text-foreground hover:bg-accent/60 cursor-pointer",
                 status === "pending" && "bg-secondary text-secondary-foreground border border-primary/30 cursor-pointer",
@@ -138,27 +137,44 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
                 isSelected && "ring-2 ring-foreground ring-offset-1"
               )}
             >
-              <span className="text-xs font-medium">{format(day, "d")}</span>
+              <span className="text-[10px] sm:text-xs font-medium">{format(day, "d")}</span>
               {dayBookings.length > 0 && (
                 <div className="flex flex-col gap-0.5 mt-0.5 w-full overflow-hidden">
-                  {dayBookings.slice(0, 2).map((b, idx) => {
-                    const firstName = b.userName?.split(" ")[0] || "?";
-                    const color = personColorMap[b.userName || "?"];
-                    return (
-                      <span
-                        key={idx}
-                        className={cn(
-                          "text-[9px] sm:text-[10px] leading-tight truncate rounded px-0.5 py-px w-full",
-                          color.bg, color.text
-                        )}
-                      >
-                        {firstName}
-                      </span>
-                    );
-                  })}
-                  {dayBookings.length > 2 && (
-                    <span className="text-[9px] text-muted-foreground">+{dayBookings.length - 2}</span>
-                  )}
+                  {/* Mobile: show colored dots only; Desktop: show names */}
+                  <div className="hidden sm:flex sm:flex-col gap-0.5 w-full">
+                    {dayBookings.slice(0, 2).map((b, idx) => {
+                      const firstName = b.userName?.split(" ")[0] || "?";
+                      const color = personColorMap[b.userName || "?"];
+                      return (
+                        <span
+                          key={idx}
+                          className={cn(
+                            "text-[10px] leading-tight truncate rounded px-0.5 py-px w-full",
+                            color.bg, color.text
+                          )}
+                        >
+                          {firstName}
+                        </span>
+                      );
+                    })}
+                    {dayBookings.length > 2 && (
+                      <span className="text-[9px] text-muted-foreground">+{dayBookings.length - 2}</span>
+                    )}
+                  </div>
+                  <div className="flex sm:hidden gap-0.5 flex-wrap">
+                    {dayBookings.slice(0, 3).map((b, idx) => {
+                      const color = personColorMap[b.userName || "?"];
+                      return (
+                        <span
+                          key={idx}
+                          className={cn("w-1.5 h-1.5 rounded-full", color.dot)}
+                        />
+                      );
+                    })}
+                    {dayBookings.length > 3 && (
+                      <span className="text-[8px] text-muted-foreground leading-none">+{dayBookings.length - 3}</span>
+                    )}
+                  </div>
                 </div>
               )}
             </button>

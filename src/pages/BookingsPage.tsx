@@ -156,7 +156,7 @@ const BookingsPage = () => {
 
   return (
     <AppLayout title="Réservations">
-      <div className="space-y-6 max-w-5xl">
+      <div className="space-y-4 sm:space-y-6 max-w-5xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-display text-foreground">Réservations</h2>
@@ -176,27 +176,27 @@ const BookingsPage = () => {
             </CardContent>
           </Card>
         ) : (
-          <Tabs defaultValue="calendar" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="calendar">Calendrier</TabsTrigger>
-              <TabsTrigger value="pending" className="relative">
+          <Tabs defaultValue="calendar" className="space-y-3 sm:space-y-4">
+            <TabsList className="w-full grid grid-cols-4 h-auto">
+              <TabsTrigger value="calendar" className="text-xs sm:text-sm py-1.5">Calendrier</TabsTrigger>
+              <TabsTrigger value="pending" className="text-xs sm:text-sm py-1.5 relative">
                 En attente
                 {pendingBookings.length > 0 && (
-                  <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-primary text-primary-foreground">
+                  <span className="ml-1 inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[10px] sm:text-xs rounded-full bg-primary text-primary-foreground">
                     {pendingBookings.length}
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="all">Toutes</TabsTrigger>
-              <TabsTrigger value="stats">
-                <BarChart3 className="h-4 w-4 mr-1" />
-                Statistiques
+              <TabsTrigger value="all" className="text-xs sm:text-sm py-1.5">Toutes</TabsTrigger>
+              <TabsTrigger value="stats" className="text-xs sm:text-sm py-1.5">
+                <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Stats</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="calendar">
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="p-3 sm:pt-6 sm:px-6">
                   <BookingCalendar
                     month={calendarMonth}
                     onMonthChange={setCalendarMonth}
@@ -339,36 +339,38 @@ const BookingCard = ({
   onCancel?: () => void;
 }) => (
   <Card>
-    <CardContent className="py-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <CardContent className="p-3 sm:py-4 sm:px-6">
+      <div className="flex flex-col gap-2">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-medium text-foreground">{label}</p>
-            <Badge variant={statusConfig[booking.status]?.variant || "secondary"}>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <p className="font-medium text-sm sm:text-base text-foreground">{label}</p>
+            <Badge variant={statusConfig[booking.status]?.variant || "secondary"} className="text-[10px] sm:text-xs">
               {statusConfig[booking.status]?.label || booking.status}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {userName} · {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {canManage && (
-            <>
-              <Button size="sm" variant="outline" onClick={onApprove}>
-                <Check className="h-4 w-4 mr-1" /> Accepter
+        {(canManage || canCancel) && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {canManage && (
+              <>
+                <Button size="sm" variant="outline" className="h-7 text-xs sm:h-8 sm:text-sm" onClick={onApprove}>
+                  <Check className="h-3.5 w-3.5 mr-1" /> Accepter
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 text-xs sm:h-8 sm:text-sm text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onRefuse}>
+                  <X className="h-3.5 w-3.5 mr-1" /> Refuser
+                </Button>
+              </>
+            )}
+            {canCancel && onCancel && (
+              <Button size="sm" variant="outline" className="h-7 text-xs sm:h-8 sm:text-sm text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onCancel}>
+                <X className="h-3.5 w-3.5 mr-1" /> Annuler
               </Button>
-              <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onRefuse}>
-                <X className="h-4 w-4 mr-1" /> Refuser
-              </Button>
-            </>
-          )}
-          {canCancel && onCancel && (
-            <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onCancel}>
-              <X className="h-4 w-4 mr-1" /> Annuler
-            </Button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </CardContent>
   </Card>
