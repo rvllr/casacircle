@@ -240,7 +240,7 @@ const VotesPage = () => {
 
                     {/* Vote buttons */}
                     {!isExpired && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {([
                           { value: "yes" as const, icon: ThumbsUp, label: "Oui", activeClass: "bg-accent text-accent-foreground" },
                           { value: "no" as const, icon: ThumbsDown, label: "Non", activeClass: "bg-destructive text-destructive-foreground" },
@@ -250,7 +250,7 @@ const VotesPage = () => {
                             key={value}
                             size="sm"
                             variant={myResponse?.response === value ? "default" : "outline"}
-                            className={myResponse?.response === value ? activeClass : ""}
+                            className={`text-xs sm:text-sm ${myResponse?.response === value ? activeClass : ""}`}
                             onClick={() => handleVote(vote.id, value)}
                           >
                             <Icon className="h-3.5 w-3.5 mr-1" />

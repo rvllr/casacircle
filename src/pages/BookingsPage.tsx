@@ -188,10 +188,11 @@ const BookingsPage = () => {
             <h2 className="page-header-title">Réservations</h2>
             <p className="page-header-subtitle">Planifiez et gérez les séjours.</p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }} className="rounded-xl shadow-soft">
-              <Plus className="h-4 w-4 mr-2" />
-              Nouvelle réservation
+          <div className="flex items-center gap-2">
+            <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }} className="rounded-xl shadow-soft text-xs sm:text-sm">
+              <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Nouvelle réservation</span>
+              <span className="sm:hidden">Réserver</span>
             </Button>
             <BlockPeriodDialog onCreated={fetchData} />
           </div>
@@ -215,7 +216,7 @@ const BookingsPage = () => {
           </Card>
         ) : (
           <Tabs defaultValue="calendar" className="space-y-3 sm:space-y-4">
-            <TabsList className="w-full grid grid-cols-4 h-auto">
+            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto gap-1">
               <TabsTrigger value="calendar" className="text-xs sm:text-sm py-1.5">Calendrier</TabsTrigger>
               <TabsTrigger value="pending" className="text-xs sm:text-sm py-1.5 relative">
                 En attente
