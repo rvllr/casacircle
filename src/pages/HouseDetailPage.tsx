@@ -62,6 +62,17 @@ interface HouseGuide {
   type: "arrival" | "departure" | "rules" | "practical_info";
 }
 
+interface MaintenanceTicket {
+  id: string;
+  title: string;
+  description: string | null;
+  status: "open" | "in_progress" | "resolved";
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  authorName?: string;
+}
+
 const guideTypeConfig = {
   arrival: { label: "Kit d'arrivée", icon: LogIn, color: "text-accent" },
   departure: { label: "Kit de départ", icon: LogOut, color: "text-primary" },
