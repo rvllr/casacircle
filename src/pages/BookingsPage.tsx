@@ -215,7 +215,7 @@ const BookingsPage = () => {
           </Card>
         ) : (
           <Tabs defaultValue="calendar" className="space-y-3 sm:space-y-4">
-            <TabsList className="w-full grid grid-cols-4 h-auto">
+            <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto gap-1">
               <TabsTrigger value="calendar" className="text-xs sm:text-sm py-1.5">Calendrier</TabsTrigger>
               <TabsTrigger value="pending" className="text-xs sm:text-sm py-1.5 relative">
                 En attente

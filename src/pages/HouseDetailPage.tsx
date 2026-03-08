@@ -302,20 +302,22 @@ const HouseDetailPage = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="guides" className="space-y-6">
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="guides" className="gap-1.5">
-              <BookOpen className="h-4 w-4" /> Guides
+          <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto gap-1">
+            <TabsTrigger value="guides" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Guides
             </TabsTrigger>
-            <TabsTrigger value="spaces" className="gap-1.5">
-              <DoorOpen className="h-4 w-4" /> Espaces
+            <TabsTrigger value="spaces" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <DoorOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Espaces
             </TabsTrigger>
-            <TabsTrigger value="members" className="gap-1.5">
-              <Users className="h-4 w-4" /> Membres
+            <TabsTrigger value="members" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Membres
             </TabsTrigger>
-            <TabsTrigger value="tickets" className="gap-1.5 relative">
-              <AlertTriangle className="h-4 w-4" /> Signalements
+            <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
+              <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Signalements</span>
+              <span className="sm:hidden">Tickets</span>
               {tickets.filter(t => t.status !== "resolved").length > 0 && (
-                <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-destructive text-destructive-foreground">
+                <span className="ml-1 inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[10px] sm:text-xs rounded-full bg-destructive text-destructive-foreground">
                   {tickets.filter(t => t.status !== "resolved").length}
                 </span>
               )}

@@ -135,11 +135,14 @@ const MaintenancePage = () => {
   return (
     <AppLayout title="Maintenance">
       <div className="max-w-5xl space-y-6 animate-fade-in">
-        <div>
-          <h2 className="page-header-title flex items-center gap-3">
-            <Wrench className="h-6 w-6 text-primary" />
-            Maintenance
-          </h2>
+        <div className="page-header">
+          <div>
+            <h2 className="page-header-title flex items-center gap-3">
+              <Wrench className="h-6 w-6 text-primary" />
+              Maintenance
+            </h2>
+            <p className="page-header-subtitle">Suivez les problèmes et réparations.</p>
+          </div>
         </div>
 
         {/* Stats */}
