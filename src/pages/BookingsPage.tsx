@@ -299,8 +299,10 @@ const BookingsPage = () => {
                       userName={getUserName(b)}
                       formatDate={formatDate}
                       canManage={b.status === "pending" && canManageBooking(b)}
+                      canCancel={b.user_id === user?.id && (b.status === "pending" || b.status === "approved")}
                       onApprove={() => updateBookingStatus(b.id, "approved")}
                       onRefuse={() => updateBookingStatus(b.id, "refused")}
+                      onCancel={() => updateBookingStatus(b.id, "cancelled")}
                     />
                   ))}
                 </div>
