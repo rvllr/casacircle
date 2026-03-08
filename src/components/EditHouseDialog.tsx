@@ -29,6 +29,10 @@ interface EditHouseDialogProps {
     photo_url: string | null;
     is_public?: boolean;
     booking_auto_approve?: boolean;
+    wifi_name?: string | null;
+    wifi_password?: string | null;
+    access_code?: string | null;
+    emergency_contact?: string | null;
   };
   onSaved: () => void;
 }
@@ -43,6 +47,10 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
   const [photoPreview, setPhotoPreview] = useState<string | null>(house.photo_url || null);
   const [isPublic, setIsPublic] = useState(house.is_public || false);
   const [autoApprove, setAutoApprove] = useState(house.booking_auto_approve || false);
+  const [wifiName, setWifiName] = useState(house.wifi_name || "");
+  const [wifiPassword, setWifiPassword] = useState(house.wifi_password || "");
+  const [accessCode, setAccessCode] = useState(house.access_code || "");
+  const [emergencyContact, setEmergencyContact] = useState(house.emergency_contact || "");
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,6 +67,10 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       setPhotoPreview(house.photo_url || null);
       setIsPublic(house.is_public || false);
       setAutoApprove(house.booking_auto_approve || false);
+      setWifiName(house.wifi_name || "");
+      setWifiPassword(house.wifi_password || "");
+      setAccessCode(house.access_code || "");
+      setEmergencyContact(house.emergency_contact || "");
       setCopied(false);
     }
     setOpen(isOpen);
@@ -120,6 +132,10 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
         photo_url: photoUrl.trim() || null,
         is_public: isPublic,
         booking_auto_approve: autoApprove,
+        wifi_name: wifiName.trim() || null,
+        wifi_password: wifiPassword.trim() || null,
+        access_code: accessCode.trim() || null,
+        emergency_contact: emergencyContact.trim() || null,
       } as any)
       .eq("id", house.id);
 

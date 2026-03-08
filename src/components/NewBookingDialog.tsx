@@ -334,19 +334,30 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
             </div>
           </div>
 
-          {/* Guest count for per_person pricing */}
-          {pricing?.is_active && pricing.pricing_mode !== "per_night" && (
-            <div className="space-y-2">
-              <Label>Nombre de personnes</Label>
-              <Input
-                type="number"
-                min="1"
-                value={guestCount}
-                onChange={(e) => setGuestCount(e.target.value)}
-                placeholder="2"
-              />
-            </div>
-          )}
+          {/* Guest count */}
+          <div className="space-y-2">
+            <Label>Nombre de personnes</Label>
+            <Input
+              type="number"
+              min="1"
+              value={guestCount}
+              onChange={(e) => setGuestCount(e.target.value)}
+              placeholder="2"
+              className="rounded-xl"
+            />
+          </div>
+
+          {/* Notes */}
+          <div className="space-y-2">
+            <Label>Notes (optionnel)</Label>
+            <Input
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Ex: Arrivée vers 18h, animaux..."
+              maxLength={500}
+              className="rounded-xl"
+            />
+          </div>
 
           {/* Conflict warning */}
           {conflict && (

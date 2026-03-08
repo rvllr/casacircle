@@ -26,6 +26,17 @@ interface Props {
   onCreated: () => void;
 }
 
+const categoryLabels: Record<string, string> = {
+  courses: "🛒 Courses",
+  travaux: "🔨 Travaux",
+  entretien: "🧹 Entretien",
+  energie: "⚡ Énergie",
+  assurance: "🛡️ Assurance",
+  taxes: "📋 Taxes",
+  menage: "🧽 Ménage",
+  autre: "📦 Autre",
+};
+
 const NewExpenseDialog = ({ onCreated }: Props) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -36,6 +47,8 @@ const NewExpenseDialog = ({ onCreated }: Props) => {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("autre");
+  const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split("T")[0]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -91,7 +104,14 @@ const NewExpenseDialog = ({ onCreated }: Props) => {
     setLoading(true);
     const { data: expense, error } = await supabase
       .from("expenses")
-      .insert({ house_id: selectedHouse, description: description.trim(), amount: numAmount, paid_by: user.id })
+      .insert({
+        house_id: selectedHouse,
+        description: description.trim(),
+        amount: numAmount,
+        paid_by: user.id,
+        category,
+        expense_date: expenseDate || null,
+      } as any)
       .select("id")
       .single();
 
@@ -117,6 +137,8 @@ const NewExpenseDialog = ({ onCreated }: Props) => {
       setOpen(false);
       setDescription("");
       setAmount("");
+      setCategory("autre");
+      setExpenseDate(new Date().toISOString().split("T")[0]);
       setSelectedHouse("");
       setSelectedMembers([]);
     }
@@ -126,7 +148,7 @@ const NewExpenseDialog = ({ onCreated }: Props) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button><Plus className="h-4 w-4 mr-2" />Nouvelle dépense</Button>
+        <Button className="rounded-xl shadow-soft"><Plus className="h-4 w-4 mr-2" />Nouvelle dépense</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -136,7 +158,7 @@ const NewExpenseDialog = ({ onCreated }: Props) => {
           <div className="space-y-2">
             <Label>Maison</Label>
             <Select value={selectedHouse} onValueChange={setSelectedHouse}>
-              <SelectTrigger><SelectValue placeholder="Choisir une maison" /></SelectTrigger>
+              <SelectTrigger className="rounded-xl"><SelectValue placeholder="Choisir une maison" /></SelectTrigger>
               <SelectContent>
                 {houses.map((h) => (
                   <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
@@ -144,13 +166,30 @@ const NewExpenseDialog = ({ onCreated }: Props) => {
               </SelectContent>
             </Select>
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label>Catégorie</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(categoryLabels).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Date</Label>
+              <Input type="date" value={expenseDate} onChange={(e) => setExpenseDate(e.target.value)} className="rounded-xl" />
+            </div>
+          </div>
           <div className="space-y-2">
             <Label>Description</Label>
-            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ex: Courses, réparation..." maxLength={200} />
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ex: Courses, réparation..." maxLength={200} className="rounded-xl" />
           </div>
           <div className="space-y-2">
             <Label>Montant (€)</Label>
-            <Input type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
+            <Input type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="rounded-xl" />
           </div>
           {members.length > 0 && (
             <div className="space-y-2">
@@ -173,7 +212,7 @@ const NewExpenseDialog = ({ onCreated }: Props) => {
               )}
             </div>
           )}
-          <Button onClick={handleSubmit} disabled={loading} className="w-full">
+          <Button onClick={handleSubmit} disabled={loading} className="w-full rounded-xl">
             {loading ? "Ajout..." : "Ajouter la dépense"}
           </Button>
         </div>
