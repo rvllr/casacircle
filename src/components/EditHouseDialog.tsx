@@ -101,12 +101,11 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="editLocation">Adresse / Localisation</Label>
-            <Input
+            <AddressSearchInput
               id="editLocation"
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Ex : Bretagne, France"
-              maxLength={255}
+              onChange={setLocation}
+              placeholder="Rechercher une adresse..."
             />
           </div>
           <div className="space-y-2">
