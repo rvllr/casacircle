@@ -90,8 +90,10 @@ export type Database = {
           cleaning_fee_paid: boolean
           created_at: string
           end_date: string
+          guest_count: number | null
           house_id: string
           id: string
+          notes: string | null
           start_date: string
           status: Database["public"]["Enums"]["booking_status"]
           unit_id: string | null
@@ -102,8 +104,10 @@ export type Database = {
           cleaning_fee_paid?: boolean
           created_at?: string
           end_date: string
+          guest_count?: number | null
           house_id: string
           id?: string
+          notes?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["booking_status"]
           unit_id?: string | null
@@ -114,8 +118,10 @@ export type Database = {
           cleaning_fee_paid?: boolean
           created_at?: string
           end_date?: string
+          guest_count?: number | null
           house_id?: string
           id?: string
+          notes?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["booking_status"]
           unit_id?: string | null
@@ -208,24 +214,30 @@ export type Database = {
       expenses: {
         Row: {
           amount: number
+          category: Database["public"]["Enums"]["expense_category"]
           created_at: string
           description: string
+          expense_date: string | null
           house_id: string
           id: string
           paid_by: string
         }
         Insert: {
           amount: number
+          category?: Database["public"]["Enums"]["expense_category"]
           created_at?: string
           description: string
+          expense_date?: string | null
           house_id: string
           id?: string
           paid_by: string
         }
         Update: {
           amount?: number
+          category?: Database["public"]["Enums"]["expense_category"]
           created_at?: string
           description?: string
+          expense_date?: string | null
           house_id?: string
           id?: string
           paid_by?: string
@@ -545,10 +557,12 @@ export type Database = {
       }
       houses: {
         Row: {
+          access_code: string | null
           booking_auto_approve: boolean
           capacity: number | null
           created_at: string
           description: string | null
+          emergency_contact: string | null
           family_id: string | null
           id: string
           is_public: boolean
@@ -556,12 +570,16 @@ export type Database = {
           name: string
           owner_id: string | null
           photo_url: string | null
+          wifi_name: string | null
+          wifi_password: string | null
         }
         Insert: {
+          access_code?: string | null
           booking_auto_approve?: boolean
           capacity?: number | null
           created_at?: string
           description?: string | null
+          emergency_contact?: string | null
           family_id?: string | null
           id?: string
           is_public?: boolean
@@ -569,12 +587,16 @@ export type Database = {
           name: string
           owner_id?: string | null
           photo_url?: string | null
+          wifi_name?: string | null
+          wifi_password?: string | null
         }
         Update: {
+          access_code?: string | null
           booking_auto_approve?: boolean
           capacity?: number | null
           created_at?: string
           description?: string | null
+          emergency_contact?: string | null
           family_id?: string | null
           id?: string
           is_public?: boolean
@@ -582,6 +604,8 @@ export type Database = {
           name?: string
           owner_id?: string | null
           photo_url?: string | null
+          wifi_name?: string | null
+          wifi_password?: string | null
         }
         Relationships: [
           {
@@ -600,6 +624,7 @@ export type Database = {
           description: string | null
           house_id: string
           id: string
+          priority: Database["public"]["Enums"]["ticket_priority"]
           status: Database["public"]["Enums"]["ticket_status"]
           title: string
           updated_at: string
@@ -610,6 +635,7 @@ export type Database = {
           description?: string | null
           house_id: string
           id?: string
+          priority?: Database["public"]["Enums"]["ticket_priority"]
           status?: Database["public"]["Enums"]["ticket_status"]
           title: string
           updated_at?: string
@@ -620,6 +646,7 @@ export type Database = {
           description?: string | null
           house_id?: string
           id?: string
+          priority?: Database["public"]["Enums"]["ticket_priority"]
           status?: Database["public"]["Enums"]["ticket_status"]
           title?: string
           updated_at?: string
@@ -862,11 +889,21 @@ export type Database = {
       booking_status: "pending" | "approved" | "refused" | "cancelled"
       cleaning_mode: "included" | "optional" | "mandatory"
       document_type: "legal" | "insurance" | "invoice" | "other"
+      expense_category:
+        | "courses"
+        | "travaux"
+        | "entretien"
+        | "energie"
+        | "assurance"
+        | "taxes"
+        | "menage"
+        | "autre"
       family_role: "admin" | "member"
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
       payment_method: "declarative" | "stripe" | "both"
       pricing_mode: "per_night" | "per_person" | "per_person_per_night"
+      ticket_priority: "low" | "medium" | "high" | "urgent"
       ticket_status: "open" | "in_progress" | "resolved"
       unit_type: "building" | "room"
       vote_response: "yes" | "no" | "abstain"
@@ -1000,11 +1037,22 @@ export const Constants = {
       booking_status: ["pending", "approved", "refused", "cancelled"],
       cleaning_mode: ["included", "optional", "mandatory"],
       document_type: ["legal", "insurance", "invoice", "other"],
+      expense_category: [
+        "courses",
+        "travaux",
+        "entretien",
+        "energie",
+        "assurance",
+        "taxes",
+        "menage",
+        "autre",
+      ],
       family_role: ["admin", "member"],
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],
       payment_method: ["declarative", "stripe", "both"],
       pricing_mode: ["per_night", "per_person", "per_person_per_night"],
+      ticket_priority: ["low", "medium", "high", "urgent"],
       ticket_status: ["open", "in_progress", "resolved"],
       unit_type: ["building", "room"],
       vote_response: ["yes", "no", "abstain"],
