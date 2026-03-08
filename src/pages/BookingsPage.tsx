@@ -384,6 +384,7 @@ const BookingsPage = () => {
                       onRefuse={() => updateBookingStatus(b.id, "refused")}
                       onCancel={() => updateBookingStatus(b.id, "cancelled")}
                       onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
+                      onAmountPaidChange={(amount) => updatePaymentStatus(b.id, b.payment_status, amount)}
                     />
                   ))}
                 </div>
@@ -457,6 +458,7 @@ const BookingsPage = () => {
                       onRefuse={() => updateBookingStatus(b.id, "refused")}
                       onCancel={() => updateBookingStatus(b.id, "cancelled")}
                       onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
+                      onAmountPaidChange={(amount) => updatePaymentStatus(b.id, b.payment_status, amount)}
                     />
                   ))}
                 </div>
