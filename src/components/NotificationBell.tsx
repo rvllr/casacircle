@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Bell, Check, CalendarDays, X, AlertCircle } from "lucide-react";
+import { Bell, Check, CalendarDays, X, AlertCircle, BanknoteIcon } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -22,6 +23,7 @@ interface Notification {
   is_read: boolean;
   created_at: string;
   house_id: string | null;
+  metadata: { booking_id?: string } | null;
 }
 
 const typeIcons: Record<string, { icon: typeof Bell; color: string; badge?: string; badgeVariant?: "destructive" | "secondary" }> = {
@@ -57,7 +59,7 @@ const NotificationBell = () => {
     if (!user) return;
     const { data } = await supabase
       .from("notifications")
-      .select("id, type, title, body, is_read, created_at, house_id")
+      .select("id, type, title, body, is_read, created_at, house_id, metadata")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(30);
@@ -105,6 +107,21 @@ const NotificationBell = () => {
     if (!user) return;
     await supabase.from("notifications").update({ is_read: true } as any).eq("user_id", user.id).eq("is_read", false);
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+  };
+
+  const markPaymentReceived = async (n: Notification) => {
+    const bookingId = n.metadata?.booking_id;
+    if (!bookingId) return;
+    const { error } = await supabase
+      .from("bookings")
+      .update({ payment_status: "paid" as any })
+      .eq("id", bookingId);
+    if (error) {
+      toast.error("Impossible de marquer le paiement (droits insuffisants ?)");
+      return;
+    }
+    toast.success("Paiement marqué comme reçu");
+    markAsRead(n.id);
   };
 
   if (!user) return null;
@@ -197,9 +214,25 @@ const NotificationBell = () => {
                       {n.body && (
                         <p className="text-xs text-muted-foreground line-clamp-2">{n.body}</p>
                       )}
-                      <p className="text-xs text-muted-foreground/60">
-                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground/60">
+                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
+                        </p>
+                        {n.type === "payment_overdue_admin" && n.metadata?.booking_id && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-5 text-[10px] px-2 gap-1 shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markPaymentReceived(n);
+                            }}
+                          >
+                            <BanknoteIcon className="h-3 w-3" />
+                            Marquer payé
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </button>
                 );
