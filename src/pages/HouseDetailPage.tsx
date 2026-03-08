@@ -567,4 +567,172 @@ const MembersTab = ({
   );
 };
 
+const ticketStatusConfig = {
+  open: { label: "Ouvert", icon: AlertTriangle, color: "text-destructive", bgColor: "bg-destructive/10", variant: "destructive" as const },
+  in_progress: { label: "En cours", icon: Clock, color: "text-primary", bgColor: "bg-primary/10", variant: "secondary" as const },
+  resolved: { label: "Résolu", icon: CheckCircle2, color: "text-accent", bgColor: "bg-accent/10", variant: "outline" as const },
+};
+
+const TicketsTab = ({
+  tickets, houseId, isAdmin, userId, onRefresh,
+}: {
+  tickets: MaintenanceTicket[];
+  houseId: string;
+  isAdmin: boolean;
+  userId?: string;
+  onRefresh: () => void;
+}) => {
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleCreate = async () => {
+    if (!title.trim() || !userId) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("maintenance_tickets").insert({
+      title: title.trim(),
+      description: description.trim() || null,
+      house_id: houseId,
+      created_by: userId,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Signalement créé !" });
+      setTitle("");
+      setDescription("");
+      setOpen(false);
+      onRefresh();
+    }
+  };
+
+  const updateStatus = async (ticketId: string, status: "open" | "in_progress" | "resolved") => {
+    const { error } = await supabase.from("maintenance_tickets").update({ status }).eq("id", ticketId);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      onRefresh();
+    }
+  };
+
+  const openTickets = tickets.filter((t) => t.status === "open");
+  const inProgressTickets = tickets.filter((t) => t.status === "in_progress");
+  const resolvedTickets = tickets.filter((t) => t.status === "resolved");
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {tickets.filter(t => t.status !== "resolved").length} signalement{tickets.filter(t => t.status !== "resolved").length > 1 ? "s" : ""} en cours
+        </p>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-1" /> Signaler
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Nouveau signalement</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Titre</label>
+                <Input
+                  placeholder="Ex: Fuite robinet cuisine"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={200}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Description (optionnel)</label>
+                <Textarea
+                  placeholder="Décrivez le problème ou la suggestion..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  maxLength={2000}
+                  rows={4}
+                />
+              </div>
+              <Button onClick={handleCreate} disabled={!title.trim() || submitting} className="w-full">
+                {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Envoyer le signalement
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {tickets.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Wrench className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground">Aucun signalement pour le moment.</p>
+            <p className="text-sm text-muted-foreground mt-1">Signalez un problème ou proposez une amélioration.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-6">
+          {[
+            { label: "Ouverts", items: openTickets, status: "open" as const },
+            { label: "En cours", items: inProgressTickets, status: "in_progress" as const },
+            { label: "Résolus", items: resolvedTickets, status: "resolved" as const },
+          ].filter(g => g.items.length > 0).map((group) => (
+            <div key={group.status} className="space-y-2">
+              <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                {(() => { const Icon = ticketStatusConfig[group.status].icon; return <Icon className={`h-4 w-4 ${ticketStatusConfig[group.status].color}`} />; })()}
+                {group.label} ({group.items.length})
+              </h4>
+              <div className="space-y-2">
+                {group.items.map((t) => {
+                  const sc = ticketStatusConfig[t.status];
+                  return (
+                    <Card key={t.id}>
+                      <CardContent className="py-3 px-4">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                          <div className="space-y-1 flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-medium text-foreground text-sm">{t.title}</p>
+                              <Badge variant={sc.variant} className="text-xs">{sc.label}</Badge>
+                            </div>
+                            {t.description && (
+                              <p className="text-xs text-muted-foreground line-clamp-2">{t.description}</p>
+                            )}
+                            <p className="text-xs text-muted-foreground">
+                              {t.authorName} · {format(new Date(t.created_at), "d MMM yyyy", { locale: fr })}
+                            </p>
+                          </div>
+                          {isAdmin && t.status !== "resolved" && (
+                            <Select
+                              value={t.status}
+                              onValueChange={(v) => updateStatus(t.id, v as any)}
+                            >
+                              <SelectTrigger className="w-[130px] h-8 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="open">Ouvert</SelectItem>
+                                <SelectItem value="in_progress">En cours</SelectItem>
+                                <SelectItem value="resolved">Résolu</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default HouseDetailPage;
