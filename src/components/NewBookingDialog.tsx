@@ -112,6 +112,14 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
         if ((data as any)?.cleaning_mode === "mandatory") setWantsCleaning(true);
         else setWantsCleaning(false);
       });
+    supabase
+      .from("pricing_periods")
+      .select("*")
+      .eq("house_id", houseId)
+      .order("priority", { ascending: false })
+      .then(({ data }) => {
+        setPricingPeriods((data as any[]) || []);
+      });
   }, [houseId]);
 
   // Check for conflicts when dates/unit change
