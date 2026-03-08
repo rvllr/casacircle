@@ -8,6 +8,7 @@ import LandingPage from "./pages/LandingPage";
 import HousesPage from "./pages/HousesPage";
 import BookingsPage from "./pages/BookingsPage";
 import ExpensesPage from "./pages/ExpensesPage";
+import JournalPage from "./pages/JournalPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
