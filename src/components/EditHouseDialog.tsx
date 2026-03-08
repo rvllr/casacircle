@@ -14,7 +14,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Upload, X, Loader2, ImageIcon } from "lucide-react";
+import { Settings, Upload, X, Loader2, ImageIcon, Globe, Copy, Check } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 interface EditHouseDialogProps {
   house: {
