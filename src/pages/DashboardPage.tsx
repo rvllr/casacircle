@@ -11,41 +11,30 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 interface House {
-  id: string;
-  name: string;
-  location: string | null;
-  capacity: number | null;
-  family_id: string;
-  families?: { name: string };
+  id: string; name: string; location: string | null;
+  capacity: number | null; family_id: string;
+  families: { name: string } | null;
 }
 
 interface Booking {
-  id: string;
-  start_date: string;
-  end_date: string;
-  status: string;
-  houses?: { name: string; location: string | null };
+  id: string; start_date: string; end_date: string; status: string;
+  houses: { name: string; location: string | null } | null;
 }
 
-interface News {
-  id: string;
-  title: string;
-  content: string | null;
-  created_at: string;
-  houses?: { name: string };
-  users_profiles?: { first_name: string | null; last_name: string | null };
+interface NewsRow {
+  id: string; title: string; content: string | null;
+  created_at: string; created_by: string;
+  houses: { name: string } | null;
 }
 
-interface Memory {
-  id: string;
-  title: string;
-  description: string | null;
-  visit_start: string | null;
-  visit_end: string | null;
-  created_at: string;
-  houses?: { name: string };
-  users_profiles?: { first_name: string | null; last_name: string | null };
+interface MemoryRow {
+  id: string; title: string; description: string | null;
+  visit_start: string | null; visit_end: string | null;
+  created_at: string; created_by: string;
+  houses: { name: string } | null;
 }
+
+interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "En attente", variant: "secondary" },
@@ -58,9 +47,10 @@ const DashboardPage = () => {
   const { user } = useAuth();
   const [houses, setHouses] = useState<House[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [news, setNews] = useState<News[]>([]);
-  const [memories, setMemories] = useState<Memory[]>([]);
-  const [profile, setProfile] = useState<{ first_name: string | null } | null>(null);
+  const [news, setNews] = useState<NewsRow[]>([]);
+  const [memories, setMemories] = useState<MemoryRow[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [myProfile, setMyProfile] = useState<{ first_name: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,7 +60,7 @@ const DashboardPage = () => {
       setLoading(true);
 
       const [profileRes, housesRes, bookingsRes, newsRes, memoriesRes] = await Promise.all([
-        supabase.from("users_profiles").select("first_name").eq("user_id", user.id).single(),
+        supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
         supabase.from("houses").select("id, name, location, capacity, family_id, families(name)"),
         supabase
           .from("bookings")
@@ -81,21 +71,42 @@ const DashboardPage = () => {
           .limit(5),
         supabase
           .from("house_news")
-          .select("id, title, content, created_at, houses(name), users_profiles!house_news_created_by_fkey(first_name, last_name)")
+          .select("id, title, content, created_at, created_by, houses(name)")
           .order("created_at", { ascending: false })
           .limit(5),
         supabase
           .from("house_memories")
-          .select("id, title, description, visit_start, visit_end, created_at, houses(name), users_profiles!house_memories_created_by_fkey(first_name, last_name)")
+          .select("id, title, description, visit_start, visit_end, created_at, created_by, houses(name)")
           .order("created_at", { ascending: false })
           .limit(5),
       ]);
 
-      if (profileRes.data) setProfile(profileRes.data);
-      if (housesRes.data) setHouses(housesRes.data as unknown as House[]);
-      if (bookingsRes.data) setBookings(bookingsRes.data as unknown as Booking[]);
-      if (newsRes.data) setNews(newsRes.data as unknown as News[]);
-      if (memoriesRes.data) setMemories(memoriesRes.data as unknown as Memory[]);
+      if (profileRes.data) setMyProfile(profileRes.data);
+
+      const housesList = (housesRes.data || []).map((h) => ({ ...h, families: h.families as House["families"] }));
+      setHouses(housesList);
+
+      const bookingsList = (bookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] }));
+      setBookings(bookingsList);
+
+      const newsList = (newsRes.data || []).map((n) => ({ ...n, houses: n.houses as NewsRow["houses"] }));
+      setNews(newsList);
+
+      const memList = (memoriesRes.data || []).map((m) => ({ ...m, houses: m.houses as MemoryRow["houses"] }));
+      setMemories(memList);
+
+      // Fetch profiles for news/memory authors
+      const authorIds = [...new Set([
+        ...newsList.map((n) => n.created_by),
+        ...memList.map((m) => m.created_by),
+      ])];
+      if (authorIds.length > 0) {
+        const { data: profs } = await supabase
+          .from("users_profiles")
+          .select("user_id, first_name, last_name")
+          .in("user_id", authorIds);
+        setProfiles(profs || []);
+      }
 
       setLoading(false);
     };
@@ -103,12 +114,14 @@ const DashboardPage = () => {
     fetchData();
   }, [user]);
 
+  const getAuthorName = (userId: string) => {
+    const p = profiles.find((pr) => pr.user_id === userId);
+    return p?.first_name || "Membre";
+  };
+
   const formatDate = (dateStr: string) => {
-    try {
-      return format(new Date(dateStr), "d MMM yyyy", { locale: fr });
-    } catch {
-      return dateStr;
-    }
+    try { return format(new Date(dateStr), "d MMM yyyy", { locale: fr }); }
+    catch { return dateStr; }
   };
 
   if (loading) {
@@ -128,12 +141,12 @@ const DashboardPage = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-display text-foreground">
-              Bonjour{profile?.first_name ? `, ${profile.first_name}` : ""} 👋
+              Bonjour{myProfile?.first_name ? `, ${myProfile.first_name}` : ""} 👋
             </h2>
             <p className="text-muted-foreground mt-1">Voici un résumé de votre espace familial.</p>
           </div>
           <Button asChild>
-            <Link to="/bookings/new">
+            <Link to="/bookings">
               <Plus className="h-4 w-4 mr-2" />
               Nouvelle réservation
             </Link>
@@ -181,7 +194,7 @@ const DashboardPage = () => {
                       </p>
                     )}
                     {house.families && (
-                      <Badge variant="secondary" className="text-xs">{(house.families as any).name}</Badge>
+                      <Badge variant="secondary" className="text-xs">{house.families.name}</Badge>
                     )}
                   </CardContent>
                 </Card>
@@ -215,7 +228,7 @@ const DashboardPage = () => {
                 <Card key={booking.id}>
                   <CardContent className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="space-y-1">
-                      <p className="font-medium text-foreground">{(booking.houses as any)?.name}</p>
+                      <p className="font-medium text-foreground">{booking.houses?.name}</p>
                       <p className="text-sm text-muted-foreground">
                         {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
                       </p>
@@ -252,13 +265,13 @@ const DashboardPage = () => {
                     <CardContent className="py-4 space-y-1">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium text-foreground text-sm">{item.title}</p>
-                        <Badge variant="outline" className="text-xs whitespace-nowrap">{(item.houses as any)?.name}</Badge>
+                        <Badge variant="outline" className="text-xs whitespace-nowrap">{item.houses?.name}</Badge>
                       </div>
                       {item.content && (
                         <p className="text-sm text-muted-foreground line-clamp-2">{item.content}</p>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        {(item.users_profiles as any)?.first_name} · {formatDate(item.created_at)}
+                        {getAuthorName(item.created_by)} · {formatDate(item.created_at)}
                       </p>
                     </CardContent>
                   </Card>
@@ -288,13 +301,13 @@ const DashboardPage = () => {
                     <CardContent className="py-4 space-y-1">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium text-foreground text-sm">{memory.title}</p>
-                        <Badge variant="outline" className="text-xs whitespace-nowrap">{(memory.houses as any)?.name}</Badge>
+                        <Badge variant="outline" className="text-xs whitespace-nowrap">{memory.houses?.name}</Badge>
                       </div>
                       {memory.description && (
                         <p className="text-sm text-muted-foreground line-clamp-2">{memory.description}</p>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        {(memory.users_profiles as any)?.first_name} · {memory.visit_start ? formatDate(memory.visit_start) : formatDate(memory.created_at)}
+                        {getAuthorName(memory.created_by)} · {memory.visit_start ? formatDate(memory.visit_start) : formatDate(memory.created_at)}
                       </p>
                     </CardContent>
                   </Card>
