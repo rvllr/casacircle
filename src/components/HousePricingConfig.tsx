@@ -154,6 +154,20 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
             </p>
           )}
 
+          {cleaningFee && cleaningMode !== "included" && (
+            <div className="flex items-center gap-2">
+              <Badge variant={cleaningMode === "mandatory" ? "default" : "outline"} className="gap-1">
+                🧹 Ménage : {cleaningFee} €
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {cleaningMode === "mandatory" ? "(obligatoire)" : "(optionnel)"}
+              </span>
+            </div>
+          )}
+          {cleaningMode === "included" && (
+            <p className="text-xs text-muted-foreground">🧹 Ménage inclus dans le tarif</p>
+          )}
+
           <Separator />
 
           <div className="space-y-2">
