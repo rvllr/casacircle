@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { calculateBookingCost } from "@/lib/pricing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,6 +66,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
   const [guestCount, setGuestCount] = useState("2");
   const [wantsCleaning, setWantsCleaning] = useState(false);
   const [notes, setNotes] = useState("");
+  const [pricingPeriods, setPricingPeriods] = useState<any[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
 
