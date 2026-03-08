@@ -108,7 +108,7 @@ const HouseDetailPage = () => {
     setMembers(enrichedMembers);
 
     // Check admin status
-    const isOwner = enrichedMembers.some((m) => m.user_id === user.id && m.role === "owner");
+    const isHouseAdmin = enrichedMembers.some((m) => m.user_id === user.id && m.role === "admin");
     let isFamilyAdmin = false;
     if (houseData.family_id) {
       const { data: fm } = await supabase
@@ -119,7 +119,7 @@ const HouseDetailPage = () => {
         .single();
       isFamilyAdmin = fm?.role === "admin";
     }
-    setIsAdmin(isOwner || isFamilyAdmin);
+    setIsAdmin(isHouseAdmin || isFamilyAdmin);
     setLoading(false);
   }, [id, user, navigate]);
 
