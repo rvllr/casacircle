@@ -174,6 +174,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
     const bookingStatus = isAutoApprove ? "approved" : "pending";
 
     const cleaningAmount = wantsCleaning && pricing?.cleaning_fee ? pricing.cleaning_fee : null;
+    const hasPricing = pricing?.is_active === true;
 
     const { error } = await supabase.from("bookings").insert({
       house_id: houseId,
@@ -185,6 +186,8 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       cleaning_fee: cleaningAmount,
       notes: notes.trim() || null,
       guest_count: parseInt(guestCount) || null,
+      payment_status: hasPricing ? "unpaid" : "not_applicable",
+      total_price: hasPricing && estimatedPrice > 0 ? estimatedPrice : null,
     } as any);
 
     if (error) {
