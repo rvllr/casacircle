@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHouseContext } from "@/contexts/HouseContext";
@@ -10,8 +10,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Check, X } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarDays, Check, X, Users, BarChart3 } from "lucide-react";
+import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 
@@ -83,6 +83,27 @@ const BookingsPage = () => {
     (b) => b.status === "approved" || b.status === "pending"
   );
   const pendingBookings = filteredBookings.filter((b) => b.status === "pending");
+
+  const memberStats = useMemo(() => {
+    const approvedBookings = filteredBookings.filter((b) => b.status === "approved");
+    const statsMap = new Map<string, { name: string; days: number; bookings: number }>();
+    
+    for (const b of approvedBookings) {
+      const days = Math.max(1, differenceInCalendarDays(new Date(b.end_date), new Date(b.start_date)));
+      const name = [b.users_profiles?.first_name, b.users_profiles?.last_name].filter(Boolean).join(" ") || "Membre";
+      const existing = statsMap.get(b.user_id);
+      if (existing) {
+        existing.days += days;
+        existing.bookings += 1;
+      } else {
+        statsMap.set(b.user_id, { name, days, bookings: 1 });
+      }
+    }
+    
+    return [...statsMap.entries()]
+      .map(([userId, s]) => ({ userId, ...s }))
+      .sort((a, b) => b.days - a.days);
+  }, [filteredBookings]);
 
   const canManageBooking = (booking: BookingRow) => {
     return booking.user_id !== user?.id;
@@ -166,6 +187,10 @@ const BookingsPage = () => {
                 )}
               </TabsTrigger>
               <TabsTrigger value="all">Toutes</TabsTrigger>
+              <TabsTrigger value="stats">
+                <BarChart3 className="h-4 w-4 mr-1" />
+                Statistiques
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="calendar">
@@ -210,6 +235,50 @@ const BookingsPage = () => {
                   ))}
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="stats">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Users className="h-5 w-5 text-primary" />
+                    <h3 className="font-display text-lg text-foreground">Jours par membre</h3>
+                    <Badge variant="outline" className="ml-auto text-xs">Réservations confirmées</Badge>
+                  </div>
+                  {memberStats.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">Aucune réservation confirmée.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {memberStats.map((m, idx) => {
+                        const maxDays = memberStats[0]?.days || 1;
+                        const pct = Math.round((m.days / maxDays) * 100);
+                        return (
+                          <div key={m.userId} className="space-y-1">
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                                  {idx + 1}
+                                </span>
+                                <span className="font-medium text-foreground">{m.name}</span>
+                              </div>
+                              <div className="flex items-center gap-3 text-muted-foreground">
+                                <span>{m.bookings} séjour{m.bookings > 1 ? "s" : ""}</span>
+                                <span className="font-semibold text-foreground">{m.days} jour{m.days > 1 ? "s" : ""}</span>
+                              </div>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-primary rounded-full transition-all duration-500"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="all">
