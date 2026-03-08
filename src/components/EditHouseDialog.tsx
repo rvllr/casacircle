@@ -38,6 +38,8 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
   const [capacity, setCapacity] = useState(house.capacity?.toString() || "");
   const [photoUrl, setPhotoUrl] = useState(house.photo_url || "");
   const [photoPreview, setPhotoPreview] = useState<string | null>(house.photo_url || null);
+  const [isPublic, setIsPublic] = useState(house.is_public || false);
+  const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
