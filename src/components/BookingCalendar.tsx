@@ -55,6 +55,7 @@ const PERSON_COLORS = [
 ];
 
 const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], onDayClick }: BookingCalendarProps) => {
+  const isMobile = useIsMobile();
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [view, setView] = useState<ViewMode>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
