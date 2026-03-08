@@ -11,8 +11,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2, Download } from "lucide-react";
+import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2, Download, CreditCard } from "lucide-react";
 import { exportBookingsCsv } from "@/lib/csvExport";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -26,10 +27,20 @@ interface BookingRow {
   end_date: string;
   status: string;
   created_at: string;
+  payment_status: string;
+  total_price: number | null;
+  amount_paid: number | null;
   houses: { name: string; family_id: string | null } | null;
   house_units: { name: string; type: string } | null;
   users_profiles: { first_name: string | null; last_name: string | null } | null;
 }
+
+const paymentStatusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  not_applicable: { label: "N/A", variant: "outline" },
+  unpaid: { label: "Non payé", variant: "destructive" },
+  partial: { label: "Partiel", variant: "secondary" },
+  paid: { label: "Payé", variant: "default" },
+};
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "En attente", variant: "secondary" },
