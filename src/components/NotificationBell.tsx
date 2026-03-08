@@ -214,9 +214,25 @@ const NotificationBell = () => {
                       {n.body && (
                         <p className="text-xs text-muted-foreground line-clamp-2">{n.body}</p>
                       )}
-                      <p className="text-xs text-muted-foreground/60">
-                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground/60">
+                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
+                        </p>
+                        {n.type === "payment_overdue_admin" && n.metadata?.booking_id && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-5 text-[10px] px-2 gap-1 shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markPaymentReceived(n);
+                            }}
+                          >
+                            <BanknoteIcon className="h-3 w-3" />
+                            Marquer payé
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </button>
                 );
