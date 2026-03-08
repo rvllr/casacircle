@@ -450,6 +450,7 @@ export type Database = {
           description: string | null
           family_id: string | null
           id: string
+          is_public: boolean
           location: string | null
           name: string
           owner_id: string | null
@@ -461,6 +462,7 @@ export type Database = {
           description?: string | null
           family_id?: string | null
           id?: string
+          is_public?: boolean
           location?: string | null
           name: string
           owner_id?: string | null
@@ -472,6 +474,7 @@ export type Database = {
           description?: string | null
           family_id?: string | null
           id?: string
+          is_public?: boolean
           location?: string | null
           name?: string
           owner_id?: string | null
