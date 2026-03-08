@@ -61,8 +61,9 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
   const [loading, setLoading] = useState(false);
   const [conflict, setConflict] = useState<string | null>(null);
   const [checkingConflict, setCheckingConflict] = useState(false);
-  const [pricing, setPricing] = useState<{ pricing_mode: string; base_price: number; cap_amount: number | null; is_active: boolean; payment_method: string; accepted_payments: string[]; payment_instructions: string | null } | null>(null);
+  const [pricing, setPricing] = useState<{ pricing_mode: string; base_price: number; cap_amount: number | null; is_active: boolean; payment_method: string; accepted_payments: string[]; payment_instructions: string | null; cleaning_fee: number | null; cleaning_mode: string } | null>(null);
   const [guestCount, setGuestCount] = useState("2");
+  const [wantsCleaning, setWantsCleaning] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -99,11 +100,13 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       });
     supabase
       .from("house_pricing")
-      .select("pricing_mode, base_price, cap_amount, is_active, payment_method, accepted_payments, payment_instructions")
+      .select("pricing_mode, base_price, cap_amount, is_active, payment_method, accepted_payments, payment_instructions, cleaning_fee, cleaning_mode")
       .eq("house_id", houseId)
       .maybeSingle()
       .then(({ data }) => {
         setPricing(data as any);
+        if ((data as any)?.cleaning_mode === "mandatory") setWantsCleaning(true);
+        else setWantsCleaning(false);
       });
   }, [houseId]);
 
