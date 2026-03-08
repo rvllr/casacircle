@@ -166,6 +166,10 @@ const BookingsPage = () => {
                 )}
               </TabsTrigger>
               <TabsTrigger value="all">Toutes</TabsTrigger>
+              <TabsTrigger value="stats">
+                <BarChart3 className="h-4 w-4 mr-1" />
+                Statistiques
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="calendar">
