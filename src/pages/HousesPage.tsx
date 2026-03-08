@@ -199,12 +199,12 @@ const HousesPage = () => {
 
   return (
     <AppLayout title="Maisons">
-      <div className="space-y-8 max-w-5xl">
+      <div className="space-y-8 max-w-5xl animate-fade-in">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="page-header">
           <div>
-            <h2 className="text-2xl md:text-3xl font-display text-foreground">Mes maisons</h2>
-            <p className="text-muted-foreground mt-1">Créez des maisons et invitez vos proches.</p>
+            <h2 className="page-header-title">Mes maisons</h2>
+            <p className="page-header-subtitle">Créez des maisons et invitez vos proches.</p>
           </div>
           <div className="flex items-center gap-2">
             <CreateHouseDialog families={adminFamilies} onCreated={fetchData} />
@@ -377,9 +377,9 @@ const HouseCard = ({
   const standaloneRooms = units.filter((u) => u.type === "room" && !u.parent_id);
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/houses/${house.id}`)}>
+    <Card className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200 cursor-pointer group" onClick={() => navigate(`/houses/${house.id}`)}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-display flex items-center gap-2">
+        <CardTitle className="text-base font-display flex items-center gap-2 group-hover:text-primary transition-colors">
           <Building2 className="h-4 w-4 text-primary" />
           {house.name}
         </CardTitle>

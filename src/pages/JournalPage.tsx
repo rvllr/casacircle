@@ -111,11 +111,11 @@ const JournalPage = () => {
 
   return (
     <AppLayout title="Journal">
-      <div className="space-y-6 max-w-3xl">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-6 max-w-3xl animate-fade-in">
+        <div className="page-header">
           <div>
-            <h2 className="text-2xl md:text-3xl font-display text-foreground">Journal</h2>
-            <p className="text-muted-foreground mt-1">Les souvenirs et anecdotes de vos maisons.</p>
+            <h2 className="page-header-title">Journal</h2>
+            <p className="page-header-subtitle">Les souvenirs et anecdotes de vos maisons.</p>
           </div>
           <NewMemoryDialog onCreated={fetchData} />
         </div>

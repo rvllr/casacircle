@@ -136,11 +136,11 @@ const ExpensesPage = () => {
 
   return (
     <AppLayout title="Dépenses">
-      <div className="space-y-6 max-w-5xl">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-6 max-w-5xl animate-fade-in">
+        <div className="page-header">
           <div>
-            <h2 className="text-2xl md:text-3xl font-display text-foreground">Dépenses</h2>
-            <p className="text-muted-foreground mt-1">Suivez et partagez les frais entre membres.</p>
+            <h2 className="page-header-title">Dépenses</h2>
+            <p className="page-header-subtitle">Suivez et partagez les frais entre membres.</p>
           </div>
           <NewExpenseDialog onCreated={fetchData} />
         </div>

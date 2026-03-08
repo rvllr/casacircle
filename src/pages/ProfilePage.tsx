@@ -124,10 +124,10 @@ const ProfilePage = () => {
 
   return (
     <AppLayout title="Profil">
-      <div className="space-y-6 max-w-lg">
+      <div className="space-y-6 max-w-lg animate-fade-in">
         <div>
-          <h2 className="text-2xl md:text-3xl font-display text-foreground">Mon profil</h2>
-          <p className="text-muted-foreground mt-1">Gérez vos informations personnelles.</p>
+          <h2 className="page-header-title">Mon profil</h2>
+          <p className="page-header-subtitle">Gérez vos informations personnelles.</p>
         </div>
 
         {/* Avatar */}

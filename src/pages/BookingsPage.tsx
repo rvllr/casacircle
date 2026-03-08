@@ -182,14 +182,14 @@ const BookingsPage = () => {
 
   return (
     <AppLayout title="Réservations">
-      <div className="space-y-4 sm:space-y-6 max-w-5xl">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-6 max-w-5xl animate-fade-in">
+        <div className="page-header">
           <div>
-            <h2 className="text-2xl md:text-3xl font-display text-foreground">Réservations</h2>
-            <p className="text-muted-foreground mt-1">Planifiez et gérez les séjours.</p>
+            <h2 className="page-header-title">Réservations</h2>
+            <p className="page-header-subtitle">Planifiez et gérez les séjours.</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }}>
+            <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }} className="rounded-xl shadow-soft">
               <Plus className="h-4 w-4 mr-2" />
               Nouvelle réservation
             </Button>
@@ -206,9 +206,9 @@ const BookingsPage = () => {
         <HouseSelector />
 
         {houses.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <Card className="border-border/50 shadow-soft">
+            <CardContent className="empty-state">
+              <CalendarDays className="empty-state-icon" />
               <h3 className="font-display text-xl text-foreground mb-2">Aucune maison</h3>
               <p className="text-muted-foreground">Créez d'abord une maison pour commencer à réserver.</p>
             </CardContent>
