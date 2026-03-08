@@ -367,9 +367,11 @@ const BookingsPage = () => {
                       formatDate={formatDate}
                       canManage={canManageBooking(b)}
                       canCancel={b.user_id === user?.id}
+                      hasPricing={pricingActiveHouseIds.has(b.house_id)}
                       onApprove={() => updateBookingStatus(b.id, "approved")}
                       onRefuse={() => updateBookingStatus(b.id, "refused")}
                       onCancel={() => updateBookingStatus(b.id, "cancelled")}
+                      onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
                     />
                   ))}
                 </div>
@@ -438,9 +440,11 @@ const BookingsPage = () => {
                       formatDate={formatDate}
                       canManage={b.status === "pending" && canManageBooking(b)}
                       canCancel={b.user_id === user?.id && (b.status === "pending" || b.status === "approved")}
+                      hasPricing={pricingActiveHouseIds.has(b.house_id)}
                       onApprove={() => updateBookingStatus(b.id, "approved")}
                       onRefuse={() => updateBookingStatus(b.id, "refused")}
                       onCancel={() => updateBookingStatus(b.id, "cancelled")}
+                      onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
                     />
                   ))}
                 </div>
@@ -460,9 +464,11 @@ const BookingCard = ({
   formatDate,
   canManage,
   canCancel = false,
+  hasPricing = false,
   onApprove,
   onRefuse,
   onCancel,
+  onPaymentStatusChange,
 }: {
   booking: BookingRow;
   label: string;
@@ -470,25 +476,40 @@ const BookingCard = ({
   formatDate: (d: string) => string;
   canManage: boolean;
   canCancel?: boolean;
+  hasPricing?: boolean;
   onApprove: () => void;
   onRefuse: () => void;
   onCancel?: () => void;
-}) => (
-  <Card className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
-    <CardContent className="p-4 sm:py-4 sm:px-5">
-      <div className="flex flex-col gap-2.5">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-medium text-sm sm:text-base text-foreground">{label}</p>
-            <Badge variant={statusConfig[booking.status]?.variant || "secondary"} className="text-[10px] sm:text-xs">
-              {statusConfig[booking.status]?.label || booking.status}
-            </Badge>
+  onPaymentStatusChange?: (status: string) => void;
+}) => {
+  const showPayment = hasPricing && booking.payment_status !== "not_applicable";
+  const showPaymentSelector = hasPricing && canManage;
+
+  return (
+    <Card className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
+      <CardContent className="p-4 sm:py-4 sm:px-5">
+        <div className="flex flex-col gap-2.5">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-medium text-sm sm:text-base text-foreground">{label}</p>
+              <Badge variant={statusConfig[booking.status]?.variant || "secondary"} className="text-[10px] sm:text-xs">
+                {statusConfig[booking.status]?.label || booking.status}
+              </Badge>
+              {showPayment && (
+                <Badge variant={paymentStatusConfig[booking.payment_status]?.variant || "outline"} className="text-[10px] sm:text-xs">
+                  <CreditCard className="h-3 w-3 mr-1" />
+                  {paymentStatusConfig[booking.payment_status]?.label || booking.payment_status}
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              {userName} · {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
+              {booking.total_price != null && (
+                <span className="ml-2 font-medium text-foreground">{Number(booking.total_price).toFixed(2)} €</span>
+              )}
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            {userName} · {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
-          </p>
-        </div>
-        {(canManage || canCancel) && (
+
           <div className="flex items-center gap-2 flex-wrap">
             {canManage && (
               <>
@@ -505,11 +526,24 @@ const BookingCard = ({
                 <X className="h-3.5 w-3.5 mr-1" /> Annuler
               </Button>
             )}
+            {showPaymentSelector && onPaymentStatusChange && (
+              <Select value={booking.payment_status} onValueChange={onPaymentStatusChange}>
+                <SelectTrigger className="h-8 w-[130px] text-xs rounded-lg">
+                  <CreditCard className="h-3.5 w-3.5 mr-1" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unpaid">Non payé</SelectItem>
+                  <SelectItem value="partial">Partiel</SelectItem>
+                  <SelectItem value="paid">Payé</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-);
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default BookingsPage;
