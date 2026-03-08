@@ -418,6 +418,10 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
           <div className="w-3 h-3 rounded bg-destructive/15 border border-destructive/30" />
           Réservé
         </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded bg-muted border border-border" />
+          Bloqué
+        </div>
       </div>
     </div>
   );
