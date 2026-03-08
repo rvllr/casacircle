@@ -82,7 +82,7 @@ const BookingsPage = () => {
     const [{ data: bookingsData }, { data: blockedData }] = await Promise.all([
       supabase
         .from("bookings")
-        .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, houses(name, family_id), house_units(name, type)")
+        .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, payment_status, total_price, amount_paid, houses(name, family_id), house_units(name, type)")
         .order("start_date", { ascending: true }),
       supabase
         .from("blocked_periods")
