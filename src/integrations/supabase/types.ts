@@ -435,32 +435,41 @@ export type Database = {
       }
       house_pricing: {
         Row: {
+          accepted_payments: string[]
           base_price: number
           cap_amount: number | null
           created_at: string
           house_id: string
           id: string
           is_active: boolean
+          payment_instructions: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"]
           pricing_mode: Database["public"]["Enums"]["pricing_mode"]
           updated_at: string
         }
         Insert: {
+          accepted_payments?: string[]
           base_price?: number
           cap_amount?: number | null
           created_at?: string
           house_id: string
           id?: string
           is_active?: boolean
+          payment_instructions?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"]
           pricing_mode?: Database["public"]["Enums"]["pricing_mode"]
           updated_at?: string
         }
         Update: {
+          accepted_payments?: string[]
           base_price?: number
           cap_amount?: number | null
           created_at?: string
           house_id?: string
           id?: string
           is_active?: boolean
+          payment_instructions?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"]
           pricing_mode?: Database["public"]["Enums"]["pricing_mode"]
           updated_at?: string
         }
@@ -843,6 +852,7 @@ export type Database = {
       family_role: "admin" | "member"
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
+      payment_method: "declarative" | "stripe" | "both"
       pricing_mode: "per_night" | "per_person" | "per_person_per_night"
       ticket_status: "open" | "in_progress" | "resolved"
       unit_type: "building" | "room"
@@ -979,6 +989,7 @@ export const Constants = {
       family_role: ["admin", "member"],
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],
+      payment_method: ["declarative", "stripe", "both"],
       pricing_mode: ["per_night", "per_person", "per_person_per_night"],
       ticket_status: ["open", "in_progress", "resolved"],
       unit_type: ["building", "room"],
