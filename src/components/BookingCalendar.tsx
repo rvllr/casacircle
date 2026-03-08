@@ -90,8 +90,26 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
     });
   };
 
-  const getDayStatus = (date: Date): "available" | "pending" | "booked" | "past" => {
+  const isBlocked = (date: Date): boolean => {
+    return blockedPeriods.some((bp) => {
+      const bpStart = new Date(bp.start_date);
+      const bpEnd = new Date(bp.end_date);
+      return date >= bpStart && date <= bpEnd;
+    });
+  };
+
+  const getBlockedReason = (date: Date): string | null => {
+    const bp = blockedPeriods.find((bp) => {
+      const bpStart = new Date(bp.start_date);
+      const bpEnd = new Date(bp.end_date);
+      return date >= bpStart && date <= bpEnd;
+    });
+    return bp?.reason || null;
+  };
+
+  const getDayStatus = (date: Date): "available" | "pending" | "booked" | "past" | "blocked" => {
     if (isBefore(date, startOfDay(new Date()))) return "past";
+    if (isBlocked(date)) return "blocked";
     const dayBookings = getBookingsForDay(date);
     if (dayBookings.some((b) => b.status === "approved")) return "booked";
     if (dayBookings.some((b) => b.status === "pending")) return "pending";
