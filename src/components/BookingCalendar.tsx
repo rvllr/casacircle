@@ -499,7 +499,11 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
 
           {/* Period stats */}
           {periodStats && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-center">
+                <p className="text-xl font-display text-primary">{periodStats.occupancyRate}%</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">taux d'occupation</p>
+              </div>
               <div className="rounded-lg border border-border p-3 text-center">
                 <p className="text-xl font-display text-foreground">{periodStats.totalDays}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground">jours</p>
