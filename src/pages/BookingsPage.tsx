@@ -171,6 +171,10 @@ const BookingsPage = () => {
             <h2 className="text-2xl md:text-3xl font-display text-foreground">Réservations</h2>
             <p className="text-muted-foreground mt-1">Planifiez et gérez les séjours.</p>
           </div>
+          <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle réservation
+          </Button>
           <NewBookingDialog
             onCreated={fetchData}
             externalOpen={newBookingOpen}
