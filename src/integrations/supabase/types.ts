@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      booking_guests: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          name: string
+          type: Database["public"]["Enums"]["guest_type"]
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          name: string
+          type?: Database["public"]["Enums"]["guest_type"]
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          type?: Database["public"]["Enums"]["guest_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_guests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           created_at: string
@@ -45,6 +77,108 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "bookings_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          created_at: string
+          file_url: string
+          house_id: string
+          id: string
+          title: string
+          type: Database["public"]["Enums"]["document_type"]
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          house_id: string
+          id?: string
+          title: string
+          type?: Database["public"]["Enums"]["document_type"]
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          house_id?: string
+          id?: string
+          title?: string
+          type?: Database["public"]["Enums"]["document_type"]
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expense_shares: {
+        Row: {
+          amount: number
+          expense_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          expense_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          expense_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_shares_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          house_id: string
+          id: string
+          paid_by: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description: string
+          house_id: string
+          id?: string
+          paid_by: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          house_id?: string
+          id?: string
+          paid_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_house_id_fkey"
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "houses"
@@ -101,6 +235,44 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      house_guides: {
+        Row: {
+          content: string | null
+          created_at: string
+          house_id: string
+          id: string
+          title: string
+          type: Database["public"]["Enums"]["guide_type"]
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          house_id: string
+          id?: string
+          title: string
+          type?: Database["public"]["Enums"]["guide_type"]
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          house_id?: string
+          id?: string
+          title?: string
+          type?: Database["public"]["Enums"]["guide_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "house_guides_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
             referencedColumns: ["id"]
           },
         ]
@@ -222,6 +394,47 @@ export type Database = {
           },
         ]
       }
+      maintenance_tickets: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          house_id: string
+          id: string
+          status: Database["public"]["Enums"]["ticket_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          house_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          house_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_tickets_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memory_photos: {
         Row: {
           created_at: string
@@ -284,16 +497,95 @@ export type Database = {
         }
         Relationships: []
       }
+      vote_responses: {
+        Row: {
+          created_at: string
+          id: string
+          response: Database["public"]["Enums"]["vote_response"]
+          user_id: string
+          vote_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          response: Database["public"]["Enums"]["vote_response"]
+          user_id: string
+          vote_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          response?: Database["public"]["Enums"]["vote_response"]
+          user_id?: string
+          vote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_responses_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "votes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      votes: {
+        Row: {
+          created_at: string
+          created_by: string
+          deadline: string | null
+          description: string | null
+          house_id: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          deadline?: string | null
+          description?: string | null
+          house_id: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          deadline?: string | null
+          description?: string | null
+          house_id?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       get_family_id_from_house: { Args: { _house_id: string }; Returns: string }
+      get_house_id_from_booking: {
+        Args: { _booking_id: string }
+        Returns: string
+      }
+      get_house_id_from_expense: {
+        Args: { _expense_id: string }
+        Returns: string
+      }
       get_house_id_from_memory: {
         Args: { _memory_id: string }
         Returns: string
       }
+      get_house_id_from_vote: { Args: { _vote_id: string }; Returns: string }
       is_family_admin: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
@@ -305,7 +597,12 @@ export type Database = {
     }
     Enums: {
       booking_status: "pending" | "approved" | "refused" | "cancelled"
+      document_type: "legal" | "insurance" | "invoice" | "other"
       family_role: "admin" | "member"
+      guest_type: "family" | "friend"
+      guide_type: "arrival" | "departure" | "rules" | "practical_info"
+      ticket_status: "open" | "in_progress" | "resolved"
+      vote_response: "yes" | "no" | "abstain"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -434,7 +731,12 @@ export const Constants = {
   public: {
     Enums: {
       booking_status: ["pending", "approved", "refused", "cancelled"],
+      document_type: ["legal", "insurance", "invoice", "other"],
       family_role: ["admin", "member"],
+      guest_type: ["family", "friend"],
+      guide_type: ["arrival", "departure", "rules", "practical_info"],
+      ticket_status: ["open", "in_progress", "resolved"],
+      vote_response: ["yes", "no", "abstain"],
     },
   },
 } as const
