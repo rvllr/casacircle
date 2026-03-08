@@ -91,7 +91,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
                 "aspect-square flex items-center justify-center rounded-md text-sm transition-colors relative",
                 !current && "opacity-30",
                 status === "available" && "bg-accent/30 text-foreground hover:bg-accent/60 cursor-pointer",
-                status === "pending" && "bg-amber-100 text-amber-800 border border-amber-300",
+                status === "pending" && "bg-secondary text-secondary-foreground border border-primary/30",
                 status === "booked" && "bg-destructive/15 text-destructive border border-destructive/30 cursor-not-allowed",
                 status === "past" && "text-muted-foreground/40 cursor-default",
                 isToday(day) && "ring-2 ring-primary ring-offset-1"
@@ -110,7 +110,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
           Disponible
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-amber-100 border border-amber-300" />
+          <div className="w-3 h-3 rounded bg-secondary border border-primary/30" />
           En attente
         </div>
         <div className="flex items-center gap-1.5">
