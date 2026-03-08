@@ -403,9 +403,18 @@ const GuideCard = ({
       </CardHeader>
       <CardContent className="flex-1 flex flex-col">
         {hasContent ? (
-          <div className="prose prose-sm text-muted-foreground whitespace-pre-wrap flex-1">
-            {guide!.content}
-          </div>
+          <ul className="space-y-1.5 flex-1">
+            {guide!.content!.split("\n").filter((l) => l.trim()).map((line, i) => {
+              const text = line.replace(/^[\s•\-\*·]+/, "").trim();
+              if (!text) return null;
+              return (
+                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <span className="text-primary mt-0.5 shrink-0">•</span>
+                  <span>{text}</span>
+                </li>
+              );
+            })}
+          </ul>
         ) : (
           <p className="text-sm text-muted-foreground/60 italic flex-1">
             Aucun contenu ajouté.
