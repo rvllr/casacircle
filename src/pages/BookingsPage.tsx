@@ -109,7 +109,7 @@ const BookingsPage = () => {
     return booking.user_id !== user?.id;
   };
 
-  const updateBookingStatus = async (bookingId: string, status: "approved" | "refused") => {
+  const updateBookingStatus = async (bookingId: string, status: "approved" | "refused" | "cancelled") => {
     const { error } = await supabase
       .from("bookings")
       .update({ status })
@@ -118,7 +118,8 @@ const BookingsPage = () => {
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: status === "approved" ? "Réservation confirmée !" : "Réservation refusée." });
+      const messages = { approved: "Réservation confirmée !", refused: "Réservation refusée.", cancelled: "Réservation annulée." };
+      toast({ title: messages[status] });
       fetchData();
     }
   };
