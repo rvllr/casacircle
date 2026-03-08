@@ -174,7 +174,14 @@ const BookingsPage = () => {
                   <BookingCalendar
                     month={calendarMonth}
                     onMonthChange={setCalendarMonth}
-                    bookings={calendarBookings}
+                    bookings={calendarBookings.map((b) => ({
+                      start_date: b.start_date,
+                      end_date: b.end_date,
+                      status: b.status,
+                      userName: [b.users_profiles?.first_name, b.users_profiles?.last_name].filter(Boolean).join(" ") || undefined,
+                      houseName: selectedHouseId === "all" ? (b.houses?.name || undefined) : undefined,
+                      unitName: b.house_units?.name || undefined,
+                    }))}
                   />
                 </CardContent>
               </Card>

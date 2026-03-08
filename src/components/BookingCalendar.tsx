@@ -1,54 +1,72 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, isBefore, startOfDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-interface Booking {
+interface CalendarBooking {
   start_date: string;
   end_date: string;
   status: string;
+  userName?: string;
+  houseName?: string;
+  unitName?: string;
 }
 
 interface BookingCalendarProps {
   month: Date;
   onMonthChange: (date: Date) => void;
-  bookings: Booking[];
+  bookings: CalendarBooking[];
   onDayClick?: (date: Date) => void;
 }
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
 const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: BookingCalendarProps) => {
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+
   const days = useMemo(() => {
     const start = startOfMonth(month);
     const end = endOfMonth(month);
     const allDays = eachDayOfInterval({ start, end });
-
-    // Pad start to Monday
     const startPad = (getDay(start) + 6) % 7;
     const paddedStart: (Date | null)[] = Array(startPad).fill(null);
-
     return [...paddedStart, ...allDays];
   }, [month]);
 
-  const getDayStatus = (date: Date): "available" | "pending" | "booked" | "past" => {
-    if (isBefore(date, startOfDay(new Date()))) return "past";
-
-    for (const b of bookings) {
+  const getBookingsForDay = (date: Date): CalendarBooking[] => {
+    return bookings.filter((b) => {
       const bStart = new Date(b.start_date);
       const bEnd = new Date(b.end_date);
-      if (date >= bStart && date <= bEnd) {
-        if (b.status === "approved") return "booked";
-        if (b.status === "pending") return "pending";
-      }
-    }
+      return date >= bStart && date <= bEnd && (b.status === "approved" || b.status === "pending");
+    });
+  };
+
+  const getDayStatus = (date: Date): "available" | "pending" | "booked" | "past" => {
+    if (isBefore(date, startOfDay(new Date()))) return "past";
+    const dayBookings = getBookingsForDay(date);
+    if (dayBookings.some((b) => b.status === "approved")) return "booked";
+    if (dayBookings.some((b) => b.status === "pending")) return "pending";
     return "available";
   };
 
-  const prev = () => onMonthChange(new Date(month.getFullYear(), month.getMonth() - 1, 1));
-  const next = () => onMonthChange(new Date(month.getFullYear(), month.getMonth() + 1, 1));
+  const prev = () => {
+    onMonthChange(new Date(month.getFullYear(), month.getMonth() - 1, 1));
+    setSelectedDay(null);
+  };
+  const next = () => {
+    onMonthChange(new Date(month.getFullYear(), month.getMonth() + 1, 1));
+    setSelectedDay(null);
+  };
+
+  const handleDayClick = (day: Date) => {
+    setSelectedDay((prev) => prev && prev.getTime() === day.getTime() ? null : day);
+    onDayClick?.(day);
+  };
+
+  const selectedDayBookings = selectedDay ? getBookingsForDay(selectedDay) : [];
 
   return (
     <div className="space-y-3">
@@ -81,27 +99,79 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
 
           const status = getDayStatus(day);
           const current = isSameMonth(day, month);
+          const dayBookings = getBookingsForDay(day);
+          const isSelected = selectedDay && day.getTime() === selectedDay.getTime();
+          const occupantCount = dayBookings.length;
 
           return (
             <button
               key={day.toISOString()}
-              onClick={() => onDayClick?.(day)}
-              disabled={status === "past" || status === "booked"}
+              onClick={() => handleDayClick(day)}
               className={cn(
-                "aspect-square flex items-center justify-center rounded-md text-sm transition-colors relative",
+                "aspect-square flex flex-col items-center justify-center rounded-md text-sm transition-colors relative p-0.5",
                 !current && "opacity-30",
                 status === "available" && "bg-accent/30 text-foreground hover:bg-accent/60 cursor-pointer",
-                status === "pending" && "bg-secondary text-secondary-foreground border border-primary/30",
-                status === "booked" && "bg-destructive/15 text-destructive border border-destructive/30 cursor-not-allowed",
+                status === "pending" && "bg-secondary text-secondary-foreground border border-primary/30 cursor-pointer",
+                status === "booked" && "bg-destructive/15 text-destructive border border-destructive/30 cursor-pointer",
                 status === "past" && "text-muted-foreground/40 cursor-default",
-                isToday(day) && "ring-2 ring-primary ring-offset-1"
+                isToday(day) && "ring-2 ring-primary ring-offset-1",
+                isSelected && "ring-2 ring-foreground ring-offset-1"
               )}
             >
-              {format(day, "d")}
+              <span>{format(day, "d")}</span>
+              {occupantCount > 0 && (
+                <span className="absolute bottom-0.5 flex gap-0.5">
+                  {dayBookings.slice(0, 3).map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={cn(
+                        "w-1 h-1 rounded-full",
+                        status === "booked" ? "bg-destructive" : "bg-primary"
+                      )}
+                    />
+                  ))}
+                </span>
+              )}
             </button>
           );
         })}
       </div>
+
+      {/* Selected day detail */}
+      {selectedDay && (
+        <div className="border border-border rounded-lg p-3 space-y-2 bg-muted/30">
+          <p className="text-sm font-medium text-foreground capitalize">
+            {format(selectedDay, "EEEE d MMMM yyyy", { locale: fr })}
+          </p>
+          {selectedDayBookings.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Aucune réservation ce jour.</p>
+          ) : (
+            <div className="space-y-1.5">
+              {selectedDayBookings.map((b, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-sm">
+                  <div className={cn(
+                    "w-2 h-2 rounded-full shrink-0",
+                    b.status === "approved" ? "bg-destructive" : "bg-primary"
+                  )} />
+                  <span className="font-medium text-foreground">{b.userName || "Membre"}</span>
+                  {b.unitName && (
+                    <span className="text-xs text-muted-foreground">— {b.unitName}</span>
+                  )}
+                  {b.houseName && (
+                    <Badge variant="outline" className="text-xs ml-auto">{b.houseName}</Badge>
+                  )}
+                  <Badge
+                    variant={b.status === "approved" ? "default" : "secondary"}
+                    className="text-xs"
+                  >
+                    {b.status === "approved" ? "Confirmée" : "En attente"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2">
