@@ -113,7 +113,8 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
         description: description.trim() || null,
         capacity: capacity ? parseInt(capacity, 10) : null,
         photo_url: photoUrl.trim() || null,
-      })
+        is_public: isPublic,
+      } as any)
       .eq("id", house.id);
 
     if (error) {
