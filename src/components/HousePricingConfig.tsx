@@ -48,6 +48,8 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
   const [paymentMethod, setPaymentMethod] = useState("declarative");
   const [acceptedPayments, setAcceptedPayments] = useState<string[]>(["virement", "cheque", "liquide"]);
   const [paymentInstructions, setPaymentInstructions] = useState("");
+  const [cleaningFee, setCleaningFee] = useState("");
+  const [cleaningMode, setCleaningMode] = useState("included");
 
   useEffect(() => {
     const fetch = async () => {
@@ -67,6 +69,8 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
         setPaymentMethod((data as any).payment_method || "declarative");
         setAcceptedPayments((data as any).accepted_payments || ["virement", "cheque", "liquide"]);
         setPaymentInstructions((data as any).payment_instructions || "");
+        setCleaningFee((data as any).cleaning_fee?.toString() || "");
+        setCleaningMode((data as any).cleaning_mode || "included");
       }
       setLoading(false);
     };
@@ -90,6 +94,8 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
       payment_method: paymentMethod as any,
       accepted_payments: acceptedPayments,
       payment_instructions: paymentInstructions.trim() || null,
+      cleaning_fee: cleaningFee ? parseFloat(cleaningFee) : null,
+      cleaning_mode: cleaningMode as any,
     };
 
     let error;
