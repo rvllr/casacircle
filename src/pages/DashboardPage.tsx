@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
+import HouseSelector from "@/components/HouseSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,28 +12,22 @@ import { Building2, CalendarDays, Wallet, Heart, Plus, MapPin, Users, ArrowRight
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-interface House {
-  id: string; name: string; location: string | null;
-  capacity: number | null; family_id: string | null;
-  families: { name: string } | null;
-}
-
 interface Booking {
   id: string; start_date: string; end_date: string; status: string;
-  user_id: string;
+  user_id: string; house_id: string;
   houses: { name: string; location: string | null } | null;
 }
 
 interface Expense {
   id: string; amount: number; description: string;
-  created_at: string; paid_by: string;
+  created_at: string; paid_by: string; house_id: string;
   houses: { name: string } | null;
 }
 
 interface MemoryRow {
   id: string; title: string; description: string | null;
   visit_start: string | null; visit_end: string | null;
-  created_at: string; created_by: string;
+  created_at: string; created_by: string; house_id: string;
   houses: { name: string } | null;
 }
 
@@ -46,7 +42,7 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const [houses, setHouses] = useState<House[]>([]);
+  const { houses, selectedHouseId } = useHouseContext();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [memories, setMemories] = useState<MemoryRow[]>([]);
@@ -60,31 +56,39 @@ const DashboardPage = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      const [profileRes, housesRes, bookingsRes, expensesRes, memoriesRes] = await Promise.all([
+      let bookingsQuery = supabase
+        .from("bookings")
+        .select("id, start_date, end_date, status, user_id, house_id, houses(name, location)")
+        .gte("end_date", new Date().toISOString().split("T")[0])
+        .order("start_date", { ascending: true })
+        .limit(5);
+
+      let expensesQuery = supabase
+        .from("expenses")
+        .select("id, amount, description, created_at, paid_by, house_id, houses(name)")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      let memoriesQuery = supabase
+        .from("house_memories")
+        .select("id, title, description, visit_start, visit_end, created_at, created_by, house_id, houses(name)")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (selectedHouseId !== "all") {
+        bookingsQuery = bookingsQuery.eq("house_id", selectedHouseId);
+        expensesQuery = expensesQuery.eq("house_id", selectedHouseId);
+        memoriesQuery = memoriesQuery.eq("house_id", selectedHouseId);
+      }
+
+      const [profileRes, bookingsRes, expensesRes, memoriesRes] = await Promise.all([
         supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
-        supabase.from("houses").select("id, name, location, capacity, family_id, families(name)"),
-        supabase
-          .from("bookings")
-          .select("id, start_date, end_date, status, user_id, houses(name, location)")
-          .gte("end_date", new Date().toISOString().split("T")[0])
-          .order("start_date", { ascending: true })
-          .limit(5),
-        supabase
-          .from("expenses")
-          .select("id, amount, description, created_at, paid_by, houses(name)")
-          .order("created_at", { ascending: false })
-          .limit(5),
-        supabase
-          .from("house_memories")
-          .select("id, title, description, visit_start, visit_end, created_at, created_by, houses(name)")
-          .order("created_at", { ascending: false })
-          .limit(5),
+        bookingsQuery,
+        expensesQuery,
+        memoriesQuery,
       ]);
 
       if (profileRes.data) setMyProfile(profileRes.data);
-
-      const housesList = (housesRes.data || []).map((h) => ({ ...h, families: h.families as House["families"] }));
-      setHouses(housesList);
 
       const bookingsList = (bookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] }));
       setBookings(bookingsList);
@@ -95,7 +99,6 @@ const DashboardPage = () => {
       const memList = (memoriesRes.data || []).map((m) => ({ ...m, houses: m.houses as MemoryRow["houses"] }));
       setMemories(memList);
 
-      // Fetch profiles for authors
       const authorIds = [...new Set([
         ...expensesList.map((e) => e.paid_by),
         ...memList.map((m) => m.created_by),
@@ -113,7 +116,7 @@ const DashboardPage = () => {
     };
 
     fetchData();
-  }, [user]);
+  }, [user, selectedHouseId]);
 
   const getAuthorName = (userId: string) => {
     const p = profiles.find((pr) => pr.user_id === userId);
@@ -124,6 +127,8 @@ const DashboardPage = () => {
     try { return format(new Date(dateStr), "d MMM yyyy", { locale: fr }); }
     catch { return dateStr; }
   };
+
+  const filteredHouseCount = selectedHouseId === "all" ? houses.length : 1;
 
   if (loading) {
     return (
@@ -154,13 +159,15 @@ const DashboardPage = () => {
           </Button>
         </div>
 
+        <HouseSelector />
+
         {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="py-4 flex flex-col items-center text-center">
               <Building2 className="h-6 w-6 text-primary mb-1" />
-              <p className="text-2xl font-bold text-foreground">{houses.length}</p>
-              <p className="text-xs text-muted-foreground">Maison{houses.length > 1 ? "s" : ""}</p>
+              <p className="text-2xl font-bold text-foreground">{filteredHouseCount}</p>
+              <p className="text-xs text-muted-foreground">Maison{filteredHouseCount > 1 ? "s" : ""}</p>
             </CardContent>
           </Card>
           <Card>
