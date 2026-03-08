@@ -259,6 +259,38 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
           </div>
         </div>
 
+        {/* Cleaning fee */}
+        <Separator />
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            🧹 Frais de ménage
+          </Label>
+          <Select value={cleaningMode} onValueChange={setCleaningMode}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="included">Inclus dans le tarif</SelectItem>
+              <SelectItem value="optional">Optionnel (le membre choisit)</SelectItem>
+              <SelectItem value="mandatory">Obligatoire (ajouté automatiquement)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {cleaningMode !== "included" && (
+          <div className="space-y-2">
+            <Label>Montant du ménage (€)</Label>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={cleaningFee}
+              onChange={(e) => setCleaningFee(e.target.value)}
+              placeholder="Ex: 80"
+            />
+          </div>
+        )}
+
         <Separator />
 
         {/* Payment method */}
