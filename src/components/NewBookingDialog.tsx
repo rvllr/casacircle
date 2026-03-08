@@ -190,12 +190,14 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle réservation
-        </Button>
-      </DialogTrigger>
+      {!externalOpen && externalOpen !== false && (
+        <DialogTrigger asChild>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle réservation
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-display">Nouvelle réservation</DialogTitle>
