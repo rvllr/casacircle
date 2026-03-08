@@ -7,6 +7,7 @@ import AddUnitDialog from "@/components/AddUnitDialog";
 import InviteToHouseDialog from "@/components/InviteToHouseDialog";
 import HouseGuideEditor, { parseContent, groupByCategory } from "@/components/HouseGuideEditor";
 import EditHouseDialog from "@/components/EditHouseDialog";
+import HousePricingConfig from "@/components/HousePricingConfig";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -256,6 +257,9 @@ const HouseDetailPage = () => {
             </div>
           )}
         </div>
+
+        {/* Pricing */}
+        <HousePricingConfig houseId={house.id} isAdmin={isAdmin} />
 
         {/* Tabs */}
         <Tabs defaultValue="guides" className="space-y-6">

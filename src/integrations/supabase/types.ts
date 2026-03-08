@@ -433,6 +433,47 @@ export type Database = {
           },
         ]
       }
+      house_pricing: {
+        Row: {
+          base_price: number
+          cap_amount: number | null
+          created_at: string
+          house_id: string
+          id: string
+          is_active: boolean
+          pricing_mode: Database["public"]["Enums"]["pricing_mode"]
+          updated_at: string
+        }
+        Insert: {
+          base_price?: number
+          cap_amount?: number | null
+          created_at?: string
+          house_id: string
+          id?: string
+          is_active?: boolean
+          pricing_mode?: Database["public"]["Enums"]["pricing_mode"]
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number
+          cap_amount?: number | null
+          created_at?: string
+          house_id?: string
+          id?: string
+          is_active?: boolean
+          pricing_mode?: Database["public"]["Enums"]["pricing_mode"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "house_pricing_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: true
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       house_units: {
         Row: {
           capacity: number | null
@@ -802,6 +843,7 @@ export type Database = {
       family_role: "admin" | "member"
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
+      pricing_mode: "per_night" | "per_person" | "per_person_per_night"
       ticket_status: "open" | "in_progress" | "resolved"
       unit_type: "building" | "room"
       vote_response: "yes" | "no" | "abstain"
@@ -937,6 +979,7 @@ export const Constants = {
       family_role: ["admin", "member"],
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],
+      pricing_mode: ["per_night", "per_person", "per_person_per_night"],
       ticket_status: ["open", "in_progress", "resolved"],
       unit_type: ["building", "room"],
       vote_response: ["yes", "no", "abstain"],

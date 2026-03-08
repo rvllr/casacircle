@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, Plus } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
@@ -60,6 +61,8 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
   const [loading, setLoading] = useState(false);
   const [conflict, setConflict] = useState<string | null>(null);
   const [checkingConflict, setCheckingConflict] = useState(false);
+  const [pricing, setPricing] = useState<{ pricing_mode: string; base_price: number; cap_amount: number | null; is_active: boolean } | null>(null);
+  const [guestCount, setGuestCount] = useState("2");
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -76,11 +79,12 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
     }
   }, [open, initialStartDate]);
 
-  // Load units when house changes
+  // Load units and pricing when house changes
   useEffect(() => {
     if (!houseId) {
       setUnits([]);
       setUnitId("whole");
+      setPricing(null);
       return;
     }
     supabase
@@ -92,6 +96,14 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       .then(({ data }) => {
         setUnits((data as HouseUnit[]) || []);
         setUnitId("whole");
+      });
+    supabase
+      .from("house_pricing")
+      .select("pricing_mode, base_price, cap_amount, is_active")
+      .eq("house_id", houseId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setPricing(data as any);
       });
   }, [houseId]);
 
@@ -312,6 +324,20 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
             </div>
           </div>
 
+          {/* Guest count for per_person pricing */}
+          {pricing?.is_active && pricing.pricing_mode !== "per_night" && (
+            <div className="space-y-2">
+              <Label>Nombre de personnes</Label>
+              <Input
+                type="number"
+                min="1"
+                value={guestCount}
+                onChange={(e) => setGuestCount(e.target.value)}
+                placeholder="2"
+              />
+            </div>
+          )}
+
           {/* Conflict warning */}
           {conflict && (
             <div className="flex items-start gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
@@ -319,6 +345,26 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
               <span>{conflict}</span>
             </div>
           )}
+
+          {/* Cost estimate */}
+          {pricing?.is_active && startDate && endDate && endDate > startDate && (() => {
+            const nights = differenceInCalendarDays(endDate, startDate);
+            const persons = parseInt(guestCount) || 1;
+            let cost = 0;
+            if (pricing.pricing_mode === "per_night") cost = pricing.base_price * nights;
+            else if (pricing.pricing_mode === "per_person") cost = pricing.base_price * persons;
+            else cost = pricing.base_price * persons * nights;
+            if (pricing.cap_amount && cost > pricing.cap_amount) cost = pricing.cap_amount;
+            return (
+              <div className="flex items-center justify-between p-3 rounded-md bg-primary/5 border border-primary/20 text-sm">
+                <span className="text-muted-foreground">
+                  Coût estimé ({nights} nuit{nights > 1 ? "s" : ""}
+                  {pricing.pricing_mode !== "per_night" ? `, ${persons} pers.` : ""})
+                </span>
+                <span className="font-bold text-foreground">{cost.toFixed(2)} €</span>
+              </div>
+            );
+          })()}
 
           {houseId && (
             <p className="text-xs text-muted-foreground text-center">
