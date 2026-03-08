@@ -185,6 +185,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
           status === "available" && "bg-accent/30 text-foreground hover:bg-accent/60 cursor-pointer",
           status === "pending" && "bg-secondary text-secondary-foreground border border-primary/30 cursor-pointer",
           status === "booked" && "bg-destructive/15 text-destructive border border-destructive/30 cursor-pointer",
+          status === "blocked" && "bg-muted text-muted-foreground/60 cursor-not-allowed line-through",
           status === "past" && "text-muted-foreground/40 cursor-default",
           isToday(day) && "ring-2 ring-primary ring-offset-1",
           isSelected && "ring-2 ring-foreground ring-offset-1"
