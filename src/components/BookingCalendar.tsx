@@ -142,6 +142,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
   };
 
   const getHeaderLabel = () => {
+    if (view === "year") return `${month.getFullYear()}`;
     if (view === "month") return format(month, "MMMM yyyy", { locale: fr });
     if (view === "week") {
       const ws = startOfWeek(currentDate, { weekStartsOn: 1 });
