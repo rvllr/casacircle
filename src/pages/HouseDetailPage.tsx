@@ -38,6 +38,7 @@ interface House {
   owner_id: string | null;
   photo_url: string | null;
   is_public?: boolean;
+  booking_auto_approve?: boolean;
 }
 
 interface HouseMember {

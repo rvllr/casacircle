@@ -15,8 +15,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Upload, X, Loader2, ImageIcon, Globe, Copy, Check } from "lucide-react";
+import { Settings, Upload, X, Loader2, ImageIcon, Globe, Copy, Check, ShieldCheck } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface EditHouseDialogProps {
   house: {
@@ -27,6 +28,7 @@ interface EditHouseDialogProps {
     capacity: number | null;
     photo_url: string | null;
     is_public?: boolean;
+    booking_auto_approve?: boolean;
   };
   onSaved: () => void;
 }
@@ -40,6 +42,7 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
   const [photoUrl, setPhotoUrl] = useState(house.photo_url || "");
   const [photoPreview, setPhotoPreview] = useState<string | null>(house.photo_url || null);
   const [isPublic, setIsPublic] = useState(house.is_public || false);
+  const [autoApprove, setAutoApprove] = useState(house.booking_auto_approve || false);
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -55,6 +58,7 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       setPhotoUrl(house.photo_url || "");
       setPhotoPreview(house.photo_url || null);
       setIsPublic(house.is_public || false);
+      setAutoApprove(house.booking_auto_approve || false);
       setCopied(false);
     }
     setOpen(isOpen);
@@ -115,6 +119,7 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
         capacity: capacity ? parseInt(capacity, 10) : null,
         photo_url: photoUrl.trim() || null,
         is_public: isPublic,
+        booking_auto_approve: autoApprove,
       } as any)
       .eq("id", house.id);
 
@@ -240,6 +245,38 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
               onChange={(e) => setCapacity(e.target.value)}
               placeholder="Ex : 8"
             />
+          </div>
+
+          {/* Booking approval mode */}
+          <Separator />
+          <div className="space-y-3">
+            <div className="space-y-0.5">
+              <Label className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                Validation des réservations
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Choisissez si les réservations nécessitent une validation admin
+              </p>
+            </div>
+            <RadioGroup
+              value={autoApprove ? "auto" : "manual"}
+              onValueChange={(v) => setAutoApprove(v === "auto")}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="manual" id="approval-manual" />
+                <Label htmlFor="approval-manual" className="text-sm font-normal cursor-pointer">
+                  Validation manuelle par un admin
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="auto" id="approval-auto" />
+                <Label htmlFor="approval-auto" className="text-sm font-normal cursor-pointer">
+                  Validation automatique (confirmée immédiatement)
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
 
           {/* Public toggle */}

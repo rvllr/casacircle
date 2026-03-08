@@ -24,6 +24,7 @@ interface House {
   id: string;
   name: string;
   families: { name: string } | null;
+  booking_auto_approve?: boolean;
 }
 
 interface HouseUnit {
@@ -58,7 +59,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
     if (!open) return;
     supabase
       .from("houses")
-      .select("id, name, families(name)")
+      .select("id, name, families(name), booking_auto_approve")
       .then(({ data }) => {
         if (data) setHouses(data as unknown as House[]);
       });
@@ -130,13 +131,17 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
 
     setLoading(true);
 
+    const selectedHouse = houses.find((h) => h.id === houseId);
+    const isAutoApprove = selectedHouse?.booking_auto_approve === true;
+    const bookingStatus = isAutoApprove ? "approved" : "pending";
+
     const { error } = await supabase.from("bookings").insert({
       house_id: houseId,
       unit_id: unitId === "whole" ? null : unitId,
       user_id: user.id,
       start_date: format(startDate, "yyyy-MM-dd"),
       end_date: format(endDate, "yyyy-MM-dd"),
-      status: "pending",
+      status: bookingStatus,
     });
 
     if (error) {
@@ -148,7 +153,10 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
       return;
     }
 
-    toast({ title: "Réservation envoyée !", description: "Votre demande est en attente de validation." });
+    toast({
+      title: isAutoApprove ? "Réservation confirmée !" : "Réservation envoyée !",
+      description: isAutoApprove ? "Votre réservation est automatiquement confirmée." : "Votre demande est en attente de validation.",
+    });
     setHouseId("");
     setUnitId("whole");
     setStartDate(undefined);
@@ -299,8 +307,18 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
             </div>
           )}
 
+          {houseId && (
+            <p className="text-xs text-muted-foreground text-center">
+              {houses.find((h) => h.id === houseId)?.booking_auto_approve
+                ? "✅ Cette maison accepte les réservations automatiquement"
+                : "⏳ Cette maison nécessite une validation admin"}
+            </p>
+          )}
+
           <Button type="submit" className="w-full" disabled={loading || !houseId || !startDate || !endDate || !!conflict || checkingConflict}>
-            {checkingConflict ? "Vérification..." : loading ? "Envoi..." : "Demander la réservation"}
+            {checkingConflict ? "Vérification..." : loading ? "Envoi..." : 
+              houses.find((h) => h.id === houseId)?.booking_auto_approve ? "Réserver" : "Demander la réservation"
+            }
           </Button>
         </form>
       </DialogContent>
