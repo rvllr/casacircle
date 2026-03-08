@@ -150,11 +150,11 @@ const DocumentsPage = () => {
 
   return (
     <AppLayout title="Documents">
-      <div className="space-y-6 max-w-5xl">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-6 max-w-5xl animate-fade-in">
+        <div className="page-header">
           <div>
-            <h2 className="text-2xl md:text-3xl font-display text-foreground">Documents</h2>
-            <p className="text-muted-foreground mt-1">Assurance, factures, diagnostics et autres documents importants.</p>
+            <h2 className="page-header-title">Documents</h2>
+            <p className="page-header-subtitle">Assurance, factures, diagnostics et autres documents importants.</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>

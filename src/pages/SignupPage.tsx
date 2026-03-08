@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Home } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Home, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const SignupPage = () => {
@@ -37,45 +38,90 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <Home className="h-6 w-6 text-primary" />
-            <span className="font-display text-xl text-foreground">Maison Commune</span>
-          </Link>
-          <h1 className="text-2xl font-display text-foreground">Créer un compte</h1>
-          <p className="text-sm text-muted-foreground">Rejoignez votre famille sur Maison Commune</p>
+    <div className="min-h-screen flex">
+      {/* Left: Warm decorative panel */}
+      <div className="hidden lg:flex lg:w-[45%] warm-gradient relative overflow-hidden">
+        <div className="absolute inset-0 flex flex-col justify-center px-12 xl:px-16">
+          <div className="space-y-6 max-w-md">
+            <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Home className="h-7 w-7 text-primary" />
+            </div>
+            <h2 className="text-3xl xl:text-4xl font-display text-foreground leading-tight">
+              Créez votre espace familial en quelques minutes.
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Invitez votre famille, organisez les séjours et gardez vos souvenirs précieusement.
+            </p>
+            <div className="grid grid-cols-3 gap-3 pt-4">
+              {[
+                { emoji: "🏠", label: "Vos maisons" },
+                { emoji: "📅", label: "Planning partagé" },
+                { emoji: "💛", label: "Souvenirs" },
+              ].map((item) => (
+                <div key={item.label} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card/60 border border-border/40">
+                  <span className="text-2xl">{item.emoji}</span>
+                  <span className="text-xs text-muted-foreground text-center">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+        <div className="absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-primary/5" />
+        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-accent/5" />
+      </div>
 
-        <form onSubmit={handleSignup} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">Prénom</Label>
-              <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required placeholder="Jean" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Nom</Label>
-              <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required placeholder="Dupont" />
-            </div>
+      {/* Right: Form */}
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-sm space-y-8">
+          <div className="text-center space-y-2">
+            <Link to="/" className="inline-flex items-center gap-2.5 group">
+              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-soft group-hover:shadow-card transition-shadow">
+                <Home className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="font-display text-xl text-foreground">Maison Commune</span>
+            </Link>
+            <h1 className="text-2xl font-display text-foreground pt-4">Créer un compte</h1>
+            <p className="text-sm text-muted-foreground">Rejoignez votre famille sur Maison Commune</p>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="votre@email.com" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" minLength={6} />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Création..." : "Créer mon compte"}
-          </Button>
-        </form>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Déjà un compte ?{" "}
-          <Link to="/login" className="text-primary hover:underline font-medium">Se connecter</Link>
-        </p>
+          <Card className="shadow-card border-border/60">
+            <CardContent className="p-6">
+              <form onSubmit={handleSignup} className="space-y-5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-sm font-medium">Prénom</Label>
+                    <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required placeholder="Jean" className="h-11 rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-sm font-medium">Nom</Label>
+                    <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required placeholder="Dupont" className="h-11 rounded-xl" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="votre@email.com" className="h-11 rounded-xl" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium">Mot de passe</Label>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" minLength={6} className="h-11 rounded-xl" />
+                </div>
+                <Button type="submit" className="w-full h-11 rounded-xl text-sm font-medium group" disabled={loading}>
+                  {loading ? "Création..." : (
+                    <>
+                      Créer mon compte
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <p className="text-center text-sm text-muted-foreground">
+            Déjà un compte ?{" "}
+            <Link to="/login" className="text-primary hover:underline font-medium">Se connecter</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

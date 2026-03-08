@@ -182,14 +182,14 @@ const BookingsPage = () => {
 
   return (
     <AppLayout title="Réservations">
-      <div className="space-y-4 sm:space-y-6 max-w-5xl">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-6 max-w-5xl animate-fade-in">
+        <div className="page-header">
           <div>
-            <h2 className="text-2xl md:text-3xl font-display text-foreground">Réservations</h2>
-            <p className="text-muted-foreground mt-1">Planifiez et gérez les séjours.</p>
+            <h2 className="page-header-title">Réservations</h2>
+            <p className="page-header-subtitle">Planifiez et gérez les séjours.</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }}>
+            <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }} className="rounded-xl shadow-soft">
               <Plus className="h-4 w-4 mr-2" />
               Nouvelle réservation
             </Button>
@@ -206,9 +206,9 @@ const BookingsPage = () => {
         <HouseSelector />
 
         {houses.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <Card className="border-border/50 shadow-soft">
+            <CardContent className="empty-state">
+              <CalendarDays className="empty-state-icon" />
               <h3 className="font-display text-xl text-foreground mb-2">Aucune maison</h3>
               <p className="text-muted-foreground">Créez d'abord une maison pour commencer à réserver.</p>
             </CardContent>
@@ -382,11 +382,11 @@ const BookingCard = ({
   onRefuse: () => void;
   onCancel?: () => void;
 }) => (
-  <Card>
-    <CardContent className="p-3 sm:py-4 sm:px-6">
-      <div className="flex flex-col gap-2">
+  <Card className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
+    <CardContent className="p-4 sm:py-4 sm:px-5">
+      <div className="flex flex-col gap-2.5">
         <div className="space-y-1">
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <p className="font-medium text-sm sm:text-base text-foreground">{label}</p>
             <Badge variant={statusConfig[booking.status]?.variant || "secondary"} className="text-[10px] sm:text-xs">
               {statusConfig[booking.status]?.label || booking.status}
@@ -400,16 +400,16 @@ const BookingCard = ({
           <div className="flex items-center gap-2 flex-wrap">
             {canManage && (
               <>
-                <Button size="sm" variant="outline" className="h-7 text-xs sm:h-8 sm:text-sm" onClick={onApprove}>
+                <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg" onClick={onApprove}>
                   <Check className="h-3.5 w-3.5 mr-1" /> Accepter
                 </Button>
-                <Button size="sm" variant="outline" className="h-7 text-xs sm:h-8 sm:text-sm text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onRefuse}>
+                <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg text-destructive border-destructive/30 hover:bg-destructive/5" onClick={onRefuse}>
                   <X className="h-3.5 w-3.5 mr-1" /> Refuser
                 </Button>
               </>
             )}
             {canCancel && onCancel && (
-              <Button size="sm" variant="outline" className="h-7 text-xs sm:h-8 sm:text-sm text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onCancel}>
+              <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg text-destructive border-destructive/30 hover:bg-destructive/5" onClick={onCancel}>
                 <X className="h-3.5 w-3.5 mr-1" /> Annuler
               </Button>
             )}

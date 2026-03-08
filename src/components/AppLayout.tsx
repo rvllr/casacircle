@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
+import { Separator } from "@/components/ui/separator";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -14,14 +15,19 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center gap-3 border-b border-border bg-card px-4">
-            <SidebarTrigger />
-            {title && <h1 className="font-display text-lg text-foreground truncate flex-1">{title}</h1>}
+          <header className="h-14 flex items-center gap-3 border-b border-border/60 bg-card/50 backdrop-blur-sm px-4 sticky top-0 z-30">
+            <SidebarTrigger className="hover:bg-secondary/60 rounded-lg" />
+            {title && (
+              <>
+                <Separator orientation="vertical" className="h-5 mx-1" />
+                <h1 className="font-display text-base text-foreground/80 truncate flex-1">{title}</h1>
+              </>
+            )}
             <div className="ml-auto">
               <NotificationBell />
             </div>
           </header>
-          <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
+          <main className="flex-1 p-4 sm:p-5 md:p-8 overflow-auto">
             {children}
           </main>
         </div>

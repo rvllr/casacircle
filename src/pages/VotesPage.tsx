@@ -145,11 +145,11 @@ const VotesPage = () => {
 
   return (
     <AppLayout title="Votes">
-      <div className="space-y-6 max-w-3xl">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-6 max-w-3xl animate-fade-in">
+        <div className="page-header">
           <div>
-            <h2 className="text-2xl md:text-3xl font-display text-foreground">Votes</h2>
-            <p className="text-muted-foreground mt-1">Décidez ensemble des projets de la maison.</p>
+            <h2 className="page-header-title">Votes</h2>
+            <p className="page-header-subtitle">Décidez ensemble des projets de la maison.</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
