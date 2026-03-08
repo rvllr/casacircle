@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard, Building2, CalendarDays, BookOpen, Receipt, User, LogOut, Wrench } from "lucide-react";
+import { Home, LayoutDashboard, Building2, CalendarDays, BookOpen, Receipt, User, LogOut, Wrench, FileText, Vote } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,7 +21,9 @@ const menuItems = [
   { title: "Réservations", url: "/bookings", icon: CalendarDays },
   { title: "Journal", url: "/journal", icon: BookOpen },
   { title: "Dépenses", url: "/expenses", icon: Receipt },
+  { title: "Votes", url: "/votes", icon: Vote },
   { title: "Maintenance", url: "/maintenance", icon: Wrench },
+  { title: "Documents", url: "/documents", icon: FileText },
   { title: "Profil", url: "/profile", icon: User },
 ];
 
