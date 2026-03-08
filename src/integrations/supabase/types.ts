@@ -445,6 +445,7 @@ export type Database = {
       }
       houses: {
         Row: {
+          booking_auto_approve: boolean
           capacity: number | null
           created_at: string
           description: string | null
@@ -457,6 +458,7 @@ export type Database = {
           photo_url: string | null
         }
         Insert: {
+          booking_auto_approve?: boolean
           capacity?: number | null
           created_at?: string
           description?: string | null
@@ -469,6 +471,7 @@ export type Database = {
           photo_url?: string | null
         }
         Update: {
+          booking_auto_approve?: boolean
           capacity?: number | null
           created_at?: string
           description?: string | null
