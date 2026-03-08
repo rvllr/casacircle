@@ -2,10 +2,10 @@ import { useMemo, useState } from "react";
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval, getDay,
   isSameMonth, isToday, isBefore, startOfDay, startOfWeek, endOfWeek,
-  addWeeks, subWeeks, addDays, subDays, isSameDay,
+  addWeeks, subWeeks, addDays, subDays, isSameDay, setMonth,
 } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Calendar as CalIcon, Columns3, LayoutGrid } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalIcon, Columns3, LayoutGrid, Grid3X3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
