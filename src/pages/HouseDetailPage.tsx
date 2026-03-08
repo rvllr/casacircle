@@ -677,6 +677,7 @@ const TicketsTab = ({
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<string>("medium");
   const [submitting, setSubmitting] = useState(false);
 
   const handleCreate = async () => {
@@ -687,7 +688,8 @@ const TicketsTab = ({
       description: description.trim() || null,
       house_id: houseId,
       created_by: userId,
-    });
+      priority,
+    } as any);
     setSubmitting(false);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -695,6 +697,7 @@ const TicketsTab = ({
       toast({ title: "Signalement créé !" });
       setTitle("");
       setDescription("");
+      setPriority("medium");
       setOpen(false);
       onRefresh();
     }
@@ -746,8 +749,20 @@ const TicketsTab = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   maxLength={2000}
-                  rows={4}
+                  rows={3}
                 />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Priorité</label>
+                <Select value={priority} onValueChange={setPriority}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">🟢 Faible</SelectItem>
+                    <SelectItem value="medium">🟡 Moyenne</SelectItem>
+                    <SelectItem value="high">🟠 Important</SelectItem>
+                    <SelectItem value="urgent">🔴 Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Button onClick={handleCreate} disabled={!title.trim() || submitting} className="w-full">
                 {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
