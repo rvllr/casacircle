@@ -8,7 +8,7 @@ import HouseSelector from "@/components/HouseSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CalendarDays, Wallet, Heart, Plus, MapPin, Users, ArrowRight } from "lucide-react";
+import { Building2, CalendarDays, Wallet, Heart, Plus, MapPin, Users, ArrowRight, Megaphone } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -33,6 +33,12 @@ interface MemoryRow {
 
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
 
+interface NewsRow {
+  id: string; title: string; content: string | null;
+  created_at: string; created_by: string; house_id: string;
+  houses: { name: string } | null;
+}
+
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "En attente", variant: "secondary" },
   approved: { label: "Confirmée", variant: "default" },
@@ -46,6 +52,7 @@ const DashboardPage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [memories, setMemories] = useState<MemoryRow[]>([]);
+  const [news, setNews] = useState<NewsRow[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [myProfile, setMyProfile] = useState<{ first_name: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
