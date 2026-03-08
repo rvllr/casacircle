@@ -382,11 +382,11 @@ const BookingCard = ({
   onRefuse: () => void;
   onCancel?: () => void;
 }) => (
-  <Card>
-    <CardContent className="p-3 sm:py-4 sm:px-6">
-      <div className="flex flex-col gap-2">
+  <Card className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
+    <CardContent className="p-4 sm:py-4 sm:px-5">
+      <div className="flex flex-col gap-2.5">
         <div className="space-y-1">
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <p className="font-medium text-sm sm:text-base text-foreground">{label}</p>
             <Badge variant={statusConfig[booking.status]?.variant || "secondary"} className="text-[10px] sm:text-xs">
               {statusConfig[booking.status]?.label || booking.status}
@@ -400,16 +400,16 @@ const BookingCard = ({
           <div className="flex items-center gap-2 flex-wrap">
             {canManage && (
               <>
-                <Button size="sm" variant="outline" className="h-7 text-xs sm:h-8 sm:text-sm" onClick={onApprove}>
+                <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg" onClick={onApprove}>
                   <Check className="h-3.5 w-3.5 mr-1" /> Accepter
                 </Button>
-                <Button size="sm" variant="outline" className="h-7 text-xs sm:h-8 sm:text-sm text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onRefuse}>
+                <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg text-destructive border-destructive/30 hover:bg-destructive/5" onClick={onRefuse}>
                   <X className="h-3.5 w-3.5 mr-1" /> Refuser
                 </Button>
               </>
             )}
             {canCancel && onCancel && (
-              <Button size="sm" variant="outline" className="h-7 text-xs sm:h-8 sm:text-sm text-destructive border-destructive/30 hover:bg-destructive/10" onClick={onCancel}>
+              <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg text-destructive border-destructive/30 hover:bg-destructive/5" onClick={onCancel}>
                 <X className="h-3.5 w-3.5 mr-1" /> Annuler
               </Button>
             )}
