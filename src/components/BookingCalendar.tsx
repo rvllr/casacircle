@@ -21,10 +21,17 @@ interface CalendarBooking {
   unitName?: string;
 }
 
+interface BlockedPeriodEntry {
+  start_date: string;
+  end_date: string;
+  reason: string | null;
+}
+
 interface BookingCalendarProps {
   month: Date;
   onMonthChange: (date: Date) => void;
   bookings: CalendarBooking[];
+  blockedPeriods?: BlockedPeriodEntry[];
   onDayClick?: (date: Date) => void;
 }
 
@@ -44,7 +51,7 @@ const PERSON_COLORS = [
   { bg: "bg-indigo-500/20", text: "text-indigo-700", dot: "bg-indigo-500" },
 ];
 
-const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: BookingCalendarProps) => {
+const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], onDayClick }: BookingCalendarProps) => {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [view, setView] = useState<ViewMode>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
