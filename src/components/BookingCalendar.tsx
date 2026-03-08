@@ -143,14 +143,13 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
                 <div className="flex flex-col gap-0.5 mt-0.5 w-full overflow-hidden">
                   {dayBookings.slice(0, 2).map((b, idx) => {
                     const firstName = b.userName?.split(" ")[0] || "?";
+                    const color = personColorMap[b.userName || "?"];
                     return (
                       <span
                         key={idx}
                         className={cn(
                           "text-[9px] sm:text-[10px] leading-tight truncate rounded px-0.5 py-px w-full",
-                          b.status === "approved"
-                            ? "bg-destructive/20 text-destructive"
-                            : "bg-primary/15 text-primary"
+                          color.bg, color.text
                         )}
                       >
                         {firstName}
@@ -181,7 +180,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
                 <div key={idx} className="flex items-center gap-2 text-sm">
                   <div className={cn(
                     "w-2 h-2 rounded-full shrink-0",
-                    b.status === "approved" ? "bg-destructive" : "bg-primary"
+                    personColorMap[b.userName || "?"]?.dot || "bg-muted-foreground"
                   )} />
                   <span className="font-medium text-foreground">{b.userName || "Membre"}</span>
                   {b.unitName && (
