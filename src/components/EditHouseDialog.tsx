@@ -25,6 +25,7 @@ interface EditHouseDialogProps {
     description: string | null;
     capacity: number | null;
     photo_url: string | null;
+    is_public?: boolean;
   };
   onSaved: () => void;
 }
