@@ -15,7 +15,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Building2, MapPin, Users, Crown, User, DoorOpen,
   ArrowLeft, LogIn, LogOut, BookOpen, Wrench, Info,
+  LayoutList, LayoutGrid,
 } from "lucide-react";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
 
 interface House {
   id: string;
