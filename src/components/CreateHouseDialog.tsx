@@ -75,7 +75,7 @@ const CreateHouseDialog = ({ families, familyId, familyName, onCreated }: Create
       await supabase.from("house_members").insert({
         house_id: house.id,
         user_id: user.id,
-        role: "owner",
+        role: "admin",
       });
     }
 

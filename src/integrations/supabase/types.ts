@@ -688,6 +688,10 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      is_house_active_member: {
+        Args: { _house_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_house_admin: {
         Args: { _house_id: string; _user_id: string }
         Returns: boolean

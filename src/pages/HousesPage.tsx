@@ -443,7 +443,7 @@ const HouseCard = ({
                 key={m.id}
                 className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted text-xs"
               >
-                {m.role === "owner" ? (
+                {m.role === "admin" ? (
                   <Crown className="h-3 w-3 text-primary" />
                 ) : (
                   <User className="h-3 w-3 text-muted-foreground" />
