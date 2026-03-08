@@ -110,7 +110,7 @@ const MaintenancePage = () => {
   const updateStatus = async (ticketId: string, newStatus: string) => {
     const { error } = await supabase
       .from("maintenance_tickets")
-      .update({ status: newStatus })
+      .update({ status: newStatus as "open" | "in_progress" | "resolved" })
       .eq("id", ticketId);
 
     if (error) {
