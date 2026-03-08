@@ -117,7 +117,9 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
   };
 
   const navigate = (dir: -1 | 1) => {
-    if (view === "month") {
+    if (view === "year") {
+      onMonthChange(new Date(month.getFullYear() + dir, month.getMonth(), 1));
+    } else if (view === "month") {
       onMonthChange(new Date(month.getFullYear(), month.getMonth() + dir, 1));
     } else if (view === "week") {
       setCurrentDate(dir === 1 ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1));
