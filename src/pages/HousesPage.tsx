@@ -46,6 +46,15 @@ interface HouseMember {
   profile?: { first_name: string | null; last_name: string | null; email: string | null };
 }
 
+interface HouseUnit {
+  id: string;
+  house_id: string;
+  name: string;
+  type: "building" | "room";
+  parent_id: string | null;
+  capacity: number | null;
+}
+
 interface FamilyWithDetails extends Family {
   members: FamilyMember[];
   houses: House[];
