@@ -6,6 +6,7 @@ import AppLayout from "@/components/AppLayout";
 import AddUnitDialog from "@/components/AddUnitDialog";
 import InviteToHouseDialog from "@/components/InviteToHouseDialog";
 import HouseGuideEditor from "@/components/HouseGuideEditor";
+import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
