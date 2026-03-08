@@ -114,10 +114,14 @@ const DashboardPage = () => {
       const memList = (memoriesRes.data || []).map((m) => ({ ...m, houses: m.houses as MemoryRow["houses"] }));
       setMemories(memList);
 
+      const newsList = (newsRes.data || []).map((n) => ({ ...n, houses: n.houses as NewsRow["houses"] }));
+      setNews(newsList);
+
       const authorIds = [...new Set([
         ...expensesList.map((e) => e.paid_by),
         ...memList.map((m) => m.created_by),
         ...bookingsList.map((b) => b.user_id),
+        ...newsList.map((n) => n.created_by),
       ])];
       if (authorIds.length > 0) {
         const { data: profs } = await supabase
