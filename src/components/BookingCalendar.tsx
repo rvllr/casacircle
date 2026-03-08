@@ -108,7 +108,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
               key={day.toISOString()}
               onClick={() => handleDayClick(day)}
               className={cn(
-                "aspect-square flex flex-col items-center justify-center rounded-md text-sm transition-colors relative p-0.5",
+                "min-h-[3.5rem] sm:min-h-[4.5rem] flex flex-col items-start justify-start rounded-md text-sm transition-colors relative p-1 sm:p-1.5 overflow-hidden",
                 !current && "opacity-30",
                 status === "available" && "bg-accent/30 text-foreground hover:bg-accent/60 cursor-pointer",
                 status === "pending" && "bg-secondary text-secondary-foreground border border-primary/30 cursor-pointer",
@@ -118,19 +118,29 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
                 isSelected && "ring-2 ring-foreground ring-offset-1"
               )}
             >
-              <span>{format(day, "d")}</span>
-              {occupantCount > 0 && (
-                <span className="absolute bottom-0.5 flex gap-0.5">
-                  {dayBookings.slice(0, 3).map((_, idx) => (
-                    <span
-                      key={idx}
-                      className={cn(
-                        "w-1 h-1 rounded-full",
-                        status === "booked" ? "bg-destructive" : "bg-primary"
-                      )}
-                    />
-                  ))}
-                </span>
+              <span className="text-xs font-medium">{format(day, "d")}</span>
+              {dayBookings.length > 0 && (
+                <div className="flex flex-col gap-0.5 mt-0.5 w-full overflow-hidden">
+                  {dayBookings.slice(0, 2).map((b, idx) => {
+                    const firstName = b.userName?.split(" ")[0] || "?";
+                    return (
+                      <span
+                        key={idx}
+                        className={cn(
+                          "text-[9px] sm:text-[10px] leading-tight truncate rounded px-0.5 py-px w-full",
+                          b.status === "approved"
+                            ? "bg-destructive/20 text-destructive"
+                            : "bg-primary/15 text-primary"
+                        )}
+                      >
+                        {firstName}
+                      </span>
+                    );
+                  })}
+                  {dayBookings.length > 2 && (
+                    <span className="text-[9px] text-muted-foreground">+{dayBookings.length - 2}</span>
+                  )}
+                </div>
               )}
             </button>
           );
