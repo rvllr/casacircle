@@ -40,6 +40,10 @@ interface House {
   photo_url: string | null;
   is_public?: boolean;
   booking_auto_approve?: boolean;
+  wifi_name?: string | null;
+  wifi_password?: string | null;
+  access_code?: string | null;
+  emergency_contact?: string | null;
 }
 
 interface HouseMember {
@@ -70,6 +74,7 @@ interface MaintenanceTicket {
   title: string;
   description: string | null;
   status: "open" | "in_progress" | "resolved";
+  priority: "low" | "medium" | "high" | "urgent";
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -143,6 +148,7 @@ const HouseDetailPage = () => {
       return {
         ...t,
         status: t.status as MaintenanceTicket["status"],
+        priority: (t as any).priority as MaintenanceTicket["priority"] || "medium",
         authorName: [prof?.first_name, prof?.last_name].filter(Boolean).join(" ") || "Membre",
       };
     });
