@@ -80,8 +80,8 @@ const HousesPage = () => {
     // Fetch all members for these families with profiles
     const { data: allMembers } = await supabase
       .from("family_members")
-      .select("id, family_id, user_id, role, users_profiles(first_name, last_name, email)")
-      .in("family_id", familyIds);
+      .select("id, family_id, user_id, role, users_profiles!inner(first_name, last_name, email)")
+      .in("family_id", familyIds) as any;
 
     const result: FamilyWithDetails[] = (familiesData || []).map((f) => ({
       ...f,
