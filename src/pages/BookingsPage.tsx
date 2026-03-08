@@ -204,16 +204,27 @@ const BookingsPage = () => {
     }
   };
 
-  const updatePaymentStatus = async (bookingId: string, paymentStatus: string) => {
+  const updatePaymentStatus = async (bookingId: string, paymentStatus: string, amountPaid?: number) => {
+    const updateData: any = { payment_status: paymentStatus };
+    if (amountPaid !== undefined) updateData.amount_paid = amountPaid;
+    // Auto-set status based on amount
+    if (amountPaid !== undefined) {
+      const booking = bookings.find((b) => b.id === bookingId);
+      const total = booking?.total_price ? Number(booking.total_price) : 0;
+      if (amountPaid <= 0) updateData.payment_status = "unpaid";
+      else if (total > 0 && amountPaid >= total) updateData.payment_status = "paid";
+      else updateData.payment_status = "partial";
+    }
+
     const { error } = await supabase
       .from("bookings")
-      .update({ payment_status: paymentStatus as any })
+      .update(updateData)
       .eq("id", bookingId);
 
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Statut de paiement mis à jour" });
+      toast({ title: "Paiement mis à jour" });
       fetchData();
     }
   };
