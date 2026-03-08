@@ -109,6 +109,21 @@ const NotificationBell = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
   };
 
+  const markPaymentReceived = async (n: Notification) => {
+    const bookingId = n.metadata?.booking_id;
+    if (!bookingId) return;
+    const { error } = await supabase
+      .from("bookings")
+      .update({ payment_status: "paid" as any })
+      .eq("id", bookingId);
+    if (error) {
+      toast.error("Impossible de marquer le paiement (droits insuffisants ?)");
+      return;
+    }
+    toast.success("Paiement marqué comme reçu");
+    markAsRead(n.id);
+  };
+
   if (!user) return null;
 
   return (
