@@ -435,15 +435,15 @@ const DashboardPage = () => {
           )}
         </section>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
           {/* Dépenses récentes */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
-                <Wallet className="h-5 w-5 text-primary" />
+          <section className="space-y-4 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2.5 truncate">
+                <Wallet className="h-5 w-5 text-primary flex-shrink-0" />
                 Dépenses récentes
               </h3>
-              <Link to="/expenses" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+              <Link to="/expenses" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium whitespace-nowrap flex-shrink-0">
                 Tout voir <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -480,13 +480,13 @@ const DashboardPage = () => {
           </section>
 
           {/* Derniers souvenirs */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
-                <Heart className="h-5 w-5 text-primary" />
+          <section className="space-y-4 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2.5 truncate">
+                <Heart className="h-5 w-5 text-primary flex-shrink-0" />
                 Derniers souvenirs
               </h3>
-              <Link to="/journal" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+              <Link to="/journal" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium whitespace-nowrap flex-shrink-0">
                 Tout voir <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
