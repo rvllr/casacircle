@@ -475,7 +475,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
                   mode="range"
                   selected={periodRange}
                   onSelect={setPeriodRange}
-                  numberOfMonths={window.innerWidth < 640 ? 1 : 2}
+                  numberOfMonths={isMobile ? 1 : 2}
                   initialFocus
                   className="p-3 pointer-events-auto"
                 />
