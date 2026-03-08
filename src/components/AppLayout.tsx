@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Separator } from "@/components/ui/separator";
 
 interface AppLayoutProps {
@@ -23,7 +24,8 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
                 <h1 className="font-display text-base text-foreground/80 truncate flex-1">{title}</h1>
               </>
             )}
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-1">
+              <ThemeToggle />
               <NotificationBell />
             </div>
           </header>
