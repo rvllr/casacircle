@@ -101,11 +101,13 @@ const HouseDetailPage = () => {
       { data: membersData },
       { data: unitsData },
       { data: guidesData },
+      { data: ticketsData },
     ] = await Promise.all([
       supabase.from("houses").select("*").eq("id", id).single(),
       supabase.from("house_members").select("id, user_id, role").eq("house_id", id),
       supabase.from("house_units").select("id, name, type, parent_id, capacity, description").eq("house_id", id).order("type").order("name"),
       supabase.from("house_guides").select("id, title, content, type").eq("house_id", id).order("type"),
+      supabase.from("maintenance_tickets").select("*").eq("house_id", id).order("created_at", { ascending: false }),
     ]);
 
     if (!houseData) {
