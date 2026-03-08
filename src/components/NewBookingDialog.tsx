@@ -26,6 +26,15 @@ interface House {
   families: { name: string } | null;
 }
 
+interface HouseUnit {
+  id: string;
+  house_id: string;
+  name: string;
+  type: "building" | "room";
+  parent_id: string | null;
+  capacity: number | null;
+}
+
 interface NewBookingDialogProps {
   onCreated: () => void;
   preselectedHouseId?: string;
@@ -34,7 +43,9 @@ interface NewBookingDialogProps {
 const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogProps) => {
   const [open, setOpen] = useState(false);
   const [houses, setHouses] = useState<House[]>([]);
+  const [units, setUnits] = useState<HouseUnit[]>([]);
   const [houseId, setHouseId] = useState(preselectedHouseId || "");
+  const [unitId, setUnitId] = useState<string>("whole");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [loading, setLoading] = useState(false);
@@ -51,6 +62,25 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
       });
   }, [open]);
 
+  // Load units when house changes
+  useEffect(() => {
+    if (!houseId) {
+      setUnits([]);
+      setUnitId("whole");
+      return;
+    }
+    supabase
+      .from("house_units")
+      .select("id, house_id, name, type, parent_id, capacity")
+      .eq("house_id", houseId)
+      .order("type", { ascending: true })
+      .order("name", { ascending: true })
+      .then(({ data }) => {
+        setUnits((data as HouseUnit[]) || []);
+        setUnitId("whole");
+      });
+  }, [houseId]);
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !houseId || !startDate || !endDate) return;
@@ -64,6 +94,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
 
     const { error } = await supabase.from("bookings").insert({
       house_id: houseId,
+      unit_id: unitId === "whole" ? null : unitId,
       user_id: user.id,
       start_date: format(startDate, "yyyy-MM-dd"),
       end_date: format(endDate, "yyyy-MM-dd"),
@@ -78,11 +109,22 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
 
     toast({ title: "Réservation envoyée !", description: "Votre demande est en attente de validation." });
     setHouseId("");
+    setUnitId("whole");
     setStartDate(undefined);
     setEndDate(undefined);
     setOpen(false);
     setLoading(false);
     onCreated();
+  };
+
+  // Group units: buildings with their rooms
+  const buildings = units.filter((u) => u.type === "building");
+  const standaloneRooms = units.filter((u) => u.type === "room" && !u.parent_id);
+  const hasUnits = units.length > 0;
+
+  const getUnitLabel = (unit: HouseUnit) => {
+    const parent = unit.parent_id ? buildings.find((b) => b.id === unit.parent_id) : null;
+    return parent ? `${parent.name} — ${unit.name}` : unit.name;
   };
 
   return (
@@ -115,6 +157,45 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
               </SelectContent>
             </Select>
           </div>
+
+          {/* Unit select (only shown if house has units) */}
+          {hasUnits && (
+            <div className="space-y-2">
+              <Label>Espace à réserver</Label>
+              <Select value={unitId} onValueChange={setUnitId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Toute la propriété" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="whole">🏠 Toute la propriété</SelectItem>
+
+                  {/* Buildings as bookable items */}
+                  {buildings.map((b) => {
+                    const childRooms = units.filter((u) => u.parent_id === b.id);
+                    return (
+                      <div key={b.id}>
+                        <SelectItem value={b.id}>
+                          🏘️ {b.name}{b.capacity ? ` (${b.capacity} pers.)` : ""}
+                        </SelectItem>
+                        {childRooms.map((r) => (
+                          <SelectItem key={r.id} value={r.id}>
+                            &nbsp;&nbsp;🛏️ {b.name} — {r.name}{r.capacity ? ` (${r.capacity} pers.)` : ""}
+                          </SelectItem>
+                        ))}
+                      </div>
+                    );
+                  })}
+
+                  {/* Standalone rooms */}
+                  {standaloneRooms.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      🛏️ {r.name}{r.capacity ? ` (${r.capacity} pers.)` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Date range */}
           <div className="grid grid-cols-2 gap-3">
