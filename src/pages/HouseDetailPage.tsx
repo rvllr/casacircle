@@ -229,7 +229,7 @@ const HouseDetailPage = () => {
           <TabsContent value="spaces" className="space-y-4">
             {isAdmin && (
               <div className="flex justify-end">
-                <AddUnitDialog houseId={house.id} units={units} onCreated={fetchHouse} />
+                <AddUnitDialog houseId={house.id} houseName={house.name} onCreated={fetchHouse} />
               </div>
             )}
 
