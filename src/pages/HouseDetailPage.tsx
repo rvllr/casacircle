@@ -264,6 +264,39 @@ const HouseDetailPage = () => {
           )}
         </div>
 
+        {/* Practical info cards */}
+        {(house.wifi_name || house.access_code || house.emergency_contact) && (
+          <div className="grid sm:grid-cols-3 gap-3">
+            {house.wifi_name && (
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">📶 WiFi</p>
+                  <p className="font-medium text-foreground text-sm">{house.wifi_name}</p>
+                  {house.wifi_password && (
+                    <p className="text-xs text-muted-foreground">Mot de passe : <span className="font-mono text-foreground">{house.wifi_password}</span></p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            {house.access_code && (
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">🔑 Code d'accès</p>
+                  <p className="font-mono font-bold text-foreground text-lg">{house.access_code}</p>
+                </CardContent>
+              </Card>
+            )}
+            {house.emergency_contact && (
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">🚨 Contact d'urgence</p>
+                  <p className="text-sm text-foreground">{house.emergency_contact}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
         {/* Pricing */}
         <HousePricingConfig houseId={house.id} isAdmin={isAdmin} />
 
