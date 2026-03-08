@@ -176,6 +176,18 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
     const cleaningAmount = wantsCleaning && pricing?.cleaning_fee ? pricing.cleaning_fee : null;
     const hasPricing = pricing?.is_active === true;
 
+    let computedTotalPrice: number | null = null;
+    if (hasPricing && startDate && endDate) {
+      const persons = parseInt(guestCount) || 1;
+      const { total: cost } = calculateBookingCost(
+        startDate, endDate, persons,
+        { pricing_mode: pricing.pricing_mode, base_price: pricing.base_price, cap_amount: pricing.cap_amount },
+        pricingPeriods
+      );
+      const cleaning = wantsCleaning && pricing.cleaning_fee ? pricing.cleaning_fee : 0;
+      computedTotalPrice = cost + cleaning;
+    }
+
     const { error } = await supabase.from("bookings").insert({
       house_id: houseId,
       unit_id: unitId === "whole" ? null : unitId,
@@ -187,7 +199,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       notes: notes.trim() || null,
       guest_count: parseInt(guestCount) || null,
       payment_status: hasPricing ? "unpaid" : "not_applicable",
-      total_price: hasPricing && estimatedPrice > 0 ? estimatedPrice : null,
+      total_price: computedTotalPrice,
     } as any);
 
     if (error) {
