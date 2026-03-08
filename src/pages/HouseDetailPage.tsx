@@ -6,6 +6,7 @@ import AppLayout from "@/components/AppLayout";
 import AddUnitDialog from "@/components/AddUnitDialog";
 import InviteToHouseDialog from "@/components/InviteToHouseDialog";
 import HouseGuideEditor from "@/components/HouseGuideEditor";
+import EditHouseDialog from "@/components/EditHouseDialog";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -151,7 +152,10 @@ const HouseDetailPage = () => {
 
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="space-y-2">
-              <h1 className="text-3xl md:text-4xl font-display text-foreground">{house.name}</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl md:text-4xl font-display text-foreground">{house.name}</h1>
+                {isAdmin && <EditHouseDialog house={house} onSaved={fetchHouse} />}
+              </div>
               {house.location && (
                 <LocationMap location={house.location} />
               )}
