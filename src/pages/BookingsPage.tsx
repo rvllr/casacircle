@@ -246,8 +246,13 @@ const BookingsPage = () => {
                       userName: [b.users_profiles?.first_name, b.users_profiles?.last_name].filter(Boolean).join(" ") || undefined,
                       houseName: selectedHouseId === "all" ? (b.houses?.name || undefined) : undefined,
                       unitName: b.house_units?.name || undefined,
-                    }))
-                  }
+                    }))}
+                    blockedPeriods={(selectedHouseId === "all" ? blockedPeriods : blockedPeriods.filter(bp => bp.house_id === selectedHouseId)).map(bp => ({
+                      start_date: bp.start_date,
+                      end_date: bp.end_date,
+                      reason: bp.reason,
+                    }))}
+                  />
                   />
                 </CardContent>
               </Card>
