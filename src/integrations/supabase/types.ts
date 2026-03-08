@@ -734,6 +734,65 @@ export type Database = {
           },
         ]
       }
+      pricing_periods: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          end_day: number
+          end_month: number
+          house_id: string
+          id: string
+          is_recurring: boolean
+          name: string
+          price_type: Database["public"]["Enums"]["price_type"]
+          price_value: number
+          priority: number
+          start_date: string | null
+          start_day: number
+          start_month: number
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          end_day: number
+          end_month: number
+          house_id: string
+          id?: string
+          is_recurring?: boolean
+          name: string
+          price_type?: Database["public"]["Enums"]["price_type"]
+          price_value?: number
+          priority?: number
+          start_date?: string | null
+          start_day: number
+          start_month: number
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          end_day?: number
+          end_month?: number
+          house_id?: string
+          id?: string
+          is_recurring?: boolean
+          name?: string
+          price_type?: Database["public"]["Enums"]["price_type"]
+          price_value?: number
+          priority?: number
+          start_date?: string | null
+          start_day?: number
+          start_month?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_periods_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users_profiles: {
         Row: {
           avatar_url: string | null
@@ -902,6 +961,7 @@ export type Database = {
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
       payment_method: "declarative" | "stripe" | "both"
+      price_type: "absolute" | "multiplier"
       pricing_mode: "per_night" | "per_person" | "per_person_per_night"
       ticket_priority: "low" | "medium" | "high" | "urgent"
       ticket_status: "open" | "in_progress" | "resolved"
@@ -1051,6 +1111,7 @@ export const Constants = {
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],
       payment_method: ["declarative", "stripe", "both"],
+      price_type: ["absolute", "multiplier"],
       pricing_mode: ["per_night", "per_person", "per_person_per_night"],
       ticket_priority: ["low", "medium", "high", "urgent"],
       ticket_status: ["open", "in_progress", "resolved"],
