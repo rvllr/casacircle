@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import AddressSearchInput from "@/components/AddressSearchInput";
 import {
   Dialog,
   DialogContent,
@@ -133,11 +134,11 @@ const CreateHouseDialog = ({ families, familyId, familyName, onCreated }: Create
           </div>
           <div className="space-y-2">
             <Label htmlFor="houseLocation">Lieu</Label>
-            <Input
+            <AddressSearchInput
               id="houseLocation"
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Ex : Gordes, Vaucluse"
+              onChange={setLocation}
+              placeholder="Rechercher une adresse..."
             />
           </div>
           <div className="space-y-2">
