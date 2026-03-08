@@ -8,6 +8,7 @@ import LandingPage from "./pages/LandingPage";
 import HousesPage from "./pages/HousesPage";
 import BookingsPage from "./pages/BookingsPage";
 import ExpensesPage from "./pages/ExpensesPage";
+import JournalPage from "./pages/JournalPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/houses" element={<ProtectedRoute><HousesPage /></ProtectedRoute>} />
             <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
             <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
+            <Route path="/journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
