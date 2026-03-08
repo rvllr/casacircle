@@ -93,6 +93,7 @@ export type Database = {
       }
       bookings: {
         Row: {
+          amount_paid: number | null
           cleaning_fee: number | null
           cleaning_fee_paid: boolean
           created_at: string
@@ -101,12 +102,15 @@ export type Database = {
           house_id: string
           id: string
           notes: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
           start_date: string
           status: Database["public"]["Enums"]["booking_status"]
+          total_price: number | null
           unit_id: string | null
           user_id: string
         }
         Insert: {
+          amount_paid?: number | null
           cleaning_fee?: number | null
           cleaning_fee_paid?: boolean
           created_at?: string
@@ -115,12 +119,15 @@ export type Database = {
           house_id: string
           id?: string
           notes?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
           start_date: string
           status?: Database["public"]["Enums"]["booking_status"]
+          total_price?: number | null
           unit_id?: string | null
           user_id: string
         }
         Update: {
+          amount_paid?: number | null
           cleaning_fee?: number | null
           cleaning_fee_paid?: boolean
           created_at?: string
@@ -129,8 +136,10 @@ export type Database = {
           house_id?: string
           id?: string
           notes?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
           start_date?: string
           status?: Database["public"]["Enums"]["booking_status"]
+          total_price?: number | null
           unit_id?: string | null
           user_id?: string
         }
@@ -1105,6 +1114,7 @@ export type Database = {
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
       payment_method: "declarative" | "stripe" | "both"
+      payment_status: "not_applicable" | "unpaid" | "partial" | "paid"
       price_type: "absolute" | "multiplier"
       pricing_mode: "per_night" | "per_person" | "per_person_per_night"
       ticket_priority: "low" | "medium" | "high" | "urgent"
@@ -1255,6 +1265,7 @@ export const Constants = {
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],
       payment_method: ["declarative", "stripe", "both"],
+      payment_status: ["not_applicable", "unpaid", "partial", "paid"],
       price_type: ["absolute", "multiplier"],
       pricing_mode: ["per_night", "per_person", "per_person_per_night"],
       ticket_priority: ["low", "medium", "high", "urgent"],
