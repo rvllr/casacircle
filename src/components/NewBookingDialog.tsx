@@ -89,6 +89,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       setUnits([]);
       setUnitId("whole");
       setPricing(null);
+      setPricingPeriods([]);
       return;
     }
     supabase
