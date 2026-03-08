@@ -397,4 +397,128 @@ const GuideCard = ({
   );
 };
 
+const roleConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" }> = {
+  admin: { label: "Admin", variant: "default" },
+  member: { label: "Membre", variant: "secondary" },
+  guest: { label: "Invité", variant: "outline" },
+};
+
+const MembersTab = ({
+  members, isAdmin, userId, houseId, familyId, fetchHouse,
+}: {
+  members: HouseMember[];
+  isAdmin: boolean;
+  userId?: string;
+  houseId: string;
+  familyId: string | null;
+  fetchHouse: () => void;
+}) => {
+  const [view, setView] = useState<"cards" | "table">("table");
+
+  const renderRoleCell = (m: HouseMember) => {
+    const rc = roleConfig[m.role] || roleConfig.member;
+    if (isAdmin && m.user_id !== userId) {
+      return (
+        <select
+          value={m.role}
+          onChange={async (e) => {
+            await supabase.from("house_members").update({ role: e.target.value }).eq("id", m.id);
+            fetchHouse();
+          }}
+          className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground"
+        >
+          <option value="admin">Admin</option>
+          <option value="member">Membre</option>
+          <option value="guest">Invité</option>
+        </select>
+      );
+    }
+    return <Badge variant={rc.variant} className="text-xs">{rc.label}</Badge>;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1 border border-border rounded-md p-0.5">
+          <Button
+            variant={view === "cards" ? "secondary" : "ghost"}
+            size="sm"
+            className="h-7 px-2"
+            onClick={() => setView("cards")}
+          >
+            <LayoutGrid className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant={view === "table" ? "secondary" : "ghost"}
+            size="sm"
+            className="h-7 px-2"
+            onClick={() => setView("table")}
+          >
+            <LayoutList className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+        {isAdmin && !familyId && (
+          <InviteToHouseDialog houseId={houseId} houseName="" onInvited={fetchHouse} />
+        )}
+      </div>
+
+      {view === "table" ? (
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nom</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead className="hidden sm:table-cell">Téléphone</TableHead>
+                <TableHead>Rôle</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {members.map((m) => {
+                const fullName = [m.profile?.first_name, m.profile?.last_name].filter(Boolean).join(" ") || "Membre";
+                return (
+                  <TableRow key={m.id}>
+                    <TableCell className="font-medium">{fullName}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{m.profile?.email || "—"}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm hidden sm:table-cell">{m.profile?.phone || "—"}</TableCell>
+                    <TableCell>{renderRoleCell(m)}</TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {members.map((m) => {
+            const rc = roleConfig[m.role] || roleConfig.member;
+            const RoleIcon = m.role === "admin" ? Crown : User;
+            const fullName = [m.profile?.first_name, m.profile?.last_name].filter(Boolean).join(" ") || "Membre";
+
+            return (
+              <Card key={m.id}>
+                <CardContent className="flex items-start gap-4 p-4">
+                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                    <RoleIcon className={`h-5 w-5 ${m.role === "admin" ? "text-primary" : "text-muted-foreground"}`} />
+                  </div>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-foreground truncate">{fullName}</p>
+                      <div className="ml-auto shrink-0">{renderRoleCell(m)}</div>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                      {m.profile?.email && <span>✉️ {m.profile.email}</span>}
+                      {m.profile?.phone && <span>📞 {m.profile.phone}</span>}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default HouseDetailPage;
