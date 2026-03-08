@@ -6,12 +6,13 @@ import NewMemoryDialog from "@/components/NewMemoryDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, BookOpen, CalendarDays, User } from "lucide-react";
+import { Building2, BookOpen, CalendarDays, User, ImageIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 interface House { id: string; name: string; }
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
+interface MemoryPhoto { id: string; memory_id: string; image_url: string; }
 interface Memory {
   id: string; house_id: string; created_by: string;
   title: string; description: string | null;
@@ -25,8 +26,10 @@ const JournalPage = () => {
   const [houses, setHouses] = useState<House[]>([]);
   const [selectedHouse, setSelectedHouse] = useState("all");
   const [memories, setMemories] = useState<Memory[]>([]);
+  const [photos, setPhotos] = useState<MemoryPhoto[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
@@ -42,6 +45,18 @@ const JournalPage = () => {
 
     const memList = (memData || []).map((m) => ({ ...m, houses: m.houses as Memory["houses"] }));
     setMemories(memList);
+
+    // Fetch all photos for these memories
+    const memIds = memList.map((m) => m.id);
+    if (memIds.length > 0) {
+      const { data: photosData } = await supabase
+        .from("memory_photos")
+        .select("id, memory_id, image_url")
+        .in("memory_id", memIds);
+      setPhotos(photosData || []);
+    } else {
+      setPhotos([]);
+    }
 
     const userIds = [...new Set(memList.map((m) => m.created_by))];
     if (userIds.length > 0) {
@@ -65,6 +80,9 @@ const JournalPage = () => {
     const p = profiles.find((pr) => pr.user_id === userId);
     return p?.first_name ? `${p.first_name}${p.last_name ? ` ${p.last_name}` : ""}` : "Membre";
   };
+
+  const getPhotosForMemory = (memoryId: string) =>
+    photos.filter((p) => p.memory_id === memoryId);
 
   const formatDate = (d: string) => {
     try { return format(new Date(d), "d MMMM yyyy", { locale: fr }); }
@@ -162,53 +180,97 @@ const JournalPage = () => {
                   {/* Vertical line */}
                   <div className="absolute left-[15px] top-0 bottom-0 w-px bg-border" />
 
-                  {grouped[year].map((m) => (
-                    <div key={m.id} className="relative">
-                      {/* Dot */}
-                      <div className="absolute -left-[17px] top-5 w-3 h-3 rounded-full bg-accent border-2 border-background" />
+                  {grouped[year].map((m) => {
+                    const memPhotos = getPhotosForMemory(m.id);
+                    return (
+                      <div key={m.id} className="relative">
+                        {/* Dot */}
+                        <div className="absolute -left-[17px] top-5 w-3 h-3 rounded-full bg-accent border-2 border-background" />
 
-                      <Card className="hover:shadow-md transition-shadow">
-                        <CardContent className="py-5 space-y-3">
-                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                            <div className="space-y-1">
-                              <h4 className="font-display text-lg text-foreground">{m.title}</h4>
-                              <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                                {m.houses?.name && (
-                                  <Badge variant="outline" className="text-xs">{m.houses.name}</Badge>
-                                )}
-                                <span className="flex items-center gap-1">
-                                  <User className="h-3 w-3" />
-                                  {getName(m.created_by)}
-                                </span>
+                        <Card className="hover:shadow-md transition-shadow">
+                          <CardContent className="py-5 space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                              <div className="space-y-1">
+                                <h4 className="font-display text-lg text-foreground">{m.title}</h4>
+                                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                                  {m.houses?.name && (
+                                    <Badge variant="outline" className="text-xs">{m.houses.name}</Badge>
+                                  )}
+                                  <span className="flex items-center gap-1">
+                                    <User className="h-3 w-3" />
+                                    {getName(m.created_by)}
+                                  </span>
+                                  {memPhotos.length > 0 && (
+                                    <span className="flex items-center gap-1">
+                                      <ImageIcon className="h-3 w-3" />
+                                      {memPhotos.length}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
+                              {(m.visit_start || m.visit_end) && (
+                                <div className="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
+                                  <CalendarDays className="h-3.5 w-3.5" />
+                                  {m.visit_start && m.visit_end
+                                    ? `${formatShortDate(m.visit_start)} → ${formatShortDate(m.visit_end)}`
+                                    : m.visit_start
+                                    ? formatDate(m.visit_start)
+                                    : formatDate(m.visit_end!)}
+                                </div>
+                              )}
                             </div>
-                            {(m.visit_start || m.visit_end) && (
-                              <div className="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
-                                <CalendarDays className="h-3.5 w-3.5" />
-                                {m.visit_start && m.visit_end
-                                  ? `${formatShortDate(m.visit_start)} → ${formatShortDate(m.visit_end)}`
-                                  : m.visit_start
-                                  ? formatDate(m.visit_start)
-                                  : formatDate(m.visit_end!)}
+
+                            {m.description && (
+                              <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">
+                                {m.description}
+                              </p>
+                            )}
+
+                            {/* Photo gallery */}
+                            {memPhotos.length > 0 && (
+                              <div className={`grid gap-2 ${memPhotos.length === 1 ? "grid-cols-1" : memPhotos.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+                                {memPhotos.map((photo) => (
+                                  <button
+                                    key={photo.id}
+                                    onClick={() => setLightboxImg(photo.image_url)}
+                                    className="aspect-square rounded-lg overflow-hidden bg-muted hover:opacity-90 transition-opacity"
+                                  >
+                                    <img
+                                      src={photo.image_url}
+                                      alt=""
+                                      className="w-full h-full object-cover"
+                                      loading="lazy"
+                                    />
+                                  </button>
+                                ))}
                               </div>
                             )}
-                          </div>
-
-                          {m.description && (
-                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">
-                              {m.description}
-                            </p>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </div>
-                  ))}
+                          </CardContent>
+                        </Card>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Lightbox */}
+      {lightboxImg && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setLightboxImg(null)}
+        >
+          <img
+            src={lightboxImg}
+            alt=""
+            className="max-w-full max-h-[90vh] rounded-lg object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </AppLayout>
   );
 };
