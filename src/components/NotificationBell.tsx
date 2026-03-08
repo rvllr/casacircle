@@ -33,10 +33,25 @@ const typeIcons: Record<string, { icon: typeof Bell; color: string; badge?: stri
   payment_overdue_admin: { icon: AlertCircle, color: "text-destructive", badge: "Paiement", badgeVariant: "destructive" },
 };
 
+type FilterType = "all" | "booking" | "payment";
+
+const filterLabels: { value: FilterType; label: string }[] = [
+  { value: "all", label: "Tout" },
+  { value: "booking", label: "Réservations" },
+  { value: "payment", label: "Paiements" },
+];
+
+const getFilterCategory = (type: string): FilterType => {
+  if (type.startsWith("payment_overdue")) return "payment";
+  if (type.startsWith("booking_")) return "booking";
+  return "booking";
+};
+
 const NotificationBell = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState<FilterType>("all");
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
@@ -115,15 +130,39 @@ const NotificationBell = () => {
             </Button>
           )}
         </div>
-        <ScrollArea className="max-h-80">
-          {notifications.length === 0 ? (
-            <div className="py-8 text-center">
-              <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Aucune notification</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {notifications.map((n) => {
+        <div className="flex gap-1 px-3 py-2 border-b border-border">
+          {filterLabels.map((f) => (
+            <Button
+              key={f.value}
+              variant={filter === f.value ? "default" : "ghost"}
+              size="sm"
+              className="text-xs h-6 px-2.5 rounded-full"
+              onClick={() => setFilter(f.value)}
+            >
+              {f.label}
+            </Button>
+          ))}
+        </div>
+        <ScrollArea className="max-h-72">
+          {(() => {
+            const filtered = filter === "all"
+              ? notifications
+              : notifications.filter((n) => getFilterCategory(n.type) === filter);
+
+            if (filtered.length === 0) {
+              return (
+                <div className="py-8 text-center">
+                  <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    {filter === "all" ? "Aucune notification" : "Aucune notification de ce type"}
+                  </p>
+                </div>
+              );
+            }
+
+            return (
+              <div className="divide-y divide-border">
+                {filtered.map((n) => {
                 const config = typeIcons[n.type] || { icon: Bell, color: "text-primary" };
                 const Icon = config.icon;
                 return (
@@ -165,8 +204,9 @@ const NotificationBell = () => {
                   </button>
                 );
               })}
-            </div>
-          )}
+              </div>
+            );
+          })()}
         </ScrollArea>
       </PopoverContent>
     </Popover>
