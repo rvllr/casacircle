@@ -49,6 +49,8 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [loading, setLoading] = useState(false);
+  const [conflict, setConflict] = useState<string | null>(null);
+  const [checkingConflict, setCheckingConflict] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -81,6 +83,42 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
       });
   }, [houseId]);
 
+  // Check for conflicts when dates/unit change
+  useEffect(() => {
+    setConflict(null);
+    if (!houseId || !startDate || !endDate || endDate <= startDate) return;
+
+    const checkConflict = async () => {
+      setCheckingConflict(true);
+      const sd = format(startDate, "yyyy-MM-dd");
+      const ed = format(endDate, "yyyy-MM-dd");
+
+      let query = supabase
+        .from("bookings")
+        .select("id, start_date, end_date, unit_id, status")
+        .eq("house_id", houseId)
+        .in("status", ["pending", "approved"])
+        .lt("start_date", ed)
+        .gt("end_date", sd);
+
+      const { data } = await query;
+      const overlapping = (data || []).filter((b) => {
+        const selectedUnit = unitId === "whole" ? null : unitId;
+        if (b.unit_id === null && selectedUnit === null) return true;
+        if (b.unit_id === null || selectedUnit === null) return true;
+        return b.unit_id === selectedUnit;
+      });
+
+      if (overlapping.length > 0) {
+        setConflict(`${overlapping.length} réservation(s) existante(s) sur ces dates pour cet espace.`);
+      } else {
+        setConflict(null);
+      }
+      setCheckingConflict(false);
+    };
+    checkConflict();
+  }, [houseId, unitId, startDate, endDate]);
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !houseId || !startDate || !endDate) return;
@@ -102,7 +140,10 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
     });
 
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      const msg = error.message.includes("Conflit")
+        ? "Cet espace est déjà réservé sur ces dates."
+        : error.message;
+      toast({ title: "Erreur", description: msg, variant: "destructive" });
       setLoading(false);
       return;
     }
@@ -112,6 +153,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
     setUnitId("whole");
     setStartDate(undefined);
     setEndDate(undefined);
+    setConflict(null);
     setOpen(false);
     setLoading(false);
     onCreated();
@@ -249,8 +291,16 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId }: NewBookingDialogPro
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !houseId || !startDate || !endDate}>
-            {loading ? "Envoi..." : "Demander la réservation"}
+          {/* Conflict warning */}
+          {conflict && (
+            <div className="flex items-start gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+              <span className="shrink-0 mt-0.5">⚠️</span>
+              <span>{conflict}</span>
+            </div>
+          )}
+
+          <Button type="submit" className="w-full" disabled={loading || !houseId || !startDate || !endDate || !!conflict || checkingConflict}>
+            {checkingConflict ? "Vérification..." : loading ? "Envoi..." : "Demander la réservation"}
           </Button>
         </form>
       </DialogContent>
