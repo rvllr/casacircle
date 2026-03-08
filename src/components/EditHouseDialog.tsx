@@ -53,6 +53,8 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       setCapacity(house.capacity?.toString() || "");
       setPhotoUrl(house.photo_url || "");
       setPhotoPreview(house.photo_url || null);
+      setIsPublic(house.is_public || false);
+      setCopied(false);
     }
     setOpen(isOpen);
   };
