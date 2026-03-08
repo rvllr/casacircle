@@ -221,6 +221,14 @@ const HouseDetailPage = () => {
             <TabsTrigger value="members" className="gap-1.5">
               <Users className="h-4 w-4" /> Membres
             </TabsTrigger>
+            <TabsTrigger value="tickets" className="gap-1.5 relative">
+              <AlertTriangle className="h-4 w-4" /> Signalements
+              {tickets.filter(t => t.status !== "resolved").length > 0 && (
+                <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-destructive text-destructive-foreground">
+                  {tickets.filter(t => t.status !== "resolved").length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           {/* Guides Tab */}
