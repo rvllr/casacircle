@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import { Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,12 +16,10 @@ const ResetPasswordPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check for recovery token in URL
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     if (hashParams.get("type") === "recovery") {
       setReady(true);
     } else {
-      // Also check for access_token which indicates a valid recovery session
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) setReady(true);
       });
@@ -42,28 +41,36 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-sm space-y-6">
+      <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <Home className="h-6 w-6 text-primary" />
+          <Link to="/" className="inline-flex items-center gap-2.5">
+            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-soft">
+              <Home className="h-5 w-5 text-primary-foreground" />
+            </div>
             <span className="font-display text-xl text-foreground">Maison Commune</span>
           </Link>
-          <h1 className="text-2xl font-display text-foreground">Nouveau mot de passe</h1>
+          <h1 className="text-2xl font-display text-foreground pt-4">Nouveau mot de passe</h1>
         </div>
 
-        {ready ? (
-          <form onSubmit={handleUpdate} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Nouveau mot de passe</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" minLength={6} />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Mise à jour..." : "Mettre à jour"}
-            </Button>
-          </form>
-        ) : (
-          <p className="text-center text-muted-foreground">Lien invalide ou expiré. <Link to="/forgot-password" className="text-primary hover:underline">Demander un nouveau lien</Link>.</p>
-        )}
+        <Card className="shadow-card border-border/60">
+          <CardContent className="p-6">
+            {ready ? (
+              <form onSubmit={handleUpdate} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium">Nouveau mot de passe</Label>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" minLength={6} className="h-11 rounded-xl" />
+                </div>
+                <Button type="submit" className="w-full h-11 rounded-xl" disabled={loading}>
+                  {loading ? "Mise à jour..." : "Mettre à jour"}
+                </Button>
+              </form>
+            ) : (
+              <p className="text-center text-muted-foreground py-4">
+                Lien invalide ou expiré. <Link to="/forgot-password" className="text-primary hover:underline">Demander un nouveau lien</Link>.
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

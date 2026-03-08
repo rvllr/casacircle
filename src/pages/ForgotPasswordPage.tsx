@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Home } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Home, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ForgotPasswordPage = () => {
@@ -29,33 +30,45 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-sm space-y-6">
+      <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <Home className="h-6 w-6 text-primary" />
+          <Link to="/" className="inline-flex items-center gap-2.5 group">
+            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-soft">
+              <Home className="h-5 w-5 text-primary-foreground" />
+            </div>
             <span className="font-display text-xl text-foreground">Maison Commune</span>
           </Link>
-          <h1 className="text-2xl font-display text-foreground">Mot de passe oublié</h1>
+          <h1 className="text-2xl font-display text-foreground pt-4">Mot de passe oublié</h1>
+          <p className="text-sm text-muted-foreground">Recevez un lien de réinitialisation par email</p>
         </div>
 
-        {sent ? (
-          <div className="text-center space-y-4">
-            <p className="text-muted-foreground">Un email de réinitialisation a été envoyé à <strong className="text-foreground">{email}</strong>.</p>
-            <Link to="/login">
-              <Button variant="outline" className="w-full">Retour à la connexion</Button>
-            </Link>
-          </div>
-        ) : (
-          <form onSubmit={handleReset} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="votre@email.com" />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Envoi..." : "Envoyer le lien"}
-            </Button>
-          </form>
-        )}
+        <Card className="shadow-card border-border/60">
+          <CardContent className="p-6">
+            {sent ? (
+              <div className="text-center space-y-4 py-2">
+                <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
+                  <Mail className="h-6 w-6 text-accent" />
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Un email de réinitialisation a été envoyé à <strong className="text-foreground">{email}</strong>.
+                </p>
+                <Link to="/login">
+                  <Button variant="outline" className="w-full rounded-xl">Retour à la connexion</Button>
+                </Link>
+              </div>
+            ) : (
+              <form onSubmit={handleReset} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="votre@email.com" className="h-11 rounded-xl" />
+                </div>
+                <Button type="submit" className="w-full h-11 rounded-xl" disabled={loading}>
+                  {loading ? "Envoi..." : "Envoyer le lien"}
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
 
         <p className="text-center text-sm text-muted-foreground">
           <Link to="/login" className="text-primary hover:underline">Retour à la connexion</Link>

@@ -9,12 +9,14 @@ const HouseSelector = () => {
 
   return (
     <div className="flex items-center gap-3">
-      <Building2 className="h-4 w-4 text-muted-foreground" />
+      <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center">
+        <Building2 className="h-4 w-4 text-muted-foreground" />
+      </div>
       <Select value={selectedHouseId} onValueChange={setSelectedHouseId}>
-        <SelectTrigger className="w-64">
+        <SelectTrigger className="w-64 rounded-xl border-border/60 h-10">
           <SelectValue placeholder="Sélectionner une maison" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="rounded-xl">
           <SelectItem value="all">Toutes les maisons</SelectItem>
           {houses.map((h) => (
             <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>

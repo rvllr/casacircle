@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Home } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Home, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const LoginPage = () => {
@@ -27,38 +28,100 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <Home className="h-6 w-6 text-primary" />
-            <span className="font-display text-xl text-foreground">Maison Commune</span>
-          </Link>
-          <h1 className="text-2xl font-display text-foreground">Connexion</h1>
-          <p className="text-sm text-muted-foreground">Accédez à votre espace familial</p>
-        </div>
-
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="votre@email.com" />
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Link to="/forgot-password" className="text-xs text-primary hover:underline">Mot de passe oublié ?</Link>
+    <div className="min-h-screen flex">
+      {/* Left: Warm decorative panel */}
+      <div className="hidden lg:flex lg:w-[45%] warm-gradient relative overflow-hidden">
+        <div className="absolute inset-0 flex flex-col justify-center px-12 xl:px-16">
+          <div className="space-y-6 max-w-md">
+            <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Home className="h-7 w-7 text-primary" />
             </div>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" />
+            <h2 className="text-3xl xl:text-4xl font-display text-foreground leading-tight">
+              Retrouvez votre maison familiale en quelques clics.
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Planning, réservations, souvenirs — tout est centralisé pour votre famille.
+            </p>
+            <div className="flex items-center gap-4 pt-4">
+              <div className="flex -space-x-2">
+                {["🏡", "👨‍👩‍👧‍👦", "📅"].map((emoji, i) => (
+                  <div key={i} className="h-10 w-10 rounded-full bg-card border-2 border-background flex items-center justify-center text-lg shadow-soft">
+                    {emoji}
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Rejoignez les familles qui s'organisent sereinement.
+              </p>
+            </div>
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Connexion..." : "Se connecter"}
-          </Button>
-        </form>
+        </div>
+        {/* Decorative circles */}
+        <div className="absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-primary/5" />
+        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-accent/5" />
+      </div>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Pas encore de compte ?{" "}
-          <Link to="/signup" className="text-primary hover:underline font-medium">Créer un compte</Link>
-        </p>
+      {/* Right: Form */}
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-sm space-y-8">
+          <div className="text-center space-y-2">
+            <Link to="/" className="inline-flex items-center gap-2.5 group">
+              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-soft group-hover:shadow-card transition-shadow">
+                <Home className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="font-display text-xl text-foreground">Maison Commune</span>
+            </Link>
+            <h1 className="text-2xl font-display text-foreground pt-4">Bon retour parmi nous</h1>
+            <p className="text-sm text-muted-foreground">Connectez-vous à votre espace familial</p>
+          </div>
+
+          <Card className="shadow-card border-border/60">
+            <CardContent className="p-6">
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="votre@email.com"
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-sm font-medium">Mot de passe</Label>
+                    <Link to="/forgot-password" className="text-xs text-primary hover:underline">Mot de passe oublié ?</Link>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="••••••••"
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+                <Button type="submit" className="w-full h-11 rounded-xl text-sm font-medium group" disabled={loading}>
+                  {loading ? "Connexion..." : (
+                    <>
+                      Se connecter
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <p className="text-center text-sm text-muted-foreground">
+            Pas encore de compte ?{" "}
+            <Link to="/signup" className="text-primary hover:underline font-medium">Créer un compte</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

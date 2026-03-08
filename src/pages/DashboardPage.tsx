@@ -6,9 +6,9 @@ import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CalendarDays, Wallet, Heart, Plus, MapPin, Users, ArrowRight, Megaphone } from "lucide-react";
+import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -161,91 +161,82 @@ const DashboardPage = () => {
 
   return (
     <AppLayout title="Dashboard">
-      <div className="space-y-8 max-w-5xl">
-        {/* Welcome */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-display text-foreground">
-              Bonjour{myProfile?.first_name ? `, ${myProfile.first_name}` : ""} 👋
-            </h2>
-            <p className="text-muted-foreground mt-1">Voici un résumé de vos maisons.</p>
+      <div className="space-y-8 max-w-5xl animate-fade-in">
+        {/* Welcome Banner */}
+        <div className="relative overflow-hidden rounded-2xl warm-gradient border border-border/40 p-6 md:p-8">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="space-y-1">
+              <h2 className="text-2xl md:text-3xl font-display text-foreground tracking-tight">
+                Bonjour{myProfile?.first_name ? `, ${myProfile.first_name}` : ""} 👋
+              </h2>
+              <p className="text-muted-foreground">Voici un résumé de vos maisons.</p>
+            </div>
+            <Button asChild className="rounded-xl shadow-soft group self-start">
+              <Link to="/bookings">
+                <Plus className="h-4 w-4 mr-2" />
+                Nouvelle réservation
+                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </Button>
           </div>
-          <Button asChild>
-            <Link to="/bookings">
-              <Plus className="h-4 w-4 mr-2" />
-              Nouvelle réservation
-            </Link>
-          </Button>
+          <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-primary/5" />
+          <div className="absolute -bottom-6 -right-12 w-24 h-24 rounded-full bg-accent/5" />
         </div>
 
         <HouseSelector />
 
         {/* Stats cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="py-4 flex flex-col items-center text-center">
-              <Building2 className="h-6 w-6 text-primary mb-1" />
-              <p className="text-2xl font-bold text-foreground">{filteredHouseCount}</p>
-              <p className="text-xs text-muted-foreground">Maison{filteredHouseCount > 1 ? "s" : ""}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="py-4 flex flex-col items-center text-center">
-              <CalendarDays className="h-6 w-6 text-primary mb-1" />
-              <p className="text-2xl font-bold text-foreground">{bookings.length}</p>
-              <p className="text-xs text-muted-foreground">Réservation{bookings.length > 1 ? "s" : ""} à venir</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="py-4 flex flex-col items-center text-center">
-              <Wallet className="h-6 w-6 text-primary mb-1" />
-              <p className="text-2xl font-bold text-foreground">
-                {expenses.reduce((s, e) => s + Number(e.amount), 0).toFixed(0)}€
-              </p>
-              <p className="text-xs text-muted-foreground">Dépenses récentes</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="py-4 flex flex-col items-center text-center">
-              <Heart className="h-6 w-6 text-primary mb-1" />
-              <p className="text-2xl font-bold text-foreground">{memories.length}</p>
-              <p className="text-xs text-muted-foreground">Souvenir{memories.length > 1 ? "s" : ""}</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          {[
+            { icon: Building2, value: filteredHouseCount, label: `Maison${filteredHouseCount > 1 ? "s" : ""}`, color: "text-primary", bg: "bg-primary/8" },
+            { icon: CalendarDays, value: bookings.length, label: `Réservation${bookings.length > 1 ? "s" : ""} à venir`, color: "text-accent", bg: "bg-accent/8" },
+            { icon: Wallet, value: `${expenses.reduce((s, e) => s + Number(e.amount), 0).toFixed(0)}€`, label: "Dépenses récentes", color: "text-honey", bg: "bg-honey/8" },
+            { icon: Heart, value: memories.length, label: `Souvenir${memories.length > 1 ? "s" : ""}`, color: "text-lavender", bg: "bg-lavender/8" },
+          ].map((stat, i) => (
+            <Card key={i} className="border-border/50 shadow-soft hover:shadow-card transition-shadow duration-300">
+              <CardContent className="p-4 md:py-5 flex flex-col items-center text-center gap-2">
+                <div className={`h-10 w-10 rounded-xl ${stat.bg} flex items-center justify-center`}>
+                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                </div>
+                <p className="text-2xl font-bold text-foreground tracking-tight">{stat.value}</p>
+                <p className="text-[11px] text-muted-foreground leading-tight">{stat.label}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Prochaines réservations */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display text-xl text-foreground flex items-center gap-2">
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
               <CalendarDays className="h-5 w-5 text-primary" />
               Prochaines réservations
             </h3>
-            <Link to="/bookings" className="text-sm text-primary hover:underline flex items-center gap-1">
-              Tout voir <ArrowRight className="h-3 w-3" />
+            <Link to="/bookings" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+              Tout voir <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
           {bookings.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <CalendarDays className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+            <Card className="border-border/50 shadow-soft">
+              <CardContent className="empty-state">
+                <CalendarDays className="empty-state-icon" />
                 <p className="text-muted-foreground">Aucune réservation à venir.</p>
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {bookings.map((booking) => (
-                <Card key={booking.id}>
-                  <CardContent className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <Card key={booking.id} className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
+                  <CardContent className="py-4 px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="space-y-1">
                       <p className="font-medium text-foreground">{booking.houses?.name}</p>
                       <p className="text-sm text-muted-foreground">
                         {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
-                        <span className="ml-2 text-xs">par {getAuthorName(booking.user_id)}</span>
+                        <span className="ml-2 text-xs opacity-70">par {getAuthorName(booking.user_id)}</span>
                       </p>
                     </div>
-                    <Badge variant={statusLabels[booking.status]?.variant || "secondary"}>
+                    <Badge variant={statusLabels[booking.status]?.variant || "secondary"} className="self-start sm:self-center">
                       {statusLabels[booking.status]?.label || booking.status}
                     </Badge>
                   </CardContent>
@@ -257,29 +248,29 @@ const DashboardPage = () => {
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Dépenses récentes */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display text-xl text-foreground flex items-center gap-2">
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
                 <Wallet className="h-5 w-5 text-primary" />
                 Dépenses récentes
               </h3>
-              <Link to="/expenses" className="text-sm text-primary hover:underline flex items-center gap-1">
-                Tout voir <ArrowRight className="h-3 w-3" />
+              <Link to="/expenses" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+                Tout voir <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
             {expenses.length === 0 ? (
-              <Card>
-                <CardContent className="py-8 text-center">
-                  <Wallet className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="empty-state">
+                  <Wallet className="empty-state-icon" />
                   <p className="text-muted-foreground">Aucune dépense.</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {expenses.map((expense) => (
-                  <Card key={expense.id}>
-                    <CardContent className="py-4 space-y-1">
+                  <Card key={expense.id} className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
+                    <CardContent className="py-3.5 px-5 space-y-1">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="font-medium text-foreground text-sm truncate">{expense.description}</p>
@@ -289,7 +280,7 @@ const DashboardPage = () => {
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className="font-semibold text-foreground">{Number(expense.amount).toFixed(2)}€</p>
-                          <Badge variant="outline" className="text-xs">{expense.houses?.name}</Badge>
+                          <Badge variant="outline" className="text-[10px]">{expense.houses?.name}</Badge>
                         </div>
                       </div>
                     </CardContent>
@@ -300,32 +291,32 @@ const DashboardPage = () => {
           </section>
 
           {/* Derniers souvenirs */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display text-xl text-foreground flex items-center gap-2">
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
                 <Heart className="h-5 w-5 text-primary" />
                 Derniers souvenirs
               </h3>
-              <Link to="/journal" className="text-sm text-primary hover:underline flex items-center gap-1">
-                Tout voir <ArrowRight className="h-3 w-3" />
+              <Link to="/journal" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+                Tout voir <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
             {memories.length === 0 ? (
-              <Card>
-                <CardContent className="py-8 text-center">
-                  <Heart className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="empty-state">
+                  <Heart className="empty-state-icon" />
                   <p className="text-muted-foreground">Le journal est vide pour le moment.</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {memories.map((memory) => (
-                  <Card key={memory.id}>
-                    <CardContent className="py-4 space-y-1">
+                  <Card key={memory.id} className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
+                    <CardContent className="py-3.5 px-5 space-y-1">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium text-foreground text-sm">{memory.title}</p>
-                        <Badge variant="outline" className="text-xs whitespace-nowrap">{memory.houses?.name}</Badge>
+                        <Badge variant="outline" className="text-[10px] whitespace-nowrap">{memory.houses?.name}</Badge>
                       </div>
                       {memory.description && (
                         <p className="text-sm text-muted-foreground line-clamp-2">{memory.description}</p>
@@ -343,20 +334,20 @@ const DashboardPage = () => {
 
         {/* Actualités */}
         {news.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display text-xl text-foreground flex items-center gap-2">
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
                 <Megaphone className="h-5 w-5 text-primary" />
                 Actualités
               </h3>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {news.map((n) => (
-                <Card key={n.id}>
-                  <CardContent className="py-4 space-y-1">
+                <Card key={n.id} className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
+                  <CardContent className="py-3.5 px-5 space-y-1">
                     <div className="flex items-start justify-between gap-2">
                       <p className="font-medium text-foreground text-sm">{n.title}</p>
-                      <Badge variant="outline" className="text-xs whitespace-nowrap">{n.houses?.name}</Badge>
+                      <Badge variant="outline" className="text-[10px] whitespace-nowrap">{n.houses?.name}</Badge>
                     </div>
                     {n.content && (
                       <p className="text-sm text-muted-foreground line-clamp-2">{n.content}</p>
