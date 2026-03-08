@@ -6,10 +6,11 @@ import CreateFamilyDialog from "@/components/CreateFamilyDialog";
 import CreateHouseDialog from "@/components/CreateHouseDialog";
 import InviteMemberDialog from "@/components/InviteMemberDialog";
 import InviteToHouseDialog from "@/components/InviteToHouseDialog";
+import AddUnitDialog from "@/components/AddUnitDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, MapPin, Users, Crown, User, UserPlus } from "lucide-react";
+import { Building2, MapPin, Users, Crown, User, DoorOpen } from "lucide-react";
 
 interface Family {
   id: string;
