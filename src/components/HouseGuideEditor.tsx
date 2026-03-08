@@ -11,8 +11,10 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Plus, Trash2, GripVertical } from "lucide-react";
+import { Pencil, Plus, Trash2, GripVertical, Tag } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface HouseGuideEditorProps {
   houseId: string;
@@ -32,66 +34,97 @@ const typeLabels = {
   practical_info: "Infos pratiques",
 };
 
-const typeExamples: Record<string, string[]> = {
-  arrival: [
-    "Code du portail : 1234",
-    "Les clés sont dans la boîte à lettres",
-    "Wi-Fi : MaisonBretagne / mdp123",
-    "Draps et serviettes dans le placard de l'entrée",
-  ],
-  departure: [
-    "Vider les poubelles (tri sélectif)",
-    "Lancer une machine si draps utilisés",
-    "Fermer les volets et les fenêtres",
-    "Remettre les clés dans la boîte",
-  ],
-  rules: [
-    "Pas de fête après 22h",
-    "Animaux acceptés sous conditions",
-    "Merci de respecter le voisinage",
-  ],
-  practical_info: [
-    "Supermarché le plus proche : 2km",
-    "Médecin : Dr. Dupont, 02 99 XX XX XX",
-    "Plage à 500m à pied",
-  ],
+const defaultCategories: Record<string, string[]> = {
+  arrival: ["🔑 Clés & accès", "⚡ Énergie", "📶 Internet", "🛏️ Linge & confort", "🍳 Cuisine", "📋 Autre"],
+  departure: ["🧹 Ménage", "⚡ Énergie", "🔑 Clés & accès", "🗑️ Déchets", "📋 Autre"],
+  rules: ["🔇 Bruit", "🐾 Animaux", "🏠 Maison", "📋 Autre"],
+  practical_info: ["🏪 Commerces", "🏥 Santé", "🏖️ Loisirs", "🚗 Transport", "📋 Autre"],
 };
 
-/** Parse bullet-point text content into an array of items */
-function parseContentToItems(content: string | null | undefined): string[] {
-  if (!content || !content.trim()) return [];
-  return content
-    .split("\n")
-    .map((line) => line.replace(/^[\s•\-\*·]+/, "").trim())
-    .filter(Boolean);
+interface GuideItem {
+  category: string;
+  text: string;
 }
 
-/** Serialize items back to bullet-point text */
-function itemsToContent(items: string[]): string {
-  return items.map((item) => `• ${item}`).join("\n");
+/** Parse structured content: "[Category] • text" per line */
+function parseContent(content: string | null | undefined): GuideItem[] {
+  if (!content || !content.trim()) return [];
+  return content.split("\n").map((line) => {
+    const match = line.match(/^\[(.+?)\]\s*•?\s*(.+)$/);
+    if (match) return { category: match[1], text: match[2].trim() };
+    // Legacy format: plain bullet
+    const text = line.replace(/^[\s•\-\*·]+/, "").trim();
+    if (text) return { category: "📋 Autre", text };
+    return null;
+  }).filter(Boolean) as GuideItem[];
 }
+
+/** Serialize items back to structured text */
+function serializeContent(items: GuideItem[]): string {
+  return items.map((item) => `[${item.category}] • ${item.text}`).join("\n");
+}
+
+/** Group items by category, preserving order */
+function groupByCategory(items: GuideItem[]): Map<string, GuideItem[]> {
+  const map = new Map<string, GuideItem[]>();
+  for (const item of items) {
+    if (!map.has(item.category)) map.set(item.category, []);
+    map.get(item.category)!.push(item);
+  }
+  return map;
+}
+
+const typeExamples: Record<string, GuideItem[]> = {
+  arrival: [
+    { category: "🔑 Clés & accès", text: "Code du portail : 1234" },
+    { category: "🔑 Clés & accès", text: "Les clés sont dans la boîte à lettres" },
+    { category: "📶 Internet", text: "Wi-Fi : MaisonBretagne / mdp123" },
+    { category: "🛏️ Linge & confort", text: "Draps et serviettes dans le placard de l'entrée" },
+    { category: "⚡ Énergie", text: "Allumer le chauffe-eau en arrivant" },
+  ],
+  departure: [
+    { category: "🗑️ Déchets", text: "Vider les poubelles (tri sélectif)" },
+    { category: "🧹 Ménage", text: "Lancer une machine si draps utilisés" },
+    { category: "⚡ Énergie", text: "Fermer les volets et les fenêtres" },
+    { category: "🔑 Clés & accès", text: "Remettre les clés dans la boîte" },
+  ],
+  rules: [
+    { category: "🔇 Bruit", text: "Pas de fête après 22h" },
+    { category: "🐾 Animaux", text: "Animaux acceptés sous conditions" },
+    { category: "🏠 Maison", text: "Merci de respecter le voisinage" },
+  ],
+  practical_info: [
+    { category: "🏪 Commerces", text: "Supermarché le plus proche : 2km" },
+    { category: "🏥 Santé", text: "Médecin : Dr. Dupont, 02 99 XX XX XX" },
+    { category: "🏖️ Loisirs", text: "Plage à 500m à pied" },
+  ],
+};
 
 const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(guide?.title || typeLabels[type]);
-  const [items, setItems] = useState<string[]>(() => parseContentToItems(guide?.content));
+  const [items, setItems] = useState<GuideItem[]>(() => parseContent(guide?.content));
   const [newItem, setNewItem] = useState("");
+  const [newCategory, setNewCategory] = useState(defaultCategories[type]?.[0] || "📋 Autre");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const categories = defaultCategories[type] || ["📋 Autre"];
 
   const handleOpen = useCallback((isOpen: boolean) => {
     if (isOpen) {
       setTitle(guide?.title || typeLabels[type]);
-      setItems(parseContentToItems(guide?.content));
+      setItems(parseContent(guide?.content));
       setNewItem("");
+      setNewCategory(categories[0]);
     }
     setOpen(isOpen);
-  }, [guide, type]);
+  }, [guide, type, categories]);
 
   const addItem = () => {
     const trimmed = newItem.trim();
     if (!trimmed) return;
-    setItems((prev) => [...prev, trimmed]);
+    setItems((prev) => [...prev, { category: newCategory, text: trimmed }]);
     setNewItem("");
   };
 
@@ -99,31 +132,24 @@ const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorPro
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const updateItem = (index: number, value: string) => {
-    setItems((prev) => prev.map((item, i) => (i === index ? value : item)));
+  const updateItem = (index: number, text: string) => {
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, text } : item)));
   };
 
-  const moveItem = (index: number, direction: -1 | 1) => {
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= items.length) return;
-    setItems((prev) => {
-      const arr = [...prev];
-      [arr[index], arr[newIndex]] = [arr[newIndex], arr[index]];
-      return arr;
-    });
+  const updateItemCategory = (index: number, category: string) => {
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, category } : item)));
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const content = itemsToContent(items);
+    const content = serializeContent(items);
 
     if (guide) {
       const { error } = await supabase
         .from("house_guides")
         .update({ title: title.trim(), content })
         .eq("id", guide.id);
-
       if (error) {
         toast({ title: "Erreur", description: error.message, variant: "destructive" });
         setLoading(false);
@@ -133,7 +159,6 @@ const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorPro
       const { error } = await supabase
         .from("house_guides")
         .insert({ house_id: houseId, type, title: title.trim(), content });
-
       if (error) {
         toast({ title: "Erreur", description: error.message, variant: "destructive" });
         setLoading(false);
@@ -148,6 +173,7 @@ const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorPro
   };
 
   const examples = typeExamples[type] || [];
+  const grouped = groupByCategory(items);
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
@@ -161,7 +187,7 @@ const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorPro
         <DialogHeader>
           <DialogTitle className="font-display">{typeLabels[type]}</DialogTitle>
           <DialogDescription>
-            Ajoutez les éléments un par un pour constituer votre checklist.
+            Organisez les éléments par catégorie pour plus de clarté.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSave} className="space-y-5 mt-2">
@@ -175,48 +201,65 @@ const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorPro
             />
           </div>
 
-          {/* Items list */}
-          <div className="space-y-2">
-            <Label>Éléments de la checklist</Label>
+          {/* Items grouped by category */}
+          <div className="space-y-3">
+            <Label>Éléments par catégorie</Label>
             {items.length === 0 && (
               <p className="text-xs text-muted-foreground italic py-2">
                 Aucun élément. Ajoutez-en ci-dessous ou utilisez les suggestions.
               </p>
             )}
-            <div className="space-y-2">
-              {items.map((item, index) => (
-                <div key={index} className="flex items-center gap-2 group">
-                  <div className="flex flex-col -space-y-1">
-                    <button
-                      type="button"
-                      onClick={() => moveItem(index, -1)}
-                      disabled={index === 0}
-                      className="text-muted-foreground hover:text-foreground disabled:opacity-20 p-0.5"
-                    >
-                      <GripVertical className="h-3 w-3" />
-                    </button>
-                  </div>
-                  <span className="text-muted-foreground text-sm shrink-0">•</span>
-                  <Input
-                    value={item}
-                    onChange={(e) => updateItem(index, e.target.value)}
-                    className="h-8 text-sm flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => removeItem(index)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ))}
-            </div>
+            {Array.from(grouped.entries()).map(([cat, catItems]) => (
+              <div key={cat} className="space-y-1.5">
+                <p className="text-xs font-medium text-foreground">{cat}</p>
+                {catItems.map((item) => {
+                  const globalIndex = items.indexOf(item);
+                  return (
+                    <div key={globalIndex} className="flex items-center gap-1.5 group pl-3">
+                      <span className="text-muted-foreground text-xs shrink-0">•</span>
+                      <Input
+                        value={item.text}
+                        onChange={(e) => updateItem(globalIndex, e.target.value)}
+                        className="h-8 text-sm flex-1"
+                      />
+                      <select
+                        value={item.category}
+                        onChange={(e) => updateItemCategory(globalIndex, e.target.value)}
+                        className="h-8 text-xs border border-border rounded-md px-1.5 bg-background text-foreground shrink-0 max-w-[120px]"
+                      >
+                        {categories.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeItem(globalIndex)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
 
-            {/* Add new item */}
-            <div className="flex gap-2 pt-1">
+          {/* Add new item */}
+          <div className="space-y-2">
+            <Label>Ajouter un élément</Label>
+            <div className="flex gap-2">
+              <select
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                className="h-9 text-xs border border-border rounded-md px-2 bg-background text-foreground shrink-0"
+              >
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
               <Input
                 value={newItem}
                 onChange={(e) => setNewItem(e.target.value)}
@@ -240,14 +283,14 @@ const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorPro
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Suggestions</Label>
               <div className="flex flex-wrap gap-1.5">
-                {examples.map((example, i) => (
+                {examples.map((ex, i) => (
                   <button
                     key={i}
                     type="button"
-                    onClick={() => setItems((prev) => [...prev, example])}
+                    onClick={() => setItems((prev) => [...prev, ex])}
                     className="text-xs px-2.5 py-1.5 rounded-full border border-border bg-muted/50 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    + {example.length > 30 ? example.slice(0, 30) + "…" : example}
+                    + {ex.text.length > 28 ? ex.text.slice(0, 28) + "…" : ex.text}
                   </button>
                 ))}
                 <button
@@ -269,5 +312,9 @@ const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorPro
     </Dialog>
   );
 };
+
+/** Parse content for display - exported for use in GuideCard */
+export { parseContent, groupByCategory };
+export type { GuideItem };
 
 export default HouseGuideEditor;
