@@ -64,6 +64,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
   const [pricing, setPricing] = useState<{ pricing_mode: string; base_price: number; cap_amount: number | null; is_active: boolean; payment_method: string; accepted_payments: string[]; payment_instructions: string | null; cleaning_fee: number | null; cleaning_mode: string } | null>(null);
   const [guestCount, setGuestCount] = useState("2");
   const [wantsCleaning, setWantsCleaning] = useState(false);
+  const [notes, setNotes] = useState("");
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -171,7 +172,9 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       end_date: format(endDate, "yyyy-MM-dd"),
       status: bookingStatus,
       cleaning_fee: cleaningAmount,
-    });
+      notes: notes.trim() || null,
+      guest_count: parseInt(guestCount) || null,
+    } as any);
 
     if (error) {
       const msg = error.message.includes("Conflit")
@@ -191,6 +194,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
     setStartDate(undefined);
     setEndDate(undefined);
     setConflict(null);
+    setNotes("");
     setOpen(false);
     setLoading(false);
     onCreated();
@@ -330,19 +334,30 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
             </div>
           </div>
 
-          {/* Guest count for per_person pricing */}
-          {pricing?.is_active && pricing.pricing_mode !== "per_night" && (
-            <div className="space-y-2">
-              <Label>Nombre de personnes</Label>
-              <Input
-                type="number"
-                min="1"
-                value={guestCount}
-                onChange={(e) => setGuestCount(e.target.value)}
-                placeholder="2"
-              />
-            </div>
-          )}
+          {/* Guest count */}
+          <div className="space-y-2">
+            <Label>Nombre de personnes</Label>
+            <Input
+              type="number"
+              min="1"
+              value={guestCount}
+              onChange={(e) => setGuestCount(e.target.value)}
+              placeholder="2"
+              className="rounded-xl"
+            />
+          </div>
+
+          {/* Notes */}
+          <div className="space-y-2">
+            <Label>Notes (optionnel)</Label>
+            <Input
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Ex: Arrivée vers 18h, animaux..."
+              maxLength={500}
+              className="rounded-xl"
+            />
+          </div>
 
           {/* Conflict warning */}
           {conflict && (

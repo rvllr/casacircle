@@ -29,6 +29,10 @@ interface EditHouseDialogProps {
     photo_url: string | null;
     is_public?: boolean;
     booking_auto_approve?: boolean;
+    wifi_name?: string | null;
+    wifi_password?: string | null;
+    access_code?: string | null;
+    emergency_contact?: string | null;
   };
   onSaved: () => void;
 }
@@ -43,6 +47,10 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
   const [photoPreview, setPhotoPreview] = useState<string | null>(house.photo_url || null);
   const [isPublic, setIsPublic] = useState(house.is_public || false);
   const [autoApprove, setAutoApprove] = useState(house.booking_auto_approve || false);
+  const [wifiName, setWifiName] = useState(house.wifi_name || "");
+  const [wifiPassword, setWifiPassword] = useState(house.wifi_password || "");
+  const [accessCode, setAccessCode] = useState(house.access_code || "");
+  const [emergencyContact, setEmergencyContact] = useState(house.emergency_contact || "");
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,6 +67,10 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       setPhotoPreview(house.photo_url || null);
       setIsPublic(house.is_public || false);
       setAutoApprove(house.booking_auto_approve || false);
+      setWifiName(house.wifi_name || "");
+      setWifiPassword(house.wifi_password || "");
+      setAccessCode(house.access_code || "");
+      setEmergencyContact(house.emergency_contact || "");
       setCopied(false);
     }
     setOpen(isOpen);
@@ -120,6 +132,10 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
         photo_url: photoUrl.trim() || null,
         is_public: isPublic,
         booking_auto_approve: autoApprove,
+        wifi_name: wifiName.trim() || null,
+        wifi_password: wifiPassword.trim() || null,
+        access_code: accessCode.trim() || null,
+        emergency_contact: emergencyContact.trim() || null,
       } as any)
       .eq("id", house.id);
 
@@ -245,6 +261,32 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
               onChange={(e) => setCapacity(e.target.value)}
               placeholder="Ex : 8"
             />
+          </div>
+
+          {/* Infos pratiques */}
+          <Separator />
+          <div className="space-y-3">
+            <Label className="text-sm font-medium flex items-center gap-2">
+              📶 Infos pratiques
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="wifiName" className="text-xs text-muted-foreground">Nom WiFi</Label>
+                <Input id="wifiName" value={wifiName} onChange={(e) => setWifiName(e.target.value)} placeholder="MonWiFi" maxLength={100} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="wifiPass" className="text-xs text-muted-foreground">Mot de passe WiFi</Label>
+                <Input id="wifiPass" value={wifiPassword} onChange={(e) => setWifiPassword(e.target.value)} placeholder="••••••••" maxLength={100} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="accessCode" className="text-xs text-muted-foreground">Code d'accès / Digicode</Label>
+              <Input id="accessCode" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Ex: 1234A" maxLength={100} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="emergency" className="text-xs text-muted-foreground">Contact d'urgence</Label>
+              <Input id="emergency" value={emergencyContact} onChange={(e) => setEmergencyContact(e.target.value)} placeholder="Ex: Gardien M. Dupont - 06 12 34 56 78" maxLength={200} />
+            </div>
           </div>
 
           {/* Booking approval mode */}

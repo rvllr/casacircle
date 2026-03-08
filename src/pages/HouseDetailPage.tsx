@@ -40,6 +40,10 @@ interface House {
   photo_url: string | null;
   is_public?: boolean;
   booking_auto_approve?: boolean;
+  wifi_name?: string | null;
+  wifi_password?: string | null;
+  access_code?: string | null;
+  emergency_contact?: string | null;
 }
 
 interface HouseMember {
@@ -70,6 +74,7 @@ interface MaintenanceTicket {
   title: string;
   description: string | null;
   status: "open" | "in_progress" | "resolved";
+  priority: "low" | "medium" | "high" | "urgent";
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -143,6 +148,7 @@ const HouseDetailPage = () => {
       return {
         ...t,
         status: t.status as MaintenanceTicket["status"],
+        priority: (t as any).priority as MaintenanceTicket["priority"] || "medium",
         authorName: [prof?.first_name, prof?.last_name].filter(Boolean).join(" ") || "Membre",
       };
     });
@@ -257,6 +263,39 @@ const HouseDetailPage = () => {
             </div>
           )}
         </div>
+
+        {/* Practical info cards */}
+        {(house.wifi_name || house.access_code || house.emergency_contact) && (
+          <div className="grid sm:grid-cols-3 gap-3">
+            {house.wifi_name && (
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">📶 WiFi</p>
+                  <p className="font-medium text-foreground text-sm">{house.wifi_name}</p>
+                  {house.wifi_password && (
+                    <p className="text-xs text-muted-foreground">Mot de passe : <span className="font-mono text-foreground">{house.wifi_password}</span></p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            {house.access_code && (
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">🔑 Code d'accès</p>
+                  <p className="font-mono font-bold text-foreground text-lg">{house.access_code}</p>
+                </CardContent>
+              </Card>
+            )}
+            {house.emergency_contact && (
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">🚨 Contact d'urgence</p>
+                  <p className="text-sm text-foreground">{house.emergency_contact}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
 
         {/* Pricing */}
         <HousePricingConfig houseId={house.id} isAdmin={isAdmin} />
@@ -638,6 +677,7 @@ const TicketsTab = ({
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<string>("medium");
   const [submitting, setSubmitting] = useState(false);
 
   const handleCreate = async () => {
@@ -648,7 +688,8 @@ const TicketsTab = ({
       description: description.trim() || null,
       house_id: houseId,
       created_by: userId,
-    });
+      priority,
+    } as any);
     setSubmitting(false);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -656,6 +697,7 @@ const TicketsTab = ({
       toast({ title: "Signalement créé !" });
       setTitle("");
       setDescription("");
+      setPriority("medium");
       setOpen(false);
       onRefresh();
     }
@@ -707,8 +749,20 @@ const TicketsTab = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   maxLength={2000}
-                  rows={4}
+                  rows={3}
                 />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Priorité</label>
+                <Select value={priority} onValueChange={setPriority}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">🟢 Faible</SelectItem>
+                    <SelectItem value="medium">🟡 Moyenne</SelectItem>
+                    <SelectItem value="high">🟠 Important</SelectItem>
+                    <SelectItem value="urgent">🔴 Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Button onClick={handleCreate} disabled={!title.trim() || submitting} className="w-full">
                 {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

@@ -16,6 +16,7 @@ interface Profile { user_id: string; first_name: string | null; last_name: strin
 interface Expense {
   id: string; house_id: string; paid_by: string;
   description: string; amount: number; created_at: string;
+  category?: string; expense_date?: string | null;
   houses: { name: string } | null;
 }
 interface ExpenseShare { id: string; expense_id: string; user_id: string; amount: number; }
@@ -36,7 +37,7 @@ const ExpensesPage = () => {
 
     const { data: expData } = await supabase
       .from("expenses")
-      .select("id, house_id, paid_by, description, amount, created_at, houses(name)")
+      .select("id, house_id, paid_by, description, amount, created_at, category, expense_date, houses(name)")
       .order("created_at", { ascending: false });
 
     const expList = (expData || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] }));
