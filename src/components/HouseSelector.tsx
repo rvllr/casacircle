@@ -5,7 +5,7 @@ import { useHouseContext } from "@/contexts/HouseContext";
 const HouseSelector = () => {
   const { houses, selectedHouseId, setSelectedHouseId } = useHouseContext();
 
-  if (houses.length <= 1) return null;
+  if (houses.length === 0) return null;
 
   return (
     <div className="flex items-center gap-3">
