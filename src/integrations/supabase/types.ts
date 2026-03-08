@@ -86,6 +86,8 @@ export type Database = {
       }
       bookings: {
         Row: {
+          cleaning_fee: number | null
+          cleaning_fee_paid: boolean
           created_at: string
           end_date: string
           house_id: string
@@ -96,6 +98,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cleaning_fee?: number | null
+          cleaning_fee_paid?: boolean
           created_at?: string
           end_date: string
           house_id: string
@@ -106,6 +110,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cleaning_fee?: number | null
+          cleaning_fee_paid?: boolean
           created_at?: string
           end_date?: string
           house_id?: string
@@ -438,6 +444,8 @@ export type Database = {
           accepted_payments: string[]
           base_price: number
           cap_amount: number | null
+          cleaning_fee: number | null
+          cleaning_mode: Database["public"]["Enums"]["cleaning_mode"]
           created_at: string
           house_id: string
           id: string
@@ -451,6 +459,8 @@ export type Database = {
           accepted_payments?: string[]
           base_price?: number
           cap_amount?: number | null
+          cleaning_fee?: number | null
+          cleaning_mode?: Database["public"]["Enums"]["cleaning_mode"]
           created_at?: string
           house_id: string
           id?: string
@@ -464,6 +474,8 @@ export type Database = {
           accepted_payments?: string[]
           base_price?: number
           cap_amount?: number | null
+          cleaning_fee?: number | null
+          cleaning_mode?: Database["public"]["Enums"]["cleaning_mode"]
           created_at?: string
           house_id?: string
           id?: string
@@ -848,6 +860,7 @@ export type Database = {
     }
     Enums: {
       booking_status: "pending" | "approved" | "refused" | "cancelled"
+      cleaning_mode: "included" | "optional" | "mandatory"
       document_type: "legal" | "insurance" | "invoice" | "other"
       family_role: "admin" | "member"
       guest_type: "family" | "friend"
@@ -985,6 +998,7 @@ export const Constants = {
   public: {
     Enums: {
       booking_status: ["pending", "approved", "refused", "cancelled"],
+      cleaning_mode: ["included", "optional", "mandatory"],
       document_type: ["legal", "insurance", "invoice", "other"],
       family_role: ["admin", "member"],
       guest_type: ["family", "friend"],

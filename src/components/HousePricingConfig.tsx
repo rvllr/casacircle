@@ -48,6 +48,8 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
   const [paymentMethod, setPaymentMethod] = useState("declarative");
   const [acceptedPayments, setAcceptedPayments] = useState<string[]>(["virement", "cheque", "liquide"]);
   const [paymentInstructions, setPaymentInstructions] = useState("");
+  const [cleaningFee, setCleaningFee] = useState("");
+  const [cleaningMode, setCleaningMode] = useState("included");
 
   useEffect(() => {
     const fetch = async () => {
@@ -67,6 +69,8 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
         setPaymentMethod((data as any).payment_method || "declarative");
         setAcceptedPayments((data as any).accepted_payments || ["virement", "cheque", "liquide"]);
         setPaymentInstructions((data as any).payment_instructions || "");
+        setCleaningFee((data as any).cleaning_fee?.toString() || "");
+        setCleaningMode((data as any).cleaning_mode || "included");
       }
       setLoading(false);
     };
@@ -90,6 +94,8 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
       payment_method: paymentMethod as any,
       accepted_payments: acceptedPayments,
       payment_instructions: paymentInstructions.trim() || null,
+      cleaning_fee: cleaningFee ? parseFloat(cleaningFee) : null,
+      cleaning_mode: cleaningMode as any,
     };
 
     let error;
@@ -146,6 +152,20 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
             <p className="text-sm text-muted-foreground">
               Plafond : {capAmount} € maximum par séjour
             </p>
+          )}
+
+          {cleaningFee && cleaningMode !== "included" && (
+            <div className="flex items-center gap-2">
+              <Badge variant={cleaningMode === "mandatory" ? "default" : "outline"} className="gap-1">
+                🧹 Ménage : {cleaningFee} €
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {cleaningMode === "mandatory" ? "(obligatoire)" : "(optionnel)"}
+              </span>
+            </div>
+          )}
+          {cleaningMode === "included" && (
+            <p className="text-xs text-muted-foreground">🧹 Ménage inclus dans le tarif</p>
           )}
 
           <Separator />
@@ -238,6 +258,38 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
             <p className="text-[10px] text-muted-foreground">Montant maximum par séjour</p>
           </div>
         </div>
+
+        {/* Cleaning fee */}
+        <Separator />
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            🧹 Frais de ménage
+          </Label>
+          <Select value={cleaningMode} onValueChange={setCleaningMode}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="included">Inclus dans le tarif</SelectItem>
+              <SelectItem value="optional">Optionnel (le membre choisit)</SelectItem>
+              <SelectItem value="mandatory">Obligatoire (ajouté automatiquement)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {cleaningMode !== "included" && (
+          <div className="space-y-2">
+            <Label>Montant du ménage (€)</Label>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={cleaningFee}
+              onChange={(e) => setCleaningFee(e.target.value)}
+              placeholder="Ex: 80"
+            />
+          </div>
+        )}
 
         <Separator />
 

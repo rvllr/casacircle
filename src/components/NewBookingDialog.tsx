@@ -61,8 +61,9 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
   const [loading, setLoading] = useState(false);
   const [conflict, setConflict] = useState<string | null>(null);
   const [checkingConflict, setCheckingConflict] = useState(false);
-  const [pricing, setPricing] = useState<{ pricing_mode: string; base_price: number; cap_amount: number | null; is_active: boolean; payment_method: string; accepted_payments: string[]; payment_instructions: string | null } | null>(null);
+  const [pricing, setPricing] = useState<{ pricing_mode: string; base_price: number; cap_amount: number | null; is_active: boolean; payment_method: string; accepted_payments: string[]; payment_instructions: string | null; cleaning_fee: number | null; cleaning_mode: string } | null>(null);
   const [guestCount, setGuestCount] = useState("2");
+  const [wantsCleaning, setWantsCleaning] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -99,11 +100,13 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       });
     supabase
       .from("house_pricing")
-      .select("pricing_mode, base_price, cap_amount, is_active, payment_method, accepted_payments, payment_instructions")
+      .select("pricing_mode, base_price, cap_amount, is_active, payment_method, accepted_payments, payment_instructions, cleaning_fee, cleaning_mode")
       .eq("house_id", houseId)
       .maybeSingle()
       .then(({ data }) => {
         setPricing(data as any);
+        if ((data as any)?.cleaning_mode === "mandatory") setWantsCleaning(true);
+        else setWantsCleaning(false);
       });
   }, [houseId]);
 
@@ -158,6 +161,8 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
     const isAutoApprove = selectedHouse?.booking_auto_approve === true;
     const bookingStatus = isAutoApprove ? "approved" : "pending";
 
+    const cleaningAmount = wantsCleaning && pricing?.cleaning_fee ? pricing.cleaning_fee : null;
+
     const { error } = await supabase.from("bookings").insert({
       house_id: houseId,
       unit_id: unitId === "whole" ? null : unitId,
@@ -165,6 +170,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       start_date: format(startDate, "yyyy-MM-dd"),
       end_date: format(endDate, "yyyy-MM-dd"),
       status: bookingStatus,
+      cleaning_fee: cleaningAmount,
     });
 
     if (error) {
@@ -346,6 +352,36 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
             </div>
           )}
 
+          {/* Cleaning fee option */}
+          {pricing?.is_active && pricing.cleaning_mode !== "included" && pricing.cleaning_fee && (
+            <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border border-border text-sm">
+              <div className="flex items-center gap-2">
+                <span>🧹</span>
+                <div>
+                  <p className="font-medium text-foreground">
+                    Ménage — {pricing.cleaning_fee} €
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {pricing.cleaning_mode === "mandatory" ? "Obligatoire" : "Optionnel"}
+                  </p>
+                </div>
+              </div>
+              {pricing.cleaning_mode === "optional" ? (
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={wantsCleaning}
+                    onChange={(e) => setWantsCleaning(e.target.checked)}
+                    className="rounded border-border"
+                  />
+                  <span className="text-xs">Ajouter</span>
+                </label>
+              ) : (
+                <span className="text-xs text-primary font-medium">Inclus</span>
+              )}
+            </div>
+          )}
+
           {/* Cost estimate */}
           {pricing?.is_active && startDate && endDate && endDate > startDate && (() => {
             const nights = differenceInCalendarDays(endDate, startDate);
@@ -355,13 +391,27 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
             else if (pricing.pricing_mode === "per_person") cost = pricing.base_price * persons;
             else cost = pricing.base_price * persons * nights;
             if (pricing.cap_amount && cost > pricing.cap_amount) cost = pricing.cap_amount;
+            const cleaning = wantsCleaning && pricing.cleaning_fee ? pricing.cleaning_fee : 0;
+            const total = cost + cleaning;
             return (
-              <div className="flex items-center justify-between p-3 rounded-md bg-primary/5 border border-primary/20 text-sm">
-                <span className="text-muted-foreground">
-                  Coût estimé ({nights} nuit{nights > 1 ? "s" : ""}
-                  {pricing.pricing_mode !== "per_night" ? `, ${persons} pers.` : ""})
-                </span>
-                <span className="font-bold text-foreground">{cost.toFixed(2)} €</span>
+              <div className="p-3 rounded-md bg-primary/5 border border-primary/20 text-sm space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    Séjour ({nights} nuit{nights > 1 ? "s" : ""}
+                    {pricing.pricing_mode !== "per_night" ? `, ${persons} pers.` : ""})
+                  </span>
+                  <span className="text-foreground">{cost.toFixed(2)} €</span>
+                </div>
+                {cleaning > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">🧹 Ménage</span>
+                    <span className="text-foreground">{cleaning.toFixed(2)} €</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between pt-1 border-t border-primary/10">
+                  <span className="font-medium text-foreground">Total</span>
+                  <span className="font-bold text-foreground">{total.toFixed(2)} €</span>
+                </div>
               </div>
             );
           })()}
