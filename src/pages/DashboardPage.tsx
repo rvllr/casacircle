@@ -16,6 +16,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 interface Booking {
   id: string; start_date: string; end_date: string; status: string;
   user_id: string; house_id: string;
+  total_price: number | null; amount_paid: number | null;
+  payment_status: string;
   houses: { name: string; location: string | null } | null;
 }
 
