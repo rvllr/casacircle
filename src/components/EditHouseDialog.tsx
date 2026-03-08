@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Settings } from "lucide-react";
+import { Settings, Upload, X, Loader2, ImageIcon } from "lucide-react";
 
 interface EditHouseDialogProps {
   house: {
@@ -35,7 +35,10 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
   const [description, setDescription] = useState(house.description || "");
   const [capacity, setCapacity] = useState(house.capacity?.toString() || "");
   const [photoUrl, setPhotoUrl] = useState(house.photo_url || "");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(house.photo_url || null);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleOpen = (isOpen: boolean) => {
@@ -45,8 +48,50 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       setDescription(house.description || "");
       setCapacity(house.capacity?.toString() || "");
       setPhotoUrl(house.photo_url || "");
+      setPhotoPreview(house.photo_url || null);
     }
     setOpen(isOpen);
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Erreur", description: "Veuillez sélectionner une image.", variant: "destructive" });
+      return;
+    }
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Erreur", description: "L'image ne doit pas dépasser 5 Mo.", variant: "destructive" });
+      return;
+    }
+
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const filePath = `${house.id}/cover-${Date.now()}.${ext}`;
+
+    const { error } = await supabase.storage
+      .from("house-photos")
+      .upload(filePath, file, { upsert: true });
+
+    if (error) {
+      toast({ title: "Erreur d'upload", description: error.message, variant: "destructive" });
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("house-photos").getPublicUrl(filePath);
+    setPhotoUrl(urlData.publicUrl);
+    setPhotoPreview(urlData.publicUrl);
+    setUploading(false);
+  };
+
+  const removePhoto = () => {
+    setPhotoUrl("");
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -83,12 +128,69 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
           Modifier
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display">Modifier la maison</DialogTitle>
           <DialogDescription>Mettez à jour les informations de votre maison.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSave} className="space-y-4 mt-2">
+          {/* Cover photo */}
+          <div className="space-y-2">
+            <Label>Photo de couverture</Label>
+            {photoPreview ? (
+              <div className="relative rounded-lg overflow-hidden border border-border">
+                <img
+                  src={photoPreview}
+                  alt="Couverture"
+                  className="w-full h-40 object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={removePhoto}
+                  className="absolute top-2 right-2 p-1 rounded-full bg-background/80 hover:bg-background text-foreground border border-border transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full h-32 rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
+              >
+                {uploading ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  <>
+                    <ImageIcon className="h-8 w-8" />
+                    <span className="text-sm">Cliquez pour ajouter une photo</span>
+                  </>
+                )}
+              </button>
+            )}
+            {photoPreview && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full"
+              >
+                {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                Changer la photo
+              </Button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="editName">Nom *</Label>
             <Input
@@ -129,16 +231,6 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
               value={capacity}
               onChange={(e) => setCapacity(e.target.value)}
               placeholder="Ex : 8"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="editPhoto">URL de la photo</Label>
-            <Input
-              id="editPhoto"
-              value={photoUrl}
-              onChange={(e) => setPhotoUrl(e.target.value)}
-              placeholder="https://..."
-              maxLength={500}
             />
           </div>
           <Button type="submit" className="w-full" disabled={loading || !name.trim()}>

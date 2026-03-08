@@ -187,26 +187,72 @@ const HouseDetailPage = () => {
             <ArrowLeft className="h-4 w-4 mr-1" /> Retour
           </Button>
 
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl md:text-4xl font-display text-foreground">{house.name}</h1>
-                {isAdmin && <EditHouseDialog house={house} onSaved={fetchHouse} />}
+          {/* Cover photo */}
+          {house.photo_url && (
+            <div className="relative rounded-xl overflow-hidden mb-6 border border-border">
+              <img
+                src={house.photo_url}
+                alt={house.name}
+                className="w-full h-48 sm:h-64 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4">
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-display text-white drop-shadow-lg">{house.name}</h1>
+                    {house.location && (
+                      <p className="text-sm text-white/80 flex items-center gap-1 mt-1 drop-shadow">
+                        <MapPin className="h-3.5 w-3.5" /> {house.location}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {house.capacity && (
+                      <Badge variant="secondary" className="text-sm px-3 py-1.5 bg-background/80 backdrop-blur-sm">
+                        <Users className="h-4 w-4 mr-1.5" />
+                        {house.capacity} pers.
+                      </Badge>
+                    )}
+                    {isAdmin && <EditHouseDialog house={house} onSaved={fetchHouse} />}
+                  </div>
+                </div>
               </div>
-              {house.location && (
-                <LocationMap location={house.location} />
+            </div>
+          )}
+
+          {/* Header without photo */}
+          {!house.photo_url && (
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-3xl md:text-4xl font-display text-foreground">{house.name}</h1>
+                  {isAdmin && <EditHouseDialog house={house} onSaved={fetchHouse} />}
+                </div>
+                {house.location && (
+                  <LocationMap location={house.location} />
+                )}
+                {house.description && (
+                  <p className="text-muted-foreground max-w-xl">{house.description}</p>
+                )}
+              </div>
+              {house.capacity && (
+                <Badge variant="secondary" className="text-sm px-3 py-1.5 self-start">
+                  <Users className="h-4 w-4 mr-1.5" />
+                  {house.capacity} personnes
+                </Badge>
               )}
+            </div>
+          )}
+
+          {/* Description & location below photo */}
+          {house.photo_url && (
+            <div className="space-y-2">
+              {house.location && <LocationMap location={house.location} />}
               {house.description && (
                 <p className="text-muted-foreground max-w-xl">{house.description}</p>
               )}
             </div>
-            {house.capacity && (
-              <Badge variant="secondary" className="text-sm px-3 py-1.5 self-start">
-                <Users className="h-4 w-4 mr-1.5" />
-                {house.capacity} personnes
-              </Badge>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Tabs */}
