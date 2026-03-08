@@ -247,6 +247,38 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
             />
           </div>
 
+          {/* Booking approval mode */}
+          <Separator />
+          <div className="space-y-3">
+            <div className="space-y-0.5">
+              <Label className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                Validation des réservations
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Choisissez si les réservations nécessitent une validation admin
+              </p>
+            </div>
+            <RadioGroup
+              value={autoApprove ? "auto" : "manual"}
+              onValueChange={(v) => setAutoApprove(v === "auto")}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="manual" id="approval-manual" />
+                <Label htmlFor="approval-manual" className="text-sm font-normal cursor-pointer">
+                  Validation manuelle par un admin
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="auto" id="approval-auto" />
+                <Label htmlFor="approval-auto" className="text-sm font-normal cursor-pointer">
+                  Validation automatique (confirmée immédiatement)
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
           {/* Public toggle */}
           <Separator />
           <div className="space-y-3">
