@@ -204,6 +204,20 @@ const BookingsPage = () => {
     }
   };
 
+  const updatePaymentStatus = async (bookingId: string, paymentStatus: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ payment_status: paymentStatus as any })
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Statut de paiement mis à jour" });
+      fetchData();
+    }
+  };
+
   const formatDate = (d: string) => {
     try { return format(new Date(d), "d MMM yyyy", { locale: fr }); }
     catch { return d; }
