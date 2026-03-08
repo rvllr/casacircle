@@ -11,7 +11,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2 } from "lucide-react";
+import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2, Download } from "lucide-react";
+import { exportBookingsCsv } from "@/lib/csvExport";
 import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -267,6 +268,29 @@ const BookingsPage = () => {
                 <span className="hidden sm:inline">Stats</span>
               </TabsTrigger>
             </TabsList>
+
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={() => {
+                  exportBookingsCsv(
+                    filteredBookings.map((b) => ({
+                      start_date: b.start_date,
+                      end_date: b.end_date,
+                      status: b.status,
+                      userName: getUserName(b),
+                      houseName: b.houses?.name || "Maison",
+                      unitName: b.house_units?.name || undefined,
+                    }))
+                  );
+                }}
+              >
+                <Download className="h-3.5 w-3.5 mr-1" />
+                Export CSV
+              </Button>
+            </div>
 
             <TabsContent value="calendar">
               <Card>

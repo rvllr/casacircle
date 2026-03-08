@@ -6,11 +6,12 @@ import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, Sparkles } from "lucide-react";
-import { format } from "date-fns";
+import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, TrendingUp } from "lucide-react";
+import { format, startOfMonth, endOfMonth, eachMonthOfInterval, differenceInCalendarDays, startOfYear, endOfYear, isWithinInterval } from "date-fns";
 import { fr } from "date-fns/locale";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 interface Booking {
   id: string; start_date: string; end_date: string; status: string;
@@ -21,6 +22,7 @@ interface Booking {
 interface Expense {
   id: string; amount: number; description: string;
   created_at: string; paid_by: string; house_id: string;
+  category?: string;
   houses: { name: string } | null;
 }
 
@@ -46,11 +48,25 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
   cancelled: { label: "Annulée", variant: "outline" },
 };
 
+const CATEGORY_LABELS: Record<string, string> = {
+  courses: "Courses", travaux: "Travaux", entretien: "Entretien",
+  energie: "Énergie", assurance: "Assurance", taxes: "Taxes",
+  menage: "Ménage", autre: "Autre",
+};
+
+const PIE_COLORS = [
+  "hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--honey))",
+  "hsl(var(--lavender))", "hsl(var(--chart-1))", "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))", "hsl(var(--chart-4))",
+];
+
 const DashboardPage = () => {
   const { user } = useAuth();
   const { houses, selectedHouseId } = useHouseContext();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
   const [memories, setMemories] = useState<MemoryRow[]>([]);
   const [news, setNews] = useState<NewsRow[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -63,6 +79,7 @@ const DashboardPage = () => {
     const fetchData = async () => {
       setLoading(true);
 
+      // Fetch upcoming bookings (limited) for the list
       let bookingsQuery = supabase
         .from("bookings")
         .select("id, start_date, end_date, status, user_id, house_id, houses(name, location)")
@@ -70,11 +87,21 @@ const DashboardPage = () => {
         .order("start_date", { ascending: true })
         .limit(5);
 
+      // Fetch ALL bookings for charts (current year)
+      let allBookingsQuery = supabase
+        .from("bookings")
+        .select("id, start_date, end_date, status, user_id, house_id, houses(name, location)")
+        .eq("status", "approved");
+
       let expensesQuery = supabase
         .from("expenses")
-        .select("id, amount, description, created_at, paid_by, house_id, houses(name)")
+        .select("id, amount, description, created_at, paid_by, house_id, category, houses(name)")
         .order("created_at", { ascending: false })
         .limit(5);
+
+      let allExpensesQuery = supabase
+        .from("expenses")
+        .select("id, amount, description, created_at, paid_by, house_id, category, houses(name)");
 
       let memoriesQuery = supabase
         .from("house_memories")
@@ -90,15 +117,19 @@ const DashboardPage = () => {
 
       if (selectedHouseId !== "all") {
         bookingsQuery = bookingsQuery.eq("house_id", selectedHouseId);
+        allBookingsQuery = allBookingsQuery.eq("house_id", selectedHouseId);
         expensesQuery = expensesQuery.eq("house_id", selectedHouseId);
+        allExpensesQuery = allExpensesQuery.eq("house_id", selectedHouseId);
         memoriesQuery = memoriesQuery.eq("house_id", selectedHouseId);
         newsQuery = newsQuery.eq("house_id", selectedHouseId);
       }
 
-      const [profileRes, bookingsRes, expensesRes, memoriesRes, newsRes] = await Promise.all([
+      const [profileRes, bookingsRes, allBookingsRes, expensesRes, allExpensesRes, memoriesRes, newsRes] = await Promise.all([
         supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
         bookingsQuery,
+        allBookingsQuery,
         expensesQuery,
+        allExpensesQuery,
         memoriesQuery,
         newsQuery,
       ]);
@@ -108,8 +139,14 @@ const DashboardPage = () => {
       const bookingsList = (bookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] }));
       setBookings(bookingsList);
 
+      const allBookingsList = (allBookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] }));
+      setAllBookings(allBookingsList);
+
       const expensesList = (expensesRes.data || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] }));
       setExpenses(expensesList);
+
+      const allExpensesList = (allExpensesRes.data || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] }));
+      setAllExpenses(allExpensesList);
 
       const memList = (memoriesRes.data || []).map((m) => ({ ...m, houses: m.houses as MemoryRow["houses"] }));
       setMemories(memList);
@@ -148,6 +185,63 @@ const DashboardPage = () => {
   };
 
   const filteredHouseCount = selectedHouseId === "all" ? houses.length : 1;
+
+  // ===== CHART DATA =====
+  const now = new Date();
+  const yearStart = startOfYear(now);
+  const yearEnd = endOfYear(now);
+  const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
+
+  // Occupancy per month (approved bookings)
+  const occupancyData = months.map((month) => {
+    const mStart = startOfMonth(month);
+    const mEnd = endOfMonth(month);
+    const totalDays = differenceInCalendarDays(mEnd, mStart) + 1;
+    let bookedDays = 0;
+
+    allBookings.forEach((b) => {
+      const bStart = new Date(b.start_date);
+      const bEnd = new Date(b.end_date);
+      const overlapStart = bStart < mStart ? mStart : bStart;
+      const overlapEnd = bEnd > mEnd ? mEnd : bEnd;
+      if (overlapStart <= overlapEnd) {
+        bookedDays += differenceInCalendarDays(overlapEnd, overlapStart) + 1;
+      }
+    });
+
+    const rate = totalDays > 0 ? Math.min(100, Math.round((bookedDays / totalDays) * 100)) : 0;
+    return {
+      month: format(month, "MMM", { locale: fr }),
+      taux: rate,
+    };
+  });
+
+  // Expense breakdown by category
+  const expenseByCategory = (() => {
+    const map = new Map<string, number>();
+    allExpenses.forEach((e) => {
+      const cat = e.category || "autre";
+      map.set(cat, (map.get(cat) || 0) + e.amount);
+    });
+    return Array.from(map.entries())
+      .map(([category, amount]) => ({
+        name: CATEGORY_LABELS[category] || category,
+        value: Math.round(amount * 100) / 100,
+      }))
+      .sort((a, b) => b.value - a.value);
+  })();
+
+  // Annual totals
+  const yearBookings = allBookings.filter((b) => {
+    const d = new Date(b.start_date);
+    return isWithinInterval(d, { start: yearStart, end: yearEnd });
+  });
+  const totalNightsYear = yearBookings.reduce((sum, b) => {
+    return sum + Math.max(1, differenceInCalendarDays(new Date(b.end_date), new Date(b.start_date)));
+  }, 0);
+  const totalExpensesYear = allExpenses
+    .filter((e) => isWithinInterval(new Date(e.created_at), { start: yearStart, end: yearEnd }))
+    .reduce((sum, e) => sum + e.amount, 0);
 
   if (loading) {
     return (
@@ -204,6 +298,101 @@ const DashboardPage = () => {
             </Card>
           ))}
         </div>
+
+        {/* Annual Stats + Charts */}
+        {(allBookings.length > 0 || allExpenses.length > 0) && (
+          <section className="space-y-4">
+            <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Statistiques {now.getFullYear()}
+            </h3>
+
+            {/* Annual summary cards */}
+            <div className="grid grid-cols-2 gap-3">
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="py-4 text-center">
+                  <p className="text-sm text-muted-foreground">Nuitées cette année</p>
+                  <p className="text-2xl font-display text-foreground">{totalNightsYear}</p>
+                </CardContent>
+              </Card>
+              <Card className="border-border/50 shadow-soft">
+                <CardContent className="py-4 text-center">
+                  <p className="text-sm text-muted-foreground">Dépenses cette année</p>
+                  <p className="text-2xl font-display text-foreground">{totalExpensesYear.toFixed(0)} €</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Occupancy chart */}
+              {allBookings.length > 0 && (
+                <Card className="border-border/50 shadow-soft">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="font-display text-base">Taux d'occupation mensuel</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-48">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={occupancyData}>
+                          <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                          <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" unit="%" domain={[0, 100]} />
+                          <Tooltip
+                            formatter={(value: number) => [`${value}%`, "Occupation"]}
+                            contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                          />
+                          <Bar dataKey="taux" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Expense pie chart */}
+              {expenseByCategory.length > 0 && (
+                <Card className="border-border/50 shadow-soft">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="font-display text-base">Répartition des dépenses</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-48 flex items-center">
+                      <ResponsiveContainer width="50%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={expenseByCategory}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={70}
+                            innerRadius={35}
+                          >
+                            {expenseByCategory.map((_, idx) => (
+                              <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(value: number) => [`${value.toFixed(0)} €`]}
+                            contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="flex-1 space-y-1.5 pl-2">
+                        {expenseByCategory.slice(0, 5).map((cat, idx) => (
+                          <div key={cat.name} className="flex items-center gap-2 text-xs">
+                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: PIE_COLORS[idx % PIE_COLORS.length] }} />
+                            <span className="text-muted-foreground truncate">{cat.name}</span>
+                            <span className="font-medium text-foreground ml-auto">{cat.value.toFixed(0)} €</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* Prochaines réservations */}
         <section className="space-y-4">
