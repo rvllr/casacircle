@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      blocked_periods: {
+        Row: {
+          created_at: string
+          created_by: string
+          end_date: string
+          house_id: string
+          id: string
+          reason: string | null
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          end_date: string
+          house_id: string
+          id?: string
+          reason?: string | null
+          start_date: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          end_date?: string
+          house_id?: string
+          id?: string
+          reason?: string | null
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocked_periods_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_guests: {
         Row: {
           booking_id: string

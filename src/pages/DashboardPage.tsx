@@ -8,7 +8,7 @@ import HouseSelector from "@/components/HouseSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CalendarDays, Wallet, Heart, Plus, MapPin, Users, ArrowRight } from "lucide-react";
+import { Building2, CalendarDays, Wallet, Heart, Plus, MapPin, Users, ArrowRight, Megaphone } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -33,6 +33,12 @@ interface MemoryRow {
 
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
 
+interface NewsRow {
+  id: string; title: string; content: string | null;
+  created_at: string; created_by: string; house_id: string;
+  houses: { name: string } | null;
+}
+
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "En attente", variant: "secondary" },
   approved: { label: "Confirmée", variant: "default" },
@@ -46,6 +52,7 @@ const DashboardPage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [memories, setMemories] = useState<MemoryRow[]>([]);
+  const [news, setNews] = useState<NewsRow[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [myProfile, setMyProfile] = useState<{ first_name: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,17 +82,25 @@ const DashboardPage = () => {
         .order("created_at", { ascending: false })
         .limit(5);
 
+      let newsQuery = supabase
+        .from("house_news")
+        .select("id, title, content, created_at, created_by, house_id, houses(name)")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
       if (selectedHouseId !== "all") {
         bookingsQuery = bookingsQuery.eq("house_id", selectedHouseId);
         expensesQuery = expensesQuery.eq("house_id", selectedHouseId);
         memoriesQuery = memoriesQuery.eq("house_id", selectedHouseId);
+        newsQuery = newsQuery.eq("house_id", selectedHouseId);
       }
 
-      const [profileRes, bookingsRes, expensesRes, memoriesRes] = await Promise.all([
+      const [profileRes, bookingsRes, expensesRes, memoriesRes, newsRes] = await Promise.all([
         supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
         bookingsQuery,
         expensesQuery,
         memoriesQuery,
+        newsQuery,
       ]);
 
       if (profileRes.data) setMyProfile(profileRes.data);
@@ -99,10 +114,14 @@ const DashboardPage = () => {
       const memList = (memoriesRes.data || []).map((m) => ({ ...m, houses: m.houses as MemoryRow["houses"] }));
       setMemories(memList);
 
+      const newsList = (newsRes.data || []).map((n) => ({ ...n, houses: n.houses as NewsRow["houses"] }));
+      setNews(newsList);
+
       const authorIds = [...new Set([
         ...expensesList.map((e) => e.paid_by),
         ...memList.map((m) => m.created_by),
         ...bookingsList.map((b) => b.user_id),
+        ...newsList.map((n) => n.created_by),
       ])];
       if (authorIds.length > 0) {
         const { data: profs } = await supabase
@@ -321,6 +340,36 @@ const DashboardPage = () => {
             )}
           </section>
         </div>
+
+        {/* Actualités */}
+        {news.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2">
+                <Megaphone className="h-5 w-5 text-primary" />
+                Actualités
+              </h3>
+            </div>
+            <div className="space-y-3">
+              {news.map((n) => (
+                <Card key={n.id}>
+                  <CardContent className="py-4 space-y-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium text-foreground text-sm">{n.title}</p>
+                      <Badge variant="outline" className="text-xs whitespace-nowrap">{n.houses?.name}</Badge>
+                    </div>
+                    {n.content && (
+                      <p className="text-sm text-muted-foreground line-clamp-2">{n.content}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {getAuthorName(n.created_by)} · {formatDate(n.created_at)}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </AppLayout>
   );

@@ -21,10 +21,17 @@ interface CalendarBooking {
   unitName?: string;
 }
 
+interface BlockedPeriodEntry {
+  start_date: string;
+  end_date: string;
+  reason: string | null;
+}
+
 interface BookingCalendarProps {
   month: Date;
   onMonthChange: (date: Date) => void;
   bookings: CalendarBooking[];
+  blockedPeriods?: BlockedPeriodEntry[];
   onDayClick?: (date: Date) => void;
 }
 
@@ -44,7 +51,7 @@ const PERSON_COLORS = [
   { bg: "bg-indigo-500/20", text: "text-indigo-700", dot: "bg-indigo-500" },
 ];
 
-const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: BookingCalendarProps) => {
+const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], onDayClick }: BookingCalendarProps) => {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [view, setView] = useState<ViewMode>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -83,8 +90,26 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
     });
   };
 
-  const getDayStatus = (date: Date): "available" | "pending" | "booked" | "past" => {
+  const isBlocked = (date: Date): boolean => {
+    return blockedPeriods.some((bp) => {
+      const bpStart = new Date(bp.start_date);
+      const bpEnd = new Date(bp.end_date);
+      return date >= bpStart && date <= bpEnd;
+    });
+  };
+
+  const getBlockedReason = (date: Date): string | null => {
+    const bp = blockedPeriods.find((bp) => {
+      const bpStart = new Date(bp.start_date);
+      const bpEnd = new Date(bp.end_date);
+      return date >= bpStart && date <= bpEnd;
+    });
+    return bp?.reason || null;
+  };
+
+  const getDayStatus = (date: Date): "available" | "pending" | "booked" | "past" | "blocked" => {
     if (isBefore(date, startOfDay(new Date()))) return "past";
+    if (isBlocked(date)) return "blocked";
     const dayBookings = getBookingsForDay(date);
     if (dayBookings.some((b) => b.status === "approved")) return "booked";
     if (dayBookings.some((b) => b.status === "pending")) return "pending";
@@ -160,6 +185,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
           status === "available" && "bg-accent/30 text-foreground hover:bg-accent/60 cursor-pointer",
           status === "pending" && "bg-secondary text-secondary-foreground border border-primary/30 cursor-pointer",
           status === "booked" && "bg-destructive/15 text-destructive border border-destructive/30 cursor-pointer",
+          status === "blocked" && "bg-muted text-muted-foreground/60 cursor-not-allowed line-through",
           status === "past" && "text-muted-foreground/40 cursor-default",
           isToday(day) && "ring-2 ring-primary ring-offset-1",
           isSelected && "ring-2 ring-foreground ring-offset-1"
@@ -168,7 +194,12 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
         <span className={cn("font-medium", compact ? "text-[10px] sm:text-xs" : "text-xs sm:text-sm")}>
           {format(day, "d")}
         </span>
-        {dayBookings.length > 0 && (
+        {status === "blocked" && (
+          <span className={cn("text-muted-foreground/50 truncate w-full", compact ? "text-[8px] sm:text-[10px]" : "text-[10px]")}>
+            {getBlockedReason(day) || "Bloqué"}
+          </span>
+        )}
+        {dayBookings.length > 0 && status !== "blocked" && (
           <div className="flex flex-col gap-0.5 mt-0.5 w-full overflow-hidden">
             {compact ? (
               <>
@@ -386,6 +417,10 @@ const BookingCalendar = ({ month, onMonthChange, bookings, onDayClick }: Booking
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-destructive/15 border border-destructive/30" />
           Réservé
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded bg-muted border border-border" />
+          Bloqué
         </div>
       </div>
     </div>

@@ -6,11 +6,12 @@ import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
 import BookingCalendar from "@/components/BookingCalendar";
 import NewBookingDialog from "@/components/NewBookingDialog";
+import BlockPeriodDialog from "@/components/BlockPeriodDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Check, X, Users, BarChart3, Plus } from "lucide-react";
+import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2 } from "lucide-react";
 import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -36,11 +37,20 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
   cancelled: { label: "Annulée", variant: "outline" },
 };
 
+interface BlockedPeriod {
+  id: string;
+  house_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string | null;
+}
+
 const BookingsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [bookings, setBookings] = useState<BookingRow[]>([]);
+  const [blockedPeriods, setBlockedPeriods] = useState<BlockedPeriod[]>([]);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [newBookingOpen, setNewBookingOpen] = useState(false);
@@ -57,10 +67,17 @@ const BookingsPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const { data: bookingsData } = await supabase
-      .from("bookings")
-      .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, houses(name, family_id), house_units(name, type)")
-      .order("start_date", { ascending: true });
+    const [{ data: bookingsData }, { data: blockedData }] = await Promise.all([
+      supabase
+        .from("bookings")
+        .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, houses(name, family_id), house_units(name, type)")
+        .order("start_date", { ascending: true }),
+      supabase
+        .from("blocked_periods")
+        .select("id, house_id, start_date, end_date, reason"),
+    ]);
+
+    setBlockedPeriods((blockedData || []) as BlockedPeriod[]);
 
     const userIds = [...new Set((bookingsData || []).map((b) => b.user_id))];
     const { data: profiles } = userIds.length > 0
@@ -171,10 +188,13 @@ const BookingsPage = () => {
             <h2 className="text-2xl md:text-3xl font-display text-foreground">Réservations</h2>
             <p className="text-muted-foreground mt-1">Planifiez et gérez les séjours.</p>
           </div>
-          <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nouvelle réservation
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nouvelle réservation
+            </Button>
+            <BlockPeriodDialog onCreated={fetchData} />
+          </div>
           <NewBookingDialog
             onCreated={fetchData}
             externalOpen={newBookingOpen}
@@ -226,8 +246,12 @@ const BookingsPage = () => {
                       userName: [b.users_profiles?.first_name, b.users_profiles?.last_name].filter(Boolean).join(" ") || undefined,
                       houseName: selectedHouseId === "all" ? (b.houses?.name || undefined) : undefined,
                       unitName: b.house_units?.name || undefined,
-                    }))
-                  }
+                    }))}
+                    blockedPeriods={(selectedHouseId === "all" ? blockedPeriods : blockedPeriods.filter(bp => bp.house_id === selectedHouseId)).map(bp => ({
+                      start_date: bp.start_date,
+                      end_date: bp.end_date,
+                      reason: bp.reason,
+                    }))}
                   />
                 </CardContent>
               </Card>
