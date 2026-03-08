@@ -60,6 +60,8 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
   const [loading, setLoading] = useState(false);
   const [conflict, setConflict] = useState<string | null>(null);
   const [checkingConflict, setCheckingConflict] = useState(false);
+  const [pricing, setPricing] = useState<{ pricing_mode: string; base_price: number; cap_amount: number | null; is_active: boolean } | null>(null);
+  const [guestCount, setGuestCount] = useState("2");
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -76,11 +78,12 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
     }
   }, [open, initialStartDate]);
 
-  // Load units when house changes
+  // Load units and pricing when house changes
   useEffect(() => {
     if (!houseId) {
       setUnits([]);
       setUnitId("whole");
+      setPricing(null);
       return;
     }
     supabase
@@ -92,6 +95,14 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       .then(({ data }) => {
         setUnits((data as HouseUnit[]) || []);
         setUnitId("whole");
+      });
+    supabase
+      .from("house_pricing")
+      .select("pricing_mode, base_price, cap_amount, is_active")
+      .eq("house_id", houseId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setPricing(data as any);
       });
   }, [houseId]);
 
