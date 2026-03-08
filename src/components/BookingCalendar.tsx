@@ -194,7 +194,12 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
         <span className={cn("font-medium", compact ? "text-[10px] sm:text-xs" : "text-xs sm:text-sm")}>
           {format(day, "d")}
         </span>
-        {dayBookings.length > 0 && (
+        {status === "blocked" && (
+          <span className={cn("text-muted-foreground/50 truncate w-full", compact ? "text-[8px] sm:text-[10px]" : "text-[10px]")}>
+            {getBlockedReason(day) || "Bloqué"}
+          </span>
+        )}
+        {dayBookings.length > 0 && status !== "blocked" && (
           <div className="flex flex-col gap-0.5 mt-0.5 w-full overflow-hidden">
             {compact ? (
               <>
