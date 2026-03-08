@@ -92,7 +92,7 @@ const DashboardPage = () => {
       // Fetch ALL bookings for charts (current year)
       let allBookingsQuery = supabase
         .from("bookings")
-        .select("id, start_date, end_date, status, user_id, house_id, houses(name, location)")
+        .select("id, start_date, end_date, status, user_id, house_id, total_price, amount_paid, payment_status, houses(name, location)")
         .eq("status", "approved");
 
       let expensesQuery = supabase
