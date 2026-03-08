@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
 import AddUnitDialog from "@/components/AddUnitDialog";
 import InviteToHouseDialog from "@/components/InviteToHouseDialog";
-import HouseGuideEditor from "@/components/HouseGuideEditor";
+import HouseGuideEditor, { parseContent, groupByCategory } from "@/components/HouseGuideEditor";
 import EditHouseDialog from "@/components/EditHouseDialog";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -413,20 +413,27 @@ const GuideCard = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col">
-        {hasContent ? (
-          <ul className="space-y-1.5 flex-1">
-            {guide!.content!.split("\n").filter((l) => l.trim()).map((line, i) => {
-              const text = line.replace(/^[\s•\-\*·]+/, "").trim();
-              if (!text) return null;
-              return (
-                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <span className="text-primary mt-0.5 shrink-0">•</span>
-                  <span>{text}</span>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
+        {hasContent ? (() => {
+          const items = parseContent(guide!.content);
+          const grouped = groupByCategory(items);
+          return (
+            <div className="space-y-3 flex-1">
+              {Array.from(grouped.entries()).map(([cat, catItems]) => (
+                <div key={cat}>
+                  <p className="text-xs font-medium text-foreground mb-1">{cat}</p>
+                  <ul className="space-y-1 pl-1">
+                    {catItems.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <span className="text-primary mt-0.5 shrink-0">•</span>
+                        <span>{item.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          );
+        })() : (
           <p className="text-sm text-muted-foreground/60 italic flex-1">
             Aucun contenu ajouté.
           </p>
