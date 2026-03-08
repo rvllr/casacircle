@@ -202,7 +202,10 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
       });
     });
 
-    return { totalDays, bookedDays, availableDays, blockedDays, pastDays, uniqueBookings: uniqueBookings.size };
+    const occupancyBase = totalDays - pastDays - blockedDays;
+    const occupancyRate = occupancyBase > 0 ? Math.round((bookedDays / occupancyBase) * 100) : 0;
+
+    return { totalDays, bookedDays, availableDays, blockedDays, pastDays, uniqueBookings: uniqueBookings.size, occupancyRate, occupancyBase };
   }, [periodRange, periodDays, bookings, blockedPeriods]);
 
   const renderBookingDetail = (b: CalendarBooking, idx: number) => (
