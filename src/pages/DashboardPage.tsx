@@ -6,24 +6,25 @@ import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CalendarDays, Newspaper, Heart, Plus, MapPin, Users, ArrowRight } from "lucide-react";
+import { Building2, CalendarDays, Wallet, Heart, Plus, MapPin, Users, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 interface House {
   id: string; name: string; location: string | null;
-  capacity: number | null; family_id: string;
+  capacity: number | null; family_id: string | null;
   families: { name: string } | null;
 }
 
 interface Booking {
   id: string; start_date: string; end_date: string; status: string;
+  user_id: string;
   houses: { name: string; location: string | null } | null;
 }
 
-interface NewsRow {
-  id: string; title: string; content: string | null;
-  created_at: string; created_by: string;
+interface Expense {
+  id: string; amount: number; description: string;
+  created_at: string; paid_by: string;
   houses: { name: string } | null;
 }
 
@@ -47,7 +48,7 @@ const DashboardPage = () => {
   const { user } = useAuth();
   const [houses, setHouses] = useState<House[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [news, setNews] = useState<NewsRow[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [memories, setMemories] = useState<MemoryRow[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [myProfile, setMyProfile] = useState<{ first_name: string | null } | null>(null);
@@ -59,19 +60,18 @@ const DashboardPage = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      const [profileRes, housesRes, bookingsRes, newsRes, memoriesRes] = await Promise.all([
+      const [profileRes, housesRes, bookingsRes, expensesRes, memoriesRes] = await Promise.all([
         supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
         supabase.from("houses").select("id, name, location, capacity, family_id, families(name)"),
         supabase
           .from("bookings")
-          .select("id, start_date, end_date, status, houses(name, location)")
-          .eq("user_id", user.id)
+          .select("id, start_date, end_date, status, user_id, houses(name, location)")
           .gte("end_date", new Date().toISOString().split("T")[0])
           .order("start_date", { ascending: true })
           .limit(5),
         supabase
-          .from("house_news")
-          .select("id, title, content, created_at, created_by, houses(name)")
+          .from("expenses")
+          .select("id, amount, description, created_at, paid_by, houses(name)")
           .order("created_at", { ascending: false })
           .limit(5),
         supabase
@@ -89,16 +89,17 @@ const DashboardPage = () => {
       const bookingsList = (bookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] }));
       setBookings(bookingsList);
 
-      const newsList = (newsRes.data || []).map((n) => ({ ...n, houses: n.houses as NewsRow["houses"] }));
-      setNews(newsList);
+      const expensesList = (expensesRes.data || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] }));
+      setExpenses(expensesList);
 
       const memList = (memoriesRes.data || []).map((m) => ({ ...m, houses: m.houses as MemoryRow["houses"] }));
       setMemories(memList);
 
-      // Fetch profiles for news/memory authors
+      // Fetch profiles for authors
       const authorIds = [...new Set([
-        ...newsList.map((n) => n.created_by),
+        ...expensesList.map((e) => e.paid_by),
         ...memList.map((m) => m.created_by),
+        ...bookingsList.map((b) => b.user_id),
       ])];
       if (authorIds.length > 0) {
         const { data: profs } = await supabase
@@ -143,7 +144,7 @@ const DashboardPage = () => {
             <h2 className="text-2xl md:text-3xl font-display text-foreground">
               Bonjour{myProfile?.first_name ? `, ${myProfile.first_name}` : ""} 👋
             </h2>
-            <p className="text-muted-foreground mt-1">Voici un résumé de votre espace familial.</p>
+            <p className="text-muted-foreground mt-1">Voici un résumé de vos maisons.</p>
           </div>
           <Button asChild>
             <Link to="/bookings">
@@ -153,55 +154,39 @@ const DashboardPage = () => {
           </Button>
         </div>
 
-        {/* Mes maisons */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display text-xl text-foreground flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-primary" />
-              Mes maisons
-            </h3>
-            <Link to="/houses" className="text-sm text-primary hover:underline flex items-center gap-1">
-              Tout voir <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-
-          {houses.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <Building2 className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground mb-4">Aucune maison pour le moment.</p>
-                <Button variant="outline" asChild>
-                  <Link to="/houses">Créer ou rejoindre une maison</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {houses.map((house) => (
-                <Card key={house.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base font-display">{house.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {house.location && (
-                      <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" /> {house.location}
-                      </p>
-                    )}
-                    {house.capacity && (
-                      <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                        <Users className="h-3.5 w-3.5" /> {house.capacity} personnes
-                      </p>
-                    )}
-                    {house.families && (
-                      <Badge variant="secondary" className="text-xs">{house.families.name}</Badge>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </section>
+        {/* Stats cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="py-4 flex flex-col items-center text-center">
+              <Building2 className="h-6 w-6 text-primary mb-1" />
+              <p className="text-2xl font-bold text-foreground">{houses.length}</p>
+              <p className="text-xs text-muted-foreground">Maison{houses.length > 1 ? "s" : ""}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="py-4 flex flex-col items-center text-center">
+              <CalendarDays className="h-6 w-6 text-primary mb-1" />
+              <p className="text-2xl font-bold text-foreground">{bookings.length}</p>
+              <p className="text-xs text-muted-foreground">Réservation{bookings.length > 1 ? "s" : ""} à venir</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="py-4 flex flex-col items-center text-center">
+              <Wallet className="h-6 w-6 text-primary mb-1" />
+              <p className="text-2xl font-bold text-foreground">
+                {expenses.reduce((s, e) => s + Number(e.amount), 0).toFixed(0)}€
+              </p>
+              <p className="text-xs text-muted-foreground">Dépenses récentes</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="py-4 flex flex-col items-center text-center">
+              <Heart className="h-6 w-6 text-primary mb-1" />
+              <p className="text-2xl font-bold text-foreground">{memories.length}</p>
+              <p className="text-xs text-muted-foreground">Souvenir{memories.length > 1 ? "s" : ""}</p>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Prochaines réservations */}
         <section>
@@ -231,6 +216,7 @@ const DashboardPage = () => {
                       <p className="font-medium text-foreground">{booking.houses?.name}</p>
                       <p className="text-sm text-muted-foreground">
                         {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
+                        <span className="ml-2 text-xs">par {getAuthorName(booking.user_id)}</span>
                       </p>
                     </div>
                     <Badge variant={statusLabels[booking.status]?.variant || "secondary"}>
@@ -244,35 +230,42 @@ const DashboardPage = () => {
         </section>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Actualités */}
+          {/* Dépenses récentes */}
           <section>
-            <h3 className="font-display text-xl text-foreground flex items-center gap-2 mb-4">
-              <Newspaper className="h-5 w-5 text-primary" />
-              Actualités
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2">
+                <Wallet className="h-5 w-5 text-primary" />
+                Dépenses récentes
+              </h3>
+              <Link to="/expenses" className="text-sm text-primary hover:underline flex items-center gap-1">
+                Tout voir <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
 
-            {news.length === 0 ? (
+            {expenses.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center">
-                  <Newspaper className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">Aucune actualité.</p>
+                  <Wallet className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground">Aucune dépense.</p>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-3">
-                {news.map((item) => (
-                  <Card key={item.id}>
+                {expenses.map((expense) => (
+                  <Card key={expense.id}>
                     <CardContent className="py-4 space-y-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-medium text-foreground text-sm">{item.title}</p>
-                        <Badge variant="outline" className="text-xs whitespace-nowrap">{item.houses?.name}</Badge>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground text-sm truncate">{expense.description}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {getAuthorName(expense.paid_by)} · {formatDate(expense.created_at)}
+                          </p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="font-semibold text-foreground">{Number(expense.amount).toFixed(2)}€</p>
+                          <Badge variant="outline" className="text-xs">{expense.houses?.name}</Badge>
+                        </div>
                       </div>
-                      {item.content && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">{item.content}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        {getAuthorName(item.created_by)} · {formatDate(item.created_at)}
-                      </p>
                     </CardContent>
                   </Card>
                 ))}
@@ -282,10 +275,15 @@ const DashboardPage = () => {
 
           {/* Derniers souvenirs */}
           <section>
-            <h3 className="font-display text-xl text-foreground flex items-center gap-2 mb-4">
-              <Heart className="h-5 w-5 text-primary" />
-              Derniers souvenirs
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2">
+                <Heart className="h-5 w-5 text-primary" />
+                Derniers souvenirs
+              </h3>
+              <Link to="/journal" className="text-sm text-primary hover:underline flex items-center gap-1">
+                Tout voir <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
 
             {memories.length === 0 ? (
               <Card>
