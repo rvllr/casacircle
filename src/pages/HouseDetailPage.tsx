@@ -37,6 +37,7 @@ interface House {
   family_id: string | null;
   owner_id: string | null;
   photo_url: string | null;
+  is_public?: boolean;
 }
 
 interface HouseMember {
