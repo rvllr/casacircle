@@ -17,6 +17,7 @@ interface Ticket {
   title: string;
   description: string | null;
   status: "open" | "in_progress" | "resolved";
+  priority: "low" | "medium" | "high" | "urgent";
   created_at: string;
   created_by: string;
   house_id: string;
@@ -96,6 +97,7 @@ const MaintenancePage = () => {
       data.map((t) => ({
         ...t,
         status: t.status as Ticket["status"],
+        priority: (t as any).priority as Ticket["priority"] || "medium",
         house_name: houseMap[t.house_id] || "Maison",
         creator_name: profileMap[t.created_by] || "Membre",
       }))

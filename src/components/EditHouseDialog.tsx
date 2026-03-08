@@ -263,6 +263,32 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
             />
           </div>
 
+          {/* Infos pratiques */}
+          <Separator />
+          <div className="space-y-3">
+            <Label className="text-sm font-medium flex items-center gap-2">
+              📶 Infos pratiques
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="wifiName" className="text-xs text-muted-foreground">Nom WiFi</Label>
+                <Input id="wifiName" value={wifiName} onChange={(e) => setWifiName(e.target.value)} placeholder="MonWiFi" maxLength={100} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="wifiPass" className="text-xs text-muted-foreground">Mot de passe WiFi</Label>
+                <Input id="wifiPass" value={wifiPassword} onChange={(e) => setWifiPassword(e.target.value)} placeholder="••••••••" maxLength={100} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="accessCode" className="text-xs text-muted-foreground">Code d'accès / Digicode</Label>
+              <Input id="accessCode" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} placeholder="Ex: 1234A" maxLength={100} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="emergency" className="text-xs text-muted-foreground">Contact d'urgence</Label>
+              <Input id="emergency" value={emergencyContact} onChange={(e) => setEmergencyContact(e.target.value)} placeholder="Ex: Gardien M. Dupont - 06 12 34 56 78" maxLength={200} />
+            </div>
+          </div>
+
           {/* Booking approval mode */}
           <Separator />
           <div className="space-y-3">
