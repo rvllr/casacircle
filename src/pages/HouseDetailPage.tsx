@@ -365,6 +365,11 @@ const HouseDetailPage = () => {
           <TabsContent value="members" className="space-y-4">
             <MembersTab members={members} isAdmin={isAdmin} userId={user?.id} houseId={house.id} familyId={house.family_id} fetchHouse={fetchHouse} />
           </TabsContent>
+
+          {/* Tickets Tab */}
+          <TabsContent value="tickets" className="space-y-4">
+            <TicketsTab tickets={tickets} houseId={house.id} isAdmin={isAdmin} userId={user?.id} onRefresh={fetchHouse} />
+          </TabsContent>
         </Tabs>
       </div>
     </AppLayout>
