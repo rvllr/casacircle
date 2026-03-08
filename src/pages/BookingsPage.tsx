@@ -188,10 +188,11 @@ const BookingsPage = () => {
             <h2 className="page-header-title">Réservations</h2>
             <p className="page-header-subtitle">Planifiez et gérez les séjours.</p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }} className="rounded-xl shadow-soft">
-              <Plus className="h-4 w-4 mr-2" />
-              Nouvelle réservation
+          <div className="flex items-center gap-2">
+            <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }} className="rounded-xl shadow-soft text-xs sm:text-sm">
+              <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Nouvelle réservation</span>
+              <span className="sm:hidden">Réserver</span>
             </Button>
             <BlockPeriodDialog onCreated={fetchData} />
           </div>
