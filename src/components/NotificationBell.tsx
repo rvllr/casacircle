@@ -148,17 +148,27 @@ const NotificationBell = () => {
           )}
         </div>
         <div className="flex gap-1 px-3 py-2 border-b border-border">
-          {filterLabels.map((f) => (
-            <Button
-              key={f.value}
-              variant={filter === f.value ? "default" : "ghost"}
-              size="sm"
-              className="text-xs h-6 px-2.5 rounded-full"
-              onClick={() => setFilter(f.value)}
-            >
-              {f.label}
-            </Button>
-          ))}
+          {filterLabels.map((f) => {
+            const count = f.value === "all"
+              ? notifications.filter((n) => !n.is_read).length
+              : notifications.filter((n) => !n.is_read && getFilterCategory(n.type) === f.value).length;
+            return (
+              <Button
+                key={f.value}
+                variant={filter === f.value ? "default" : "ghost"}
+                size="sm"
+                className="text-xs h-6 px-2.5 rounded-full gap-1"
+                onClick={() => setFilter(f.value)}
+              >
+                {f.label}
+                {count > 0 && (
+                  <Badge variant={filter === f.value ? "secondary" : "destructive"} className="text-[9px] px-1.5 py-0 h-4 min-w-4 flex items-center justify-center">
+                    {count}
+                  </Badge>
+                )}
+              </Button>
+            );
+          })}
         </div>
         <ScrollArea className="max-h-72">
           {(() => {
