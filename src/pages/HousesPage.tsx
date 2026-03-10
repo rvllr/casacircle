@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_HOUSES_FULL, DEMO_FAMILY, DEMO_FAMILY_MEMBERS, DEMO_HOUSE_UNITS } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
