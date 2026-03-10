@@ -82,6 +82,13 @@ const BookingsPage = () => {
   };
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      setBookings(DEMO_BOOKINGS_ENRICHED as any);
+      setBlockedPeriods([]);
+      setPricingActiveHouseIds(new Set());
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
@@ -119,7 +126,7 @@ const BookingsPage = () => {
 
     setBookings(enriched);
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => {
     fetchData();
