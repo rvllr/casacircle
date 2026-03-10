@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_BOOKINGS_ENRICHED, DEMO_PROFILES } from "@/lib/demoData";
 
 interface BookingRow {
   id: string;
