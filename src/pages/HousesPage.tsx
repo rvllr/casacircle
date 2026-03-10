@@ -67,6 +67,7 @@ interface FamilyWithDetails extends Family {
 
 const HousesPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const [families, setFamilies] = useState<FamilyWithDetails[]>([]);
   const [directHouses, setDirectHouses] = useState<House[]>([]);
   const [houseMembers, setHouseMembers] = useState<Record<string, HouseMember[]>>({});
