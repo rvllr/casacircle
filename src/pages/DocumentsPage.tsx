@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_DOCUMENTS } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
