@@ -40,6 +40,7 @@ interface Doc {
 
 const DocumentsPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { toast } = useToast();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [documents, setDocuments] = useState<Doc[]>([]);
