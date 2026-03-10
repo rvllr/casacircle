@@ -30,6 +30,7 @@ interface Settlement { from: string; to: string; amount: number; }
 
 const ExpensesPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [shares, setShares] = useState<ExpenseShare[]>([]);
