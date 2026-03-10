@@ -76,6 +76,24 @@ const HousesPage = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      const unitsGrouped: Record<string, HouseUnit[]> = {};
+      DEMO_HOUSE_UNITS.forEach((u) => {
+        if (!unitsGrouped[u.house_id]) unitsGrouped[u.house_id] = [];
+        unitsGrouped[u.house_id].push(u);
+      });
+      setHouseUnits(unitsGrouped);
+      setFamilies([{
+        ...DEMO_FAMILY,
+        userRole: "admin" as const,
+        houses: DEMO_HOUSES_FULL,
+        members: DEMO_FAMILY_MEMBERS,
+      }]);
+      setDirectHouses([]);
+      setAdminFamilies([DEMO_FAMILY]);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
