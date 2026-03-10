@@ -42,6 +42,7 @@ interface VoteResponse {
 
 const VotesPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { toast } = useToast();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [votes, setVotes] = useState<VoteRow[]>([]);
