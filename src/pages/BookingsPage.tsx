@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_BOOKINGS_ENRICHED, DEMO_PROFILES } from "@/lib/demoData";
 
 interface BookingRow {
   id: string;
@@ -61,6 +63,7 @@ interface BlockedPeriod {
 const BookingsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [blockedPeriods, setBlockedPeriods] = useState<BlockedPeriod[]>([]);
@@ -79,6 +82,13 @@ const BookingsPage = () => {
   };
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      setBookings(DEMO_BOOKINGS_ENRICHED as any);
+      setBlockedPeriods([]);
+      setPricingActiveHouseIds(new Set());
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
@@ -116,7 +126,7 @@ const BookingsPage = () => {
 
     setBookings(enriched);
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => {
     fetchData();
@@ -155,6 +165,10 @@ const BookingsPage = () => {
   const [adminHouseIds, setAdminHouseIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    if (isDemo) {
+      setAdminHouseIds(new Set(["demo-house-1", "demo-house-2"]));
+      return;
+    }
     if (!user) return;
     supabase
       .from("house_members")
@@ -163,7 +177,6 @@ const BookingsPage = () => {
       .in("role", ["admin", "owner"])
       .then(({ data }) => {
         const ids = new Set((data || []).map((d) => d.house_id));
-        // Also check family admin status via houses with family_id
         supabase
           .from("family_members")
           .select("family_id")
@@ -185,7 +198,7 @@ const BookingsPage = () => {
             }
           });
       });
-  }, [user]);
+  }, [user, isDemo]);
 
   const canManageBooking = (booking: BookingRow) => {
     return adminHouseIds.has(booking.house_id);

@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_VOTES, DEMO_VOTE_RESPONSES } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
@@ -39,6 +41,7 @@ interface VoteResponse {
 
 const VotesPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { toast } = useToast();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [votes, setVotes] = useState<VoteRow[]>([]);
@@ -51,6 +54,12 @@ const VotesPage = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      setVotes(DEMO_VOTES);
+      setResponses(DEMO_VOTE_RESPONSES as any);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
@@ -88,7 +97,7 @@ const VotesPage = () => {
       setResponses([]);
     }
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

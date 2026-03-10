@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_DOCUMENTS } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
@@ -37,6 +39,7 @@ interface Doc {
 
 const DocumentsPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { toast } = useToast();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [documents, setDocuments] = useState<Doc[]>([]);
@@ -50,6 +53,11 @@ const DocumentsPage = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const fetchDocs = useCallback(async () => {
+    if (isDemo) {
+      setDocuments(DEMO_DOCUMENTS);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
     const { data } = await supabase
@@ -80,7 +88,7 @@ const DocumentsPage = () => {
       setDocuments([]);
     }
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
 

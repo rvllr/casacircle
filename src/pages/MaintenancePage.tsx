@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_MAINTENANCE_TICKETS } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,6 +35,7 @@ const statusConfig = {
 
 const MaintenancePage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -41,6 +44,12 @@ const MaintenancePage = () => {
   const [adminHouseIds, setAdminHouseIds] = useState<string[]>([]);
 
   const fetchTickets = async () => {
+    if (isDemo) {
+      setTickets(DEMO_MAINTENANCE_TICKETS);
+      setAdminHouseIds(["demo-house-1", "demo-house-2"]);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 

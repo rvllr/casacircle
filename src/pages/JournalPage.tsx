@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_MEMORIES, DEMO_PROFILES } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
@@ -23,6 +25,7 @@ interface Memory {
 
 const JournalPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [memories, setMemories] = useState<Memory[]>([]);
   const [photos, setPhotos] = useState<MemoryPhoto[]>([]);
@@ -31,6 +34,13 @@ const JournalPage = () => {
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      setMemories(DEMO_MEMORIES as any);
+      setPhotos([]);
+      setProfiles(DEMO_PROFILES);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
@@ -63,7 +73,7 @@ const JournalPage = () => {
     }
 
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

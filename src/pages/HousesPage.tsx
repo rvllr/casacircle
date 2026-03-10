@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_HOUSES_FULL, DEMO_FAMILY, DEMO_FAMILY_MEMBERS, DEMO_HOUSE_UNITS } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
 import CreateFamilyDialog from "@/components/CreateFamilyDialog";
@@ -64,6 +66,7 @@ interface FamilyWithDetails extends Family {
 
 const HousesPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const [families, setFamilies] = useState<FamilyWithDetails[]>([]);
   const [directHouses, setDirectHouses] = useState<House[]>([]);
   const [houseMembers, setHouseMembers] = useState<Record<string, HouseMember[]>>({});
@@ -72,6 +75,24 @@ const HousesPage = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      const unitsGrouped: Record<string, HouseUnit[]> = {};
+      DEMO_HOUSE_UNITS.forEach((u) => {
+        if (!unitsGrouped[u.house_id]) unitsGrouped[u.house_id] = [];
+        unitsGrouped[u.house_id].push(u);
+      });
+      setHouseUnits(unitsGrouped);
+      setFamilies([{
+        ...DEMO_FAMILY,
+        userRole: "admin" as const,
+        houses: DEMO_HOUSES_FULL,
+        members: DEMO_FAMILY_MEMBERS,
+      }]);
+      setDirectHouses([]);
+      setAdminFamilies([DEMO_FAMILY]);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
@@ -179,7 +200,7 @@ const HousesPage = () => {
 
     setFamilies(result);
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => {
     fetchData();

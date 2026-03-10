@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_ALL_EXPENSES, DEMO_EXPENSE_SHARES, DEMO_PROFILES } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
@@ -27,6 +29,7 @@ interface Settlement { from: string; to: string; amount: number; }
 
 const ExpensesPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [shares, setShares] = useState<ExpenseShare[]>([]);
@@ -34,6 +37,13 @@ const ExpensesPage = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      setExpenses(DEMO_ALL_EXPENSES as any);
+      setShares(DEMO_EXPENSE_SHARES);
+      setProfiles(DEMO_PROFILES);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
@@ -66,7 +76,7 @@ const ExpensesPage = () => {
     }
 
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
