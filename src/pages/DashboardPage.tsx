@@ -94,13 +94,11 @@ const DashboardPage = () => {
       return;
     }
 
-  useEffect(() => {
     if (!user) return;
 
     const fetchData = async () => {
       setLoading(true);
 
-      // Fetch upcoming bookings (limited) for the list
       let bookingsQuery = supabase
         .from("bookings")
         .select("id, start_date, end_date, status, user_id, house_id, total_price, amount_paid, payment_status, houses(name, location)")
@@ -108,7 +106,6 @@ const DashboardPage = () => {
         .order("start_date", { ascending: true })
         .limit(5);
 
-      // Fetch ALL bookings for charts (current year)
       let allBookingsQuery = supabase
         .from("bookings")
         .select("id, start_date, end_date, status, user_id, house_id, total_price, amount_paid, payment_status, houses(name, location)")
@@ -193,7 +190,7 @@ const DashboardPage = () => {
     };
 
     fetchData();
-  }, [user, selectedHouseId]);
+  }, [user, selectedHouseId, isDemo]);
 
   const getAuthorName = (userId: string) => {
     const p = profiles.find((pr) => pr.user_id === userId);
