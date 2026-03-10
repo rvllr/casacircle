@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { HouseProvider } from "@/contexts/HouseContext";
+import { DemoProvider, useDemo } from "@/contexts/DemoContext";
 import LandingPage from "./pages/LandingPage";
 import HousesPage from "./pages/HousesPage";
 import HouseDetailPage from "./pages/HouseDetailPage";
@@ -28,6 +29,8 @@ const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const { isDemo } = useDemo();
+  if (isDemo) return <>{children}</>;
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Chargement...</div></div>;
   if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
@@ -47,6 +50,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <DemoProvider>
         <AuthProvider>
           <HouseProvider>
           <Routes>
@@ -70,6 +74,7 @@ const App = () => (
           </Routes>
           </HouseProvider>
         </AuthProvider>
+        </DemoProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
