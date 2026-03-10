@@ -1,6 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_DOCUMENTS } from "@/lib/demoData";
+import { useAuth } from "@/contexts/AuthContext";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
