@@ -35,6 +35,13 @@ const JournalPage = () => {
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      setMemories(DEMO_MEMORIES as any);
+      setPhotos([]);
+      setProfiles(DEMO_PROFILES);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
@@ -67,7 +74,7 @@ const JournalPage = () => {
     }
 
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

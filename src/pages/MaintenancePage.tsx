@@ -45,6 +45,12 @@ const MaintenancePage = () => {
   const [adminHouseIds, setAdminHouseIds] = useState<string[]>([]);
 
   const fetchTickets = async () => {
+    if (isDemo) {
+      setTickets(DEMO_MAINTENANCE_TICKETS);
+      setAdminHouseIds(["demo-house-1", "demo-house-2"]);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 

@@ -38,6 +38,13 @@ const ExpensesPage = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      setExpenses(DEMO_ALL_EXPENSES as any);
+      setShares(DEMO_EXPENSE_SHARES);
+      setProfiles(DEMO_PROFILES);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
@@ -70,7 +77,7 @@ const ExpensesPage = () => {
     }
 
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

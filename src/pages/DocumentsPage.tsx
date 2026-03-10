@@ -54,6 +54,11 @@ const DocumentsPage = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const fetchDocs = useCallback(async () => {
+    if (isDemo) {
+      setDocuments(DEMO_DOCUMENTS);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
     const { data } = await supabase
@@ -84,7 +89,7 @@ const DocumentsPage = () => {
       setDocuments([]);
     }
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
 

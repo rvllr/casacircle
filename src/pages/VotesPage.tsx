@@ -55,6 +55,12 @@ const VotesPage = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const fetchData = useCallback(async () => {
+    if (isDemo) {
+      setVotes(DEMO_VOTES);
+      setResponses(DEMO_VOTE_RESPONSES as any);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     setLoading(true);
 
@@ -92,7 +98,7 @@ const VotesPage = () => {
       setResponses([]);
     }
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
