@@ -1,9 +1,10 @@
-import { Home, CalendarDays, BookOpen, Users, Shield, FileText, Heart, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Home, CalendarDays, BookOpen, Users, Shield, FileText, Heart, ArrowRight, CheckCircle2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
 import { useRef, ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import heroHouse from "@/assets/hero-house.png";
+import { useDemo } from "@/contexts/DemoContext";
 
 const Reveal = ({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) => {
   const ref = useRef(null);
@@ -30,6 +31,14 @@ const stagger = {
 };
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const { enterDemo } = useDemo();
+
+  const handleDemo = () => {
+    enterDemo();
+    navigate("/dashboard");
+  };
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Nav */}
@@ -108,8 +117,9 @@ const LandingPage = () => {
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="text-base rounded-xl h-12 border-border/60" asChild>
-                  <a href="#solution">Découvrir</a>
+                <Button variant="outline" size="lg" className="text-base rounded-xl h-12 border-border/60 group" onClick={handleDemo}>
+                  <Eye className="mr-2 h-5 w-5 text-primary" />
+                  Voir la démo
                 </Button>
               </motion.div>
             </div>

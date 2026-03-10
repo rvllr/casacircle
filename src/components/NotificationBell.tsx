@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_NOTIFICATIONS } from "@/lib/demoData";
 import { Bell, Check, CalendarDays, X, AlertCircle, BanknoteIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -51,11 +53,16 @@ const getFilterCategory = (type: string): FilterType => {
 
 const NotificationBell = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
 
   const fetchNotifications = useCallback(async () => {
+    if (isDemo) {
+      setNotifications(DEMO_NOTIFICATIONS as Notification[]);
+      return;
+    }
     if (!user) return;
     const { data } = await supabase
       .from("notifications")
@@ -64,7 +71,7 @@ const NotificationBell = () => {
       .order("created_at", { ascending: false })
       .limit(30);
     setNotifications((data as Notification[]) || []);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => {
     fetchNotifications();

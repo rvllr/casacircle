@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_HOUSES } from "@/lib/demoData";
 
 interface House {
   id: string;
@@ -30,11 +32,17 @@ export const useHouseContext = () => useContext(HouseContext);
 
 export const HouseProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const [houses, setHouses] = useState<House[]>([]);
   const [selectedHouseId, setSelectedHouseId] = useState("all");
   const [loading, setLoading] = useState(true);
 
   const fetchHouses = useCallback(async () => {
+    if (isDemo) {
+      setHouses(DEMO_HOUSES);
+      setLoading(false);
+      return;
+    }
     if (!user) {
       setHouses([]);
       setLoading(false);
@@ -44,12 +52,11 @@ export const HouseProvider = ({ children }: { children: ReactNode }) => {
     const list = data || [];
     setHouses(list);
 
-    // Auto-select first house if only one
     if (list.length === 1 && selectedHouseId === "all") {
       setSelectedHouseId(list[0].id);
     }
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => {
     fetchHouses();

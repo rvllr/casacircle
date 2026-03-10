@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHouseContext } from "@/contexts/HouseContext";
+import { useDemo } from "@/contexts/DemoContext";
+import { DEMO_BOOKINGS, DEMO_ALL_BOOKINGS, DEMO_EXPENSES, DEMO_ALL_EXPENSES, DEMO_MEMORIES, DEMO_NEWS, DEMO_PROFILES, DEMO_PROFILE } from "@/lib/demoData";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
 import { Button } from "@/components/ui/button";
@@ -65,6 +67,7 @@ const PIE_COLORS = [
 const DashboardPage = () => {
   const { user } = useAuth();
   const { houses, selectedHouseId } = useHouseContext();
+  const { isDemo } = useDemo();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -76,12 +79,26 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (isDemo) {
+      const filterByHouse = (items: any[]) =>
+        selectedHouseId === "all" ? items : items.filter((i: any) => i.house_id === selectedHouseId);
+      setMyProfile({ first_name: DEMO_PROFILE.first_name });
+      setBookings(filterByHouse(DEMO_BOOKINGS) as Booking[]);
+      setAllBookings(filterByHouse(DEMO_ALL_BOOKINGS) as Booking[]);
+      setExpenses(filterByHouse(DEMO_EXPENSES) as Expense[]);
+      setAllExpenses(filterByHouse(DEMO_ALL_EXPENSES) as Expense[]);
+      setMemories(filterByHouse(DEMO_MEMORIES) as MemoryRow[]);
+      setNews(filterByHouse(DEMO_NEWS) as NewsRow[]);
+      setProfiles(DEMO_PROFILES);
+      setLoading(false);
+      return;
+    }
+
     if (!user) return;
 
     const fetchData = async () => {
       setLoading(true);
 
-      // Fetch upcoming bookings (limited) for the list
       let bookingsQuery = supabase
         .from("bookings")
         .select("id, start_date, end_date, status, user_id, house_id, total_price, amount_paid, payment_status, houses(name, location)")
@@ -89,7 +106,6 @@ const DashboardPage = () => {
         .order("start_date", { ascending: true })
         .limit(5);
 
-      // Fetch ALL bookings for charts (current year)
       let allBookingsQuery = supabase
         .from("bookings")
         .select("id, start_date, end_date, status, user_id, house_id, total_price, amount_paid, payment_status, houses(name, location)")
@@ -174,7 +190,7 @@ const DashboardPage = () => {
     };
 
     fetchData();
-  }, [user, selectedHouseId]);
+  }, [user, selectedHouseId, isDemo]);
 
   const getAuthorName = (userId: string) => {
     const p = profiles.find((pr) => pr.user_id === userId);
