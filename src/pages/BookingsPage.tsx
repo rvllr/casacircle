@@ -61,6 +61,7 @@ interface BlockedPeriod {
 const BookingsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [blockedPeriods, setBlockedPeriods] = useState<BlockedPeriod[]>([]);
