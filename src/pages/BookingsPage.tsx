@@ -165,6 +165,10 @@ const BookingsPage = () => {
   const [adminHouseIds, setAdminHouseIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    if (isDemo) {
+      setAdminHouseIds(new Set(["demo-house-1", "demo-house-2"]));
+      return;
+    }
     if (!user) return;
     supabase
       .from("house_members")
@@ -173,7 +177,6 @@ const BookingsPage = () => {
       .in("role", ["admin", "owner"])
       .then(({ data }) => {
         const ids = new Set((data || []).map((d) => d.house_id));
-        // Also check family admin status via houses with family_id
         supabase
           .from("family_members")
           .select("family_id")
@@ -195,7 +198,7 @@ const BookingsPage = () => {
             }
           });
       });
-  }, [user]);
+  }, [user, isDemo]);
 
   const canManageBooking = (booking: BookingRow) => {
     return adminHouseIds.has(booking.house_id);
