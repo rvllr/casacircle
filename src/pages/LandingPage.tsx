@@ -117,8 +117,9 @@ const LandingPage = () => {
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="text-base rounded-xl h-12 border-border/60" asChild>
-                  <a href="#solution">Découvrir</a>
+                <Button variant="outline" size="lg" className="text-base rounded-xl h-12 border-border/60 group" onClick={handleDemo}>
+                  <Eye className="mr-2 h-5 w-5 text-primary" />
+                  Voir la démo
                 </Button>
               </motion.div>
             </div>
