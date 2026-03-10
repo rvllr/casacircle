@@ -201,7 +201,7 @@ const HousesPage = () => {
 
     setFamilies(result);
     setLoading(false);
-  }, [user]);
+  }, [user, isDemo]);
 
   useEffect(() => {
     fetchData();
