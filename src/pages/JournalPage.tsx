@@ -26,6 +26,7 @@ interface Memory {
 
 const JournalPage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [memories, setMemories] = useState<Memory[]>([]);
   const [photos, setPhotos] = useState<MemoryPhoto[]>([]);
