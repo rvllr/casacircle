@@ -1,9 +1,10 @@
-import { Home, CalendarDays, BookOpen, Users, Shield, FileText, Heart, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Home, CalendarDays, BookOpen, Users, Shield, FileText, Heart, ArrowRight, CheckCircle2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
 import { useRef, ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import heroHouse from "@/assets/hero-house.png";
+import { useDemo } from "@/contexts/DemoContext";
 
 const Reveal = ({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) => {
   const ref = useRef(null);

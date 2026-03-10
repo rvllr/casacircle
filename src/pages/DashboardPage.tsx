@@ -67,6 +67,7 @@ const PIE_COLORS = [
 const DashboardPage = () => {
   const { user } = useAuth();
   const { houses, selectedHouseId } = useHouseContext();
+  const { isDemo } = useDemo();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -76,6 +77,22 @@ const DashboardPage = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [myProfile, setMyProfile] = useState<{ first_name: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (isDemo) {
+      const filterByHouse = (items: any[]) =>
+        selectedHouseId === "all" ? items : items.filter((i: any) => i.house_id === selectedHouseId);
+      setMyProfile({ first_name: DEMO_PROFILE.first_name });
+      setBookings(filterByHouse(DEMO_BOOKINGS) as Booking[]);
+      setAllBookings(filterByHouse(DEMO_ALL_BOOKINGS) as Booking[]);
+      setExpenses(filterByHouse(DEMO_EXPENSES) as Expense[]);
+      setAllExpenses(filterByHouse(DEMO_ALL_EXPENSES) as Expense[]);
+      setMemories(filterByHouse(DEMO_MEMORIES) as MemoryRow[]);
+      setNews(filterByHouse(DEMO_NEWS) as NewsRow[]);
+      setProfiles(DEMO_PROFILES);
+      setLoading(false);
+      return;
+    }
 
   useEffect(() => {
     if (!user) return;
