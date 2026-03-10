@@ -31,6 +31,14 @@ const stagger = {
 };
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const { enterDemo } = useDemo();
+
+  const handleDemo = () => {
+    enterDemo();
+    navigate("/dashboard");
+  };
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Nav */}
