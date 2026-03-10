@@ -36,6 +36,7 @@ const statusConfig = {
 
 const MaintenancePage = () => {
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<Ticket[]>([]);
