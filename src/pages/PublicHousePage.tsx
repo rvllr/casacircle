@@ -270,7 +270,7 @@ const PublicHousePage = () => {
         {/* Footer */}
         <Separator />
         <p className="text-center text-xs text-muted-foreground py-4">
-          Page générée par Maison Commune
+          Page générée par CasaCircle
         </p>
       </div>
     </div>
