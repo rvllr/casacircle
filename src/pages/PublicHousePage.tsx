@@ -9,6 +9,7 @@ import {
   BookOpen, Info, Home,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import logoCasaCircle from "@/assets/logo-casacircle.png";
 
 interface HousePublic {
   id: string;
