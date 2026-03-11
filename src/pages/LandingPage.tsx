@@ -103,7 +103,7 @@ const LandingPage = () => {
                 className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed"
               >
                 Planning partagé, réservations, règles de la maison et souvenirs de famille.
-                Maison Commune centralise tout pour organiser votre maison de famille.
+                CasaCircle centralise tout pour organiser votre maison de famille.
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
