@@ -318,14 +318,14 @@ const LandingPage = () => {
           </Reveal>
 
           <div className="max-w-2xl mx-auto space-y-3">
-            {[
-              { q: "Maison Commune est-il gratuit ?", a: "Oui, la création de votre espace familial est entièrement gratuite. Gérez vos maisons, réservations et souvenirs sans frais." },
-              { q: "Combien de maisons puis-je ajouter ?", a: "Il n'y a pas de limite. Une famille peut gérer autant de maisons que nécessaire : maison principale, résidence secondaire, appartement, etc." },
-              { q: "Qui peut voir les informations de la maison ?", a: "Seuls les membres invités de votre famille ou de votre maison ont accès aux informations. Tout est privé par défaut." },
-              { q: "Comment inviter des membres de ma famille ?", a: "Créez votre famille, puis invitez les membres par email. Ils recevront une invitation pour rejoindre l'espace." },
-              { q: "Maison Commune fonctionne-t-il pour une SCI ou indivision ?", a: "Absolument. L'application est conçue pour toute situation de gestion partagée : indivision, SCI familiale, copropriété familiale." },
-              { q: "Peut-on gérer les dépenses de la maison ?", a: "Oui, ajoutez les dépenses, répartissez-les entre membres et visualisez qui doit combien à qui automatiquement." },
-            ].map((faq, i) => (
+              {[
+                { q: "CasaCircle est-il gratuit ?", a: "Oui, la création de votre espace familial est entièrement gratuite. Gérez vos maisons, réservations et souvenirs sans frais." },
+                { q: "Combien de maisons puis-je ajouter ?", a: "Il n'y a pas de limite. Une famille peut gérer autant de maisons que nécessaire : maison principale, résidence secondaire, appartement, etc." },
+                { q: "Qui peut voir les informations de la maison ?", a: "Seuls les membres invités de votre famille ou de votre maison ont accès aux informations. Tout est privé par défaut." },
+                { q: "Comment inviter des membres de ma famille ?", a: "Créez votre famille, puis invitez les membres par email. Ils recevront une invitation pour rejoindre l'espace." },
+                { q: "CasaCircle fonctionne-t-il pour une SCI ou indivision ?", a: "Absolument. L'application est conçue pour toute situation de gestion partagée : indivision, SCI familiale, copropriété familiale." },
+                { q: "Peut-on gérer les dépenses de la maison ?", a: "Oui, ajoutez les dépenses, répartissez-les entre membres et visualisez qui doit combien à qui automatiquement." },
+              ].map((faq, i) => (
               <Reveal key={i} delay={i * 0.06}>
                 <details className="group rounded-2xl border border-border/50 bg-background p-5 cursor-pointer shadow-soft hover:shadow-card transition-shadow">
                   <summary className="font-display text-foreground list-none flex items-center justify-between gap-2">
