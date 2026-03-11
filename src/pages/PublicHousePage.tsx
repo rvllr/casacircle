@@ -270,9 +270,10 @@ const PublicHousePage = () => {
 
         {/* Footer */}
         <Separator />
-        <p className="text-center text-xs text-muted-foreground py-4">
-          Page générée par CasaCircle
-        </p>
+        <div className="flex items-center justify-center gap-2 py-4">
+          <img src={logoCasaCircle} alt="CasaCircle" className="h-4 w-auto opacity-60" />
+          <span className="text-xs text-muted-foreground">Page générée par CasaCircle</span>
+        </div>
       </div>
     </div>
   );
