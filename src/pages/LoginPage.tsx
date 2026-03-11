@@ -34,8 +34,8 @@ const LoginPage = () => {
       <div className="hidden lg:flex lg:w-[45%] warm-gradient relative overflow-hidden">
         <div className="absolute inset-0 flex flex-col justify-center px-12 xl:px-16">
           <div className="space-y-6 max-w-md">
-            <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Home className="h-7 w-7 text-primary" />
+            <div className="h-14 w-auto rounded-2xl flex items-center justify-start">
+              <img src={logoCasaCircle} alt="CasaCircle" className="h-14 w-auto" />
             </div>
             <h2 className="text-3xl xl:text-4xl font-display text-foreground leading-tight">
               Retrouvez votre maison familiale en quelques clics.
