@@ -34,9 +34,7 @@ const ForgotPasswordPage = () => {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2.5 group">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-soft">
-              <Home className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img src={logoCasaCircle} alt="CasaCircle" className="h-10 w-auto" />
             <span className="font-display text-xl text-foreground">CasaCircle</span>
           </Link>
           <h1 className="text-2xl font-display text-foreground pt-4">Mot de passe oublié</h1>
