@@ -53,7 +53,7 @@ const LandingPage = () => {
             <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
               <Home className="h-[18px] w-[18px] text-primary-foreground" />
             </div>
-            <span className="font-display text-xl text-foreground">Maison Commune</span>
+            <span className="font-display text-xl text-foreground">CasaCircle</span>
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" className="hidden sm:inline-flex rounded-xl" asChild>
