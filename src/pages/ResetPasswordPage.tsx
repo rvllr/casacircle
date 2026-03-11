@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import logoCasaCircle from "@/assets/logo-casacircle.png";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
