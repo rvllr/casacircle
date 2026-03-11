@@ -78,10 +78,10 @@ const SignupPage = () => {
               <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-soft group-hover:shadow-card transition-shadow">
                 <Home className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-display text-xl text-foreground">Maison Commune</span>
+              <span className="font-display text-xl text-foreground">CasaCircle</span>
             </Link>
             <h1 className="text-2xl font-display text-foreground pt-4">Créer un compte</h1>
-            <p className="text-sm text-muted-foreground">Rejoignez votre famille sur Maison Commune</p>
+            <p className="text-sm text-muted-foreground">Rejoignez votre famille sur CasaCircle</p>
           </div>
 
           <Card className="shadow-card border-border/60">

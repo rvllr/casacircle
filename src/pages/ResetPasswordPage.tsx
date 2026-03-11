@@ -47,7 +47,7 @@ const ResetPasswordPage = () => {
             <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-soft">
               <Home className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl text-foreground">Maison Commune</span>
+            <span className="font-display text-xl text-foreground">CasaCircle</span>
           </Link>
           <h1 className="text-2xl font-display text-foreground pt-4">Nouveau mot de passe</h1>
         </div>

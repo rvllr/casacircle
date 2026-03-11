@@ -48,7 +48,7 @@ const InviteMemberDialog = ({ familyId, familyName, onInvited }: InviteMemberDia
     if (!profile) {
       toast({
         title: "Utilisateur non trouvé",
-        description: "Aucun compte n'existe avec cet email. L'utilisateur doit d'abord créer un compte sur Maison Commune.",
+        description: "Aucun compte n'existe avec cet email. L'utilisateur doit d'abord créer un compte sur CasaCircle.",
         variant: "destructive",
       });
       setLoading(false);
@@ -117,7 +117,7 @@ const InviteMemberDialog = ({ familyId, familyName, onInvited }: InviteMemberDia
               required
             />
             <p className="text-xs text-muted-foreground">
-              Le membre doit avoir un compte Maison Commune.
+              Le membre doit avoir un compte CasaCircle.
             </p>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>

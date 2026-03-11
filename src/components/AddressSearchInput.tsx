@@ -50,7 +50,7 @@ const AddressSearchInput = ({ value, onChange, placeholder = "Rechercher une adr
       try {
         const res = await fetch(
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=0&accept-language=fr`,
-          { headers: { "User-Agent": "MaisonCommune/1.0" } }
+          { headers: { "User-Agent": "CasaCircle/1.0" } }
         );
         const data: AddressResult[] = await res.json();
         setResults(data);

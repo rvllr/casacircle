@@ -100,7 +100,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <span className="font-display text-lg text-foreground tracking-tight truncate">
-              Maison Commune
+              CasaCircle
             </span>
           )}
         </div>
