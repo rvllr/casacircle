@@ -89,7 +89,7 @@ const PublicHousePage = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Home className="h-12 w-12 text-muted-foreground mx-auto" />
+          <img src={logoCasaCircle} alt="CasaCircle" className="h-12 w-auto mx-auto opacity-50" />
           <h1 className="text-2xl font-display text-foreground">Page introuvable</h1>
           <p className="text-muted-foreground">Ce bien n'est pas accessible publiquement.</p>
         </div>
