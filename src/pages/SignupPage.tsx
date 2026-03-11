@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Home, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import logoCasaCircle from "@/assets/logo-casacircle.png";
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
@@ -43,8 +44,8 @@ const SignupPage = () => {
       <div className="hidden lg:flex lg:w-[45%] warm-gradient relative overflow-hidden">
         <div className="absolute inset-0 flex flex-col justify-center px-12 xl:px-16">
           <div className="space-y-6 max-w-md">
-            <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Home className="h-7 w-7 text-primary" />
+            <div className="h-14 w-auto rounded-2xl flex items-center justify-start">
+              <img src={logoCasaCircle} alt="CasaCircle" className="h-14 w-auto" />
             </div>
             <h2 className="text-3xl xl:text-4xl font-display text-foreground leading-tight">
               Créez votre espace familial en quelques minutes.
@@ -75,9 +76,7 @@ const SignupPage = () => {
         <div className="w-full max-w-sm space-y-8">
           <div className="text-center space-y-2">
             <Link to="/" className="inline-flex items-center gap-2.5 group">
-              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-soft group-hover:shadow-card transition-shadow">
-                <Home className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <img src={logoCasaCircle} alt="CasaCircle" className="h-10 w-auto" />
               <span className="font-display text-xl text-foreground">CasaCircle</span>
             </Link>
             <h1 className="text-2xl font-display text-foreground pt-4">Créer un compte</h1>

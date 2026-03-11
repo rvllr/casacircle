@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import logoCasaCircle from "@/assets/logo-casacircle.png";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
@@ -44,9 +44,7 @@ const ResetPasswordPage = () => {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2.5">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-soft">
-              <Home className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img src={logoCasaCircle} alt="CasaCircle" className="h-10 w-auto" />
             <span className="font-display text-xl text-foreground">CasaCircle</span>
           </Link>
           <h1 className="text-2xl font-display text-foreground pt-4">Nouveau mot de passe</h1>

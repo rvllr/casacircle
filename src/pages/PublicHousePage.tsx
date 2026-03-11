@@ -9,6 +9,7 @@ import {
   BookOpen, Info, Home,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import logoCasaCircle from "@/assets/logo-casacircle.png";
 
 interface HousePublic {
   id: string;
@@ -88,7 +89,7 @@ const PublicHousePage = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Home className="h-12 w-12 text-muted-foreground mx-auto" />
+          <img src={logoCasaCircle} alt="CasaCircle" className="h-12 w-auto mx-auto opacity-50" />
           <h1 className="text-2xl font-display text-foreground">Page introuvable</h1>
           <p className="text-muted-foreground">Ce bien n'est pas accessible publiquement.</p>
         </div>
@@ -269,9 +270,10 @@ const PublicHousePage = () => {
 
         {/* Footer */}
         <Separator />
-        <p className="text-center text-xs text-muted-foreground py-4">
-          Page générée par CasaCircle
-        </p>
+        <div className="flex items-center justify-center gap-2 py-4">
+          <img src={logoCasaCircle} alt="CasaCircle" className="h-4 w-auto opacity-60" />
+          <span className="text-xs text-muted-foreground">Page générée par CasaCircle</span>
+        </div>
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
-import { Home, CalendarDays, BookOpen, Users, Shield, FileText, Heart, ArrowRight, CheckCircle2, Eye } from "lucide-react";
+import { CalendarDays, BookOpen, Users, Shield, FileText, Heart, ArrowRight, CheckCircle2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
 import { useRef, ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import heroHouse from "@/assets/hero-house.png";
 import { useDemo } from "@/contexts/DemoContext";
+import logoCasaCircle from "@/assets/logo-casacircle.png";
 
 const Reveal = ({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) => {
   const ref = useRef(null);
@@ -50,9 +51,7 @@ const LandingPage = () => {
       >
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
-              <Home className="h-[18px] w-[18px] text-primary-foreground" />
-            </div>
+            <img src={logoCasaCircle} alt="CasaCircle" className="h-9 w-auto" />
             <span className="font-display text-xl text-foreground">CasaCircle</span>
           </Link>
           <div className="flex items-center gap-3">
@@ -370,9 +369,7 @@ const LandingPage = () => {
       <footer className="py-8 border-t border-border/30">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Home className="h-4 w-4 text-primary-foreground" />
-            </div>
+            <img src={logoCasaCircle} alt="CasaCircle" className="h-8 w-auto" />
             <span className="font-display text-foreground">CasaCircle</span>
           </div>
           <p className="text-sm text-muted-foreground">
