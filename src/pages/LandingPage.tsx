@@ -188,7 +188,7 @@ const LandingPage = () => {
 
           <Reveal delay={0.3}>
             <p className="text-center text-muted-foreground mt-8 max-w-xl mx-auto">
-              Maison Commune centralise tout dans un seul espace.
+              CasaCircle centralise tout dans un seul espace.
             </p>
           </Reveal>
         </div>
