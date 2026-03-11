@@ -51,9 +51,7 @@ const LandingPage = () => {
       >
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
-              <Home className="h-[18px] w-[18px] text-primary-foreground" />
-            </div>
+            <img src={logoCasaCircle} alt="CasaCircle" className="h-9 w-auto" />
             <span className="font-display text-xl text-foreground">CasaCircle</span>
           </Link>
           <div className="flex items-center gap-3">
