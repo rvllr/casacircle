@@ -373,10 +373,10 @@ const LandingPage = () => {
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <Home className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-display text-foreground">Maison Commune</span>
+            <span className="font-display text-foreground">CasaCircle</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Maison Commune. Tous droits réservés.
+            © {new Date().getFullYear()} CasaCircle. Tous droits réservés.
           </p>
         </div>
       </footer>

@@ -117,7 +117,7 @@ const InviteMemberDialog = ({ familyId, familyName, onInvited }: InviteMemberDia
               required
             />
             <p className="text-xs text-muted-foreground">
-              Le membre doit avoir un compte Maison Commune.
+              Le membre doit avoir un compte CasaCircle.
             </p>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
