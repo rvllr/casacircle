@@ -96,9 +96,7 @@ export function AppSidebar() {
       <SidebarContent className="py-2">
         {/* Logo */}
         <div className="px-4 py-4 flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-soft">
-            <Home className="h-[18px] w-[18px] text-primary-foreground" />
-          </div>
+          <img src={logoCasaCircle} alt="CasaCircle" className="h-9 w-auto flex-shrink-0" />
           {!collapsed && (
             <span className="font-display text-lg text-foreground tracking-tight truncate">
               CasaCircle
