@@ -26,8 +26,8 @@ const SignupPage = () => {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { first_name: firstName, last_name: lastName },
-      },
+        data: { first_name: firstName, last_name: lastName }
+      }
     });
     setLoading(false);
     if (error) {
@@ -55,15 +55,15 @@ const SignupPage = () => {
             </p>
             <div className="grid grid-cols-3 gap-3 pt-4">
               {[
-                { emoji: "🏠", label: "Vos maisons" },
-                { emoji: "📅", label: "Planning partagé" },
-                { emoji: "💛", label: "Souvenirs" },
-              ].map((item) => (
-                <div key={item.label} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card/60 border border-border/40">
+              { emoji: "🏠", label: "Vos maisons" },
+              { emoji: "📅", label: "Planning partagé" },
+              { emoji: "💛", label: "Souvenirs" }].
+              map((item) =>
+              <div key={item.label} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card/60 border border-border/40">
                   <span className="text-2xl">{item.emoji}</span>
                   <span className="text-xs text-muted-foreground text-center">{item.label}</span>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@ const SignupPage = () => {
           <div className="text-center space-y-2">
             <Link to="/" className="inline-flex items-center gap-2.5 group">
               <img src={logoCasaCircle} alt="CasaCircle" className="h-10 w-auto" />
-              <span className="font-display text-xl text-foreground">CasaCircle</span>
+              
             </Link>
             <h1 className="text-2xl font-display text-foreground pt-4">Créer un compte</h1>
             <p className="text-sm text-muted-foreground">Rejoignez votre famille sur CasaCircle</p>
@@ -105,12 +105,12 @@ const SignupPage = () => {
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" minLength={6} className="h-11 rounded-xl" />
                 </div>
                 <Button type="submit" className="w-full h-11 rounded-xl text-sm font-medium group" disabled={loading}>
-                  {loading ? "Création..." : (
-                    <>
+                  {loading ? "Création..." :
+                  <>
                       Créer mon compte
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                     </>
-                  )}
+                  }
                 </Button>
               </form>
             </CardContent>
@@ -122,8 +122,8 @@ const SignupPage = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SignupPage;
