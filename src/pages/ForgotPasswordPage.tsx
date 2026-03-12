@@ -19,7 +19,7 @@ const ForgotPasswordPage = () => {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/reset-password`
     });
     setLoading(false);
     if (error) {
@@ -35,7 +35,7 @@ const ForgotPasswordPage = () => {
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2.5 group">
             <img src={logoCasaCircle} alt="CasaCircle" className="h-10 w-auto" />
-            <span className="font-display text-xl text-foreground">CasaCircle</span>
+            
           </Link>
           <h1 className="text-2xl font-display text-foreground pt-4">Mot de passe oublié</h1>
           <p className="text-sm text-muted-foreground">Recevez un lien de réinitialisation par email</p>
@@ -43,8 +43,8 @@ const ForgotPasswordPage = () => {
 
         <Card className="shadow-card border-border/60">
           <CardContent className="p-6">
-            {sent ? (
-              <div className="text-center space-y-4 py-2">
+            {sent ?
+            <div className="text-center space-y-4 py-2">
                 <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
                   <Mail className="h-6 w-6 text-accent" />
                 </div>
@@ -54,9 +54,9 @@ const ForgotPasswordPage = () => {
                 <Link to="/login">
                   <Button variant="outline" className="w-full rounded-xl">Retour à la connexion</Button>
                 </Link>
-              </div>
-            ) : (
-              <form onSubmit={handleReset} className="space-y-5">
+              </div> :
+
+            <form onSubmit={handleReset} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="votre@email.com" className="h-11 rounded-xl" />
@@ -65,7 +65,7 @@ const ForgotPasswordPage = () => {
                   {loading ? "Envoi..." : "Envoyer le lien"}
                 </Button>
               </form>
-            )}
+            }
           </CardContent>
         </Card>
 
@@ -73,8 +73,8 @@ const ForgotPasswordPage = () => {
           <Link to="/login" className="text-primary hover:underline">Retour à la connexion</Link>
         </p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ForgotPasswordPage;
