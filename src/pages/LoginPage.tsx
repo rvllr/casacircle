@@ -45,11 +45,11 @@ const LoginPage = () => {
             </p>
             <div className="flex items-center gap-4 pt-4">
               <div className="flex -space-x-2">
-                {["🏡", "👨‍👩‍👧‍👦", "📅"].map((emoji, i) => (
-                  <div key={i} className="h-10 w-10 rounded-full bg-card border-2 border-background flex items-center justify-center text-lg shadow-soft">
+                {["🏡", "👨‍👩‍👧‍👦", "📅"].map((emoji, i) =>
+                <div key={i} className="h-10 w-10 rounded-full bg-card border-2 border-background flex items-center justify-center text-lg shadow-soft">
                     {emoji}
                   </div>
-                ))}
+                )}
               </div>
               <p className="text-sm text-muted-foreground">
                 Rejoignez les familles qui s'organisent sereinement.
@@ -68,7 +68,7 @@ const LoginPage = () => {
           <div className="text-center space-y-2">
             <Link to="/" className="inline-flex items-center gap-2.5 group">
               <img src={logoCasaCircle} alt="CasaCircle" className="h-10 w-auto" />
-              <span className="font-display text-xl text-foreground">CasaCircle</span>
+              
             </Link>
             <h1 className="text-2xl font-display text-foreground pt-4">Bon retour parmi nous</h1>
             <p className="text-sm text-muted-foreground">Connectez-vous à votre espace familial</p>
@@ -86,8 +86,8 @@ const LoginPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="votre@email.com"
-                    className="h-11 rounded-xl"
-                  />
+                    className="h-11 rounded-xl" />
+                  
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -101,16 +101,16 @@ const LoginPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     placeholder="••••••••"
-                    className="h-11 rounded-xl"
-                  />
+                    className="h-11 rounded-xl" />
+                  
                 </div>
                 <Button type="submit" className="w-full h-11 rounded-xl text-sm font-medium group" disabled={loading}>
-                  {loading ? "Connexion..." : (
-                    <>
+                  {loading ? "Connexion..." :
+                  <>
                       Se connecter
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                     </>
-                  )}
+                  }
                 </Button>
               </form>
             </CardContent>
@@ -122,8 +122,8 @@ const LoginPage = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LoginPage;
