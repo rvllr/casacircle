@@ -650,6 +650,7 @@ export type Database = {
           name: string
           owner_id: string | null
           photo_url: string | null
+          property_mode: string
           wifi_name: string | null
           wifi_password: string | null
         }
@@ -668,6 +669,7 @@ export type Database = {
           name: string
           owner_id?: string | null
           photo_url?: string | null
+          property_mode?: string
           wifi_name?: string | null
           wifi_password?: string | null
         }
@@ -686,6 +688,7 @@ export type Database = {
           name?: string
           owner_id?: string | null
           photo_url?: string | null
+          property_mode?: string
           wifi_name?: string | null
           wifi_password?: string | null
         }
@@ -823,6 +826,96 @@ export type Database = {
           },
           {
             foreignKeyName: "notifications_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ownership_history: {
+        Row: {
+          changed_by: string
+          created_at: string
+          house_id: string
+          id: string
+          new_percentage: number | null
+          old_percentage: number | null
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          changed_by: string
+          created_at?: string
+          house_id: string
+          id?: string
+          new_percentage?: number | null
+          old_percentage?: number | null
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          changed_by?: string
+          created_at?: string
+          house_id?: string
+          id?: string
+          new_percentage?: number | null
+          old_percentage?: number | null
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ownership_history_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ownership_history_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ownership_shares: {
+        Row: {
+          created_at: string
+          house_id: string
+          id: string
+          percentage: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          house_id: string
+          id?: string
+          percentage?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          house_id?: string
+          id?: string
+          percentage?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ownership_shares_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ownership_shares_house_id_fkey"
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "public_houses"
