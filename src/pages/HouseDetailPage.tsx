@@ -145,7 +145,7 @@ const HouseDetailPage = () => {
     setGuides(guidesData || []);
 
     // Fetch member profiles
-    const membersList = membersData || [];
+    const membersList = (membersData || []) as Array<{ id: string; user_id: string; role: string; access_scope?: string }>;
     const ticketCreatorIds = [...new Set((ticketsData || []).map((t) => t.created_by))];
     const allUserIds = [...new Set([...membersList.map((m) => m.user_id), ...ticketCreatorIds])];
     const { data: profiles } = allUserIds.length > 0
