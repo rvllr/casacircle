@@ -714,8 +714,8 @@ const MembersTab = ({
             <LayoutList className="h-3.5 w-3.5" />
           </Button>
         </div>
-        {isAdmin && !familyId && (
-          <InviteToHouseDialog houseId={houseId} houseName="" onInvited={fetchHouse} />
+        {isAdmin && (
+          <InviteToHouseDialog houseId={houseId} houseName="" familyId={familyId} onInvited={fetchHouse} />
         )}
       </div>
 
