@@ -13,18 +13,21 @@ import AddUnitDialog from "@/components/AddUnitDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, MapPin, Users, Crown, User, DoorOpen } from "lucide-react";
+import { Building2, MapPin, Users, Crown, User, DoorOpen, Landmark, Scale } from "lucide-react";
 
 interface Family {
   id: string;
   name: string;
   created_by: string;
+  type?: string;
+  description?: string | null;
+  ownership_enabled?: boolean;
 }
 
 interface FamilyMember {
   id: string;
   user_id: string;
-  role: "admin" | "member";
+  role: "admin" | "member" | "legal_representative";
   users_profiles: {
     first_name: string | null;
     last_name: string | null;
@@ -61,8 +64,16 @@ interface HouseUnit {
 interface FamilyWithDetails extends Family {
   members: FamilyMember[];
   houses: House[];
-  userRole: "admin" | "member";
+  userRole: "admin" | "member" | "legal_representative";
 }
+
+const SPACE_TYPE_LABELS: Record<string, { label: string; color: string }> = {
+  family: { label: "Famille", color: "bg-primary/10 text-primary" },
+  indivision: { label: "Indivision", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" },
+  sci: { label: "SCI", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
+  personal: { label: "Personnel", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" },
+  multi_family: { label: "Multi-familles", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" },
+};
 
 const HousesPage = () => {
   const { user } = useAuth();
@@ -107,7 +118,7 @@ const HousesPage = () => {
 
     // Fetch families
     const { data: familiesData } = familyIds.length > 0
-      ? await supabase.from("families").select("id, name, created_by").in("id", familyIds)
+      ? await supabase.from("families").select("id, name, created_by, type, description, ownership_enabled").in("id", familyIds)
       : { data: [] };
 
     setAdminFamilies(
@@ -187,13 +198,13 @@ const HousesPage = () => {
 
     const result: FamilyWithDetails[] = (familiesData || []).map((f) => ({
       ...f,
-      userRole: roleMap[f.id] as "admin" | "member",
+      userRole: roleMap[f.id] as "admin" | "member" | "legal_representative",
       houses: familyHouses.filter((h) => h.family_id === f.id),
       members: allMembers
         .filter((m: any) => m.family_id === f.id)
         .map((m: any) => ({
           ...m,
-          role: m.role as "admin" | "member",
+          role: m.role as "admin" | "member" | "legal_representative",
           users_profiles: profilesMap[m.user_id] || null,
         })),
     }));
@@ -253,7 +264,7 @@ const HousesPage = () => {
                 Mes maisons ({directHouses.length + families.reduce((s, f) => s + f.houses.length, 0)})
               </TabsTrigger>
               {families.length > 0 && (
-                <TabsTrigger value="families">Familles ({families.length})</TabsTrigger>
+                <TabsTrigger value="families">Espaces patrimoine ({families.length})</TabsTrigger>
               )}
             </TabsList>
 
@@ -280,7 +291,9 @@ const HousesPage = () => {
                   <div key={family.id} className="space-y-3">
                     <div className="flex items-center gap-2">
                       <h4 className="font-display text-lg text-foreground">{family.name}</h4>
-                      <Badge variant="secondary" className="text-xs">Famille</Badge>
+                      <Badge className={`text-xs border-0 ${SPACE_TYPE_LABELS[family.type || "family"]?.color || "bg-secondary text-secondary-foreground"}`}>
+                        {SPACE_TYPE_LABELS[family.type || "family"]?.label || "Famille"}
+                      </Badge>
                     </div>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {family.houses.map((house) => (
@@ -305,10 +318,13 @@ const HousesPage = () => {
                 {families.map((family) => (
                   <section key={family.id} className="space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-wrap">
                         <h3 className="font-display text-xl text-foreground">{family.name}</h3>
+                        <Badge className={`text-xs border-0 ${SPACE_TYPE_LABELS[family.type || "family"]?.color || "bg-secondary text-secondary-foreground"}`}>
+                          {SPACE_TYPE_LABELS[family.type || "family"]?.label || "Famille"}
+                        </Badge>
                         <Badge variant={family.userRole === "admin" ? "default" : "secondary"} className="text-xs">
-                          {family.userRole === "admin" ? "Admin" : "Membre"}
+                          {family.userRole === "admin" ? "Admin" : family.userRole === "legal_representative" ? "Représentant légal" : "Membre"}
                         </Badge>
                       </div>
                       {family.userRole === "admin" && (
@@ -335,6 +351,8 @@ const HousesPage = () => {
                         >
                           {member.role === "admin" ? (
                             <Crown className="h-3.5 w-3.5 text-primary" />
+                          ) : member.role === "legal_representative" ? (
+                            <Scale className="h-3.5 w-3.5 text-blue-600" />
                           ) : (
                             <User className="h-3.5 w-3.5 text-muted-foreground" />
                           )}
@@ -350,7 +368,7 @@ const HousesPage = () => {
                       <Card>
                         <CardContent className="py-8 text-center">
                           <Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-muted-foreground text-sm">Aucune maison dans cette famille.</p>
+                          <p className="text-muted-foreground text-sm">Aucune maison dans cet espace.</p>
                         </CardContent>
                       </Card>
                     ) : (
