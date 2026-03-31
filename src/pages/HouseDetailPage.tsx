@@ -34,7 +34,7 @@ import {
   ArrowLeft, LogIn, LogOut, BookOpen, Wrench, Info,
   LayoutList, LayoutGrid, AlertTriangle, Plus, CheckCircle2, Clock, Loader2,
   Eye, PieChart, BarChart3, Scale, Wallet, BookMarked,
-  History, Camera, TreePine,
+  History, Camera, TreePine, Shield, Briefcase,
 } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
