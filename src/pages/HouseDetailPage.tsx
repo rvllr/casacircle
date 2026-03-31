@@ -9,6 +9,9 @@ import HouseGuideEditor, { parseContent, groupByCategory } from "@/components/Ho
 import EditHouseDialog from "@/components/EditHouseDialog";
 import HousePricingConfig from "@/components/HousePricingConfig";
 import PricingPeriodsManager from "@/components/PricingPeriodsManager";
+import OwnershipTab from "@/components/OwnershipTab";
+import UsageTab from "@/components/UsageTab";
+import FairnessScore from "@/components/FairnessScore";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
