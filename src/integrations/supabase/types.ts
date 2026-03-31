@@ -167,6 +167,41 @@ export type Database = {
           },
         ]
       }
+      checklist_items: {
+        Row: {
+          checklist_id: string
+          created_at: string
+          id: string
+          is_required: boolean
+          label: string
+          order_index: number
+        }
+        Insert: {
+          checklist_id: string
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          label: string
+          order_index?: number
+        }
+        Update: {
+          checklist_id?: string
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          label?: string
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_items_checklist_id_fkey"
+            columns: ["checklist_id"]
+            isOneToOne: false
+            referencedRelation: "house_checklists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       decision_register: {
         Row: {
           abstain_count: number | null
@@ -513,6 +548,51 @@ export type Database = {
             columns: ["parent_node_id"]
             isOneToOne: false
             referencedRelation: "family_tree_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      house_checklists: {
+        Row: {
+          created_at: string
+          description: string | null
+          house_id: string
+          id: string
+          order_index: number
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          house_id: string
+          id?: string
+          order_index?: number
+          title: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          house_id?: string
+          id?: string
+          order_index?: number
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "house_checklists_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "house_checklists_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
             referencedColumns: ["id"]
           },
         ]
@@ -1244,6 +1324,45 @@ export type Database = {
           },
         ]
       }
+      reservation_checklist_status: {
+        Row: {
+          checklist_item_id: string
+          completed_at: string
+          completed_by_user_id: string
+          id: string
+          reservation_id: string
+        }
+        Insert: {
+          checklist_item_id: string
+          completed_at?: string
+          completed_by_user_id: string
+          id?: string
+          reservation_id: string
+        }
+        Update: {
+          checklist_item_id?: string
+          completed_at?: string
+          completed_by_user_id?: string
+          id?: string
+          reservation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservation_checklist_status_checklist_item_id_fkey"
+            columns: ["checklist_item_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_checklist_status_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users_profiles: {
         Row: {
           avatar_url: string | null
@@ -1417,6 +1536,14 @@ export type Database = {
       get_family_id_from_house: { Args: { _house_id: string }; Returns: string }
       get_house_id_from_booking: {
         Args: { _booking_id: string }
+        Returns: string
+      }
+      get_house_id_from_checklist: {
+        Args: { _checklist_id: string }
+        Returns: string
+      }
+      get_house_id_from_checklist_item: {
+        Args: { _item_id: string }
         Returns: string
       }
       get_house_id_from_expense: {

@@ -20,6 +20,7 @@ import FamilyTree from "@/components/FamilyTree";
 import BookingPriority from "@/components/BookingPriority";
 import FamilyPact from "@/components/FamilyPact";
 import NotaryExport from "@/components/NotaryExport";
+import ChecklistConfig from "@/components/ChecklistConfig";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +35,7 @@ import {
   ArrowLeft, LogIn, LogOut, BookOpen, Wrench, Info,
   LayoutList, LayoutGrid, AlertTriangle, Plus, CheckCircle2, Clock, Loader2,
   Eye, PieChart, BarChart3, Scale, Wallet, BookMarked,
-  History, Camera, TreePine, Shield, Briefcase,
+  History, Camera, TreePine, Shield, Briefcase, ClipboardCheck,
 } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -357,6 +358,9 @@ const HouseDetailPage = () => {
             <TabsTrigger value="pact" className="gap-1.5 text-xs sm:text-sm py-1.5">
               <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Pacte</span>
             </TabsTrigger>
+            <TabsTrigger value="checklists" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <ClipboardCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Checklists</span>
+            </TabsTrigger>
             <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
               <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Signalements</span>
@@ -545,6 +549,11 @@ const HouseDetailPage = () => {
           {/* Pact Tab */}
           <TabsContent value="pact" className="space-y-4">
             <FamilyPact houseId={house.id} isAdmin={isAdmin} members={members} />
+          </TabsContent>
+
+          {/* Checklists Tab */}
+          <TabsContent value="checklists" className="space-y-4">
+            <ChecklistConfig houseId={house.id} isAdmin={isAdmin} />
           </TabsContent>
 
           <TabsContent value="tickets" className="space-y-4">

@@ -11,7 +11,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2, Download, CreditCard } from "lucide-react";
+import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2, Download, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
+import { ChecklistSummaryBadge } from "@/components/BookingChecklist";
+import BookingChecklist from "@/components/BookingChecklist";
 import { exportBookingsCsv } from "@/lib/csvExport";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -545,6 +547,8 @@ const BookingCard = ({
 
   const [editingAmount, setEditingAmount] = useState(false);
   const [amountInput, setAmountInput] = useState(amountPaid.toString());
+  const [showChecklist, setShowChecklist] = useState(false);
+  const isApprovedOrPending = booking.status === "approved" || booking.status === "pending";
 
   const handleAmountSubmit = () => {
     const val = parseFloat(amountInput);
@@ -569,6 +573,9 @@ const BookingCard = ({
                   <CreditCard className="h-3 w-3 mr-1" />
                   {paymentStatusConfig[booking.payment_status]?.label || booking.payment_status}
                 </Badge>
+              )}
+              {isApprovedOrPending && (
+                <ChecklistSummaryBadge bookingId={booking.id} houseId={booking.house_id} />
               )}
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
@@ -645,7 +652,24 @@ const BookingCard = ({
                 </Button>
               )
             )}
+            {isApprovedOrPending && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 text-xs rounded-lg"
+                onClick={() => setShowChecklist(!showChecklist)}
+              >
+                {showChecklist ? <ChevronUp className="h-3.5 w-3.5 mr-1" /> : <ChevronDown className="h-3.5 w-3.5 mr-1" />}
+                Checklist
+              </Button>
+            )}
           </div>
+
+          {showChecklist && isApprovedOrPending && (
+            <div className="pt-2 border-t border-border/30">
+              <BookingChecklist bookingId={booking.id} houseId={booking.house_id} />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
