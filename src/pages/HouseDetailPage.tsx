@@ -44,6 +44,7 @@ interface House {
   wifi_name?: string | null;
   wifi_password?: string | null;
   access_code?: string | null;
+  join_code?: string | null;
   emergency_contact?: string | null;
 }
 
