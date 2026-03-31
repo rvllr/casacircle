@@ -522,6 +522,7 @@ const HouseDetailPage = () => {
           {/* Decisions Tab */}
           <TabsContent value="decisions" className="space-y-4">
             <DecisionRegister houseId={house.id} />
+            <NotaryExport houseId={house.id} houseName={house.name} members={members} />
           </TabsContent>
 
           {/* History Tab */}
