@@ -509,8 +509,9 @@ const HouseDetailPage = () => {
           </TabsContent>
 
           {/* Usage Tab */}
-          <TabsContent value="usage" className="space-y-4">
+          <TabsContent value="usage" className="space-y-6">
             <UsageTab houseId={house.id} members={members} />
+            <BookingPriority houseId={house.id} members={members} />
           </TabsContent>
 
           {/* Finances Tab */}
