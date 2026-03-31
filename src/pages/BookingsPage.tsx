@@ -574,6 +574,9 @@ const BookingCard = ({
                   {paymentStatusConfig[booking.payment_status]?.label || booking.payment_status}
                 </Badge>
               )}
+              {isApprovedOrPending && (
+                <ChecklistSummaryBadge bookingId={booking.id} houseId={booking.house_id} />
+              )}
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
               {userName} · {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
