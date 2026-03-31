@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_FAMILY, DEMO_HOUSES_FULL, DEMO_FAMILY_MEMBERS } from "@/lib/demoData";
 import AppLayout from "@/components/AppLayout";
-import CreateFamilyDialog from "@/components/CreateFamilyDialog";
+import CreateSpaceWizard from "@/components/CreateSpaceWizard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Users, Landmark, User, Network, ChevronRight, Briefcase } from "lucide-react";
@@ -139,7 +139,7 @@ const PatrimonySpacesPage = () => {
               Organisez vos biens par structure familiale ou juridique.
             </p>
           </div>
-          <CreateFamilyDialog onCreated={fetchSpaces} />
+          <CreateSpaceWizard onCreated={fetchSpaces} />
         </div>
 
         {spaces.length === 0 ? (
@@ -150,7 +150,7 @@ const PatrimonySpacesPage = () => {
               <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                 Créez votre premier espace pour regrouper vos biens immobiliers.
               </p>
-              <CreateFamilyDialog onCreated={fetchSpaces} />
+              <CreateSpaceWizard onCreated={fetchSpaces} />
             </CardContent>
           </Card>
         ) : (

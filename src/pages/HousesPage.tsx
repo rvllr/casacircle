@@ -5,7 +5,7 @@ import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_HOUSES_FULL, DEMO_FAMILY, DEMO_FAMILY_MEMBERS, DEMO_HOUSE_UNITS } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
-import CreateFamilyDialog from "@/components/CreateFamilyDialog";
+import CreateSpaceWizard from "@/components/CreateSpaceWizard";
 import CreateHouseDialog from "@/components/CreateHouseDialog";
 import InviteMemberDialog from "@/components/InviteMemberDialog";
 import InviteToHouseDialog from "@/components/InviteToHouseDialog";
@@ -240,7 +240,7 @@ const HousesPage = () => {
           </div>
           <div className="flex items-center gap-2">
             <CreateHouseDialog families={adminFamilies} onCreated={fetchData} />
-            <CreateFamilyDialog onCreated={fetchData} />
+            <CreateSpaceWizard onCreated={fetchData} />
           </div>
         </div>
 

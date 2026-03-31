@@ -7,14 +7,16 @@ import { DEMO_FAMILY, DEMO_HOUSES_FULL, DEMO_FAMILY_MEMBERS, DEMO_ALL_EXPENSES, 
 import AppLayout from "@/components/AppLayout";
 import CreateHouseDialog from "@/components/CreateHouseDialog";
 import InviteMemberDialog from "@/components/InviteMemberDialog";
+import SpaceDocuments from "@/components/SpaceDocuments";
+import SpaceVotes from "@/components/SpaceVotes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Building2, Users, ArrowLeft, Crown, User, MapPin,
-  Wallet, CalendarDays, AlertTriangle, Landmark, Network, Scale,
-  ChevronRight,
+  Wallet, AlertTriangle, Scale,
+  ChevronRight, FileText, Vote,
 } from "lucide-react";
 
 const SPACE_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
@@ -247,12 +249,18 @@ const PatrimonySpaceDetailPage = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="houses" className="space-y-6">
-          <TabsList>
+          <TabsList className="flex flex-wrap h-auto gap-1">
             <TabsTrigger value="houses" className="gap-1.5">
               <Building2 className="h-4 w-4" /> Maisons
             </TabsTrigger>
             <TabsTrigger value="members" className="gap-1.5">
               <Users className="h-4 w-4" /> Membres
+            </TabsTrigger>
+            <TabsTrigger value="documents" className="gap-1.5">
+              <FileText className="h-4 w-4" /> Documents
+            </TabsTrigger>
+            <TabsTrigger value="votes" className="gap-1.5">
+              <Vote className="h-4 w-4" /> Votes
             </TabsTrigger>
           </TabsList>
 
@@ -329,6 +337,14 @@ const PatrimonySpaceDetailPage = () => {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <SpaceDocuments spaceId={space.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="votes">
+            <SpaceVotes spaceId={space.id} isAdmin={isAdmin} />
           </TabsContent>
         </Tabs>
       </div>
