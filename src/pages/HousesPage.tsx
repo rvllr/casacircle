@@ -351,6 +351,8 @@ const HousesPage = () => {
                         >
                           {member.role === "admin" ? (
                             <Crown className="h-3.5 w-3.5 text-primary" />
+                          ) : member.role === "legal_representative" ? (
+                            <Scale className="h-3.5 w-3.5 text-blue-600" />
                           ) : (
                             <User className="h-3.5 w-3.5 text-muted-foreground" />
                           )}
