@@ -20,6 +20,7 @@ import FamilyTree from "@/components/FamilyTree";
 import BookingPriority from "@/components/BookingPriority";
 import FamilyPact from "@/components/FamilyPact";
 import NotaryExport from "@/components/NotaryExport";
+import ChecklistConfig from "@/components/ChecklistConfig";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
