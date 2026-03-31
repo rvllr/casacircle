@@ -66,6 +66,7 @@ interface HouseMember {
   id: string;
   user_id: string;
   role: string;
+  access_scope?: string;
   profile?: { first_name: string | null; last_name: string | null; email: string | null; phone: string | null };
 }
 
