@@ -22,6 +22,7 @@ import {
   Building2, MapPin, Users, Crown, User, DoorOpen,
   ArrowLeft, LogIn, LogOut, BookOpen, Wrench, Info,
   LayoutList, LayoutGrid, AlertTriangle, Plus, CheckCircle2, Clock, Loader2,
+  Eye,
 } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -634,7 +635,7 @@ const MembersTab = ({
         <div className="space-y-3">
           {members.map((m) => {
             const rc = roleConfig[m.role] || roleConfig.member;
-            const RoleIcon = m.role === "admin" ? Crown : User;
+            const RoleIcon = m.role === "admin" ? Crown : m.role === "guest" ? Eye : User;
             const fullName = [m.profile?.first_name, m.profile?.last_name].filter(Boolean).join(" ") || "Membre";
 
             return (
