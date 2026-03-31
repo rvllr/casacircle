@@ -53,6 +53,9 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
   const [accessCode, setAccessCode] = useState(house.access_code || "");
   const [emergencyContact, setEmergencyContact] = useState(house.emergency_contact || "");
   const [copied, setCopied] = useState(false);
+  const [joinCodeCopied, setJoinCodeCopied] = useState(false);
+  const [joinCode, setJoinCode] = useState(house.join_code || "");
+  const [regenerating, setRegenerating] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
