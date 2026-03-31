@@ -198,7 +198,7 @@ const HousesPage = () => {
 
     const result: FamilyWithDetails[] = (familiesData || []).map((f) => ({
       ...f,
-      userRole: roleMap[f.id] as "admin" | "member",
+      userRole: roleMap[f.id] as "admin" | "member" | "legal_representative",
       houses: familyHouses.filter((h) => h.family_id === f.id),
       members: allMembers
         .filter((m: any) => m.family_id === f.id)
