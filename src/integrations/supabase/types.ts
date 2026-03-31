@@ -1372,6 +1372,44 @@ export type Database = {
           },
         ]
       }
+      space_documents: {
+        Row: {
+          created_at: string
+          file_url: string
+          id: string
+          space_id: string
+          title: string
+          type: Database["public"]["Enums"]["space_document_type"]
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          id?: string
+          space_id: string
+          title: string
+          type?: Database["public"]["Enums"]["space_document_type"]
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          id?: string
+          space_id?: string
+          title?: string
+          type?: Database["public"]["Enums"]["space_document_type"]
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "space_documents_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users_profiles: {
         Row: {
           avatar_url: string | null
@@ -1446,9 +1484,10 @@ export type Database = {
           created_by: string
           deadline: string | null
           description: string | null
-          house_id: string
+          house_id: string | null
           id: string
           majority_rule: string
+          space_id: string | null
           title: string
           voting_mode: string
         }
@@ -1457,9 +1496,10 @@ export type Database = {
           created_by: string
           deadline?: string | null
           description?: string | null
-          house_id: string
+          house_id?: string | null
           id?: string
           majority_rule?: string
+          space_id?: string | null
           title: string
           voting_mode?: string
         }
@@ -1468,9 +1508,10 @@ export type Database = {
           created_by?: string
           deadline?: string | null
           description?: string | null
-          house_id?: string
+          house_id?: string | null
           id?: string
           majority_rule?: string
+          space_id?: string | null
           title?: string
           voting_mode?: string
         }
@@ -1487,6 +1528,13 @@ export type Database = {
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "votes_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "families"
             referencedColumns: ["id"]
           },
         ]
@@ -1566,6 +1614,7 @@ export type Database = {
       get_house_id_from_pact: { Args: { _pact_id: string }; Returns: string }
       get_house_id_from_unit: { Args: { _unit_id: string }; Returns: string }
       get_house_id_from_vote: { Args: { _vote_id: string }; Returns: string }
+      get_space_id_from_vote: { Args: { _vote_id: string }; Returns: string }
       is_co_member: {
         Args: { _target_user_id: string; _viewer_id: string }
         Returns: boolean
@@ -1615,6 +1664,13 @@ export type Database = {
       payment_status: "not_applicable" | "unpaid" | "partial" | "paid"
       price_type: "absolute" | "multiplier"
       pricing_mode: "per_night" | "per_person" | "per_person_per_night"
+      space_document_type:
+        | "statuts_sci"
+        | "pacte_familial"
+        | "juridique"
+        | "assemblee_generale"
+        | "fiscal"
+        | "other"
       space_type: "family" | "indivision" | "sci" | "personal" | "multi_family"
       ticket_priority: "low" | "medium" | "high" | "urgent"
       ticket_status: "open" | "in_progress" | "resolved"
@@ -1767,6 +1823,14 @@ export const Constants = {
       payment_status: ["not_applicable", "unpaid", "partial", "paid"],
       price_type: ["absolute", "multiplier"],
       pricing_mode: ["per_night", "per_person", "per_person_per_night"],
+      space_document_type: [
+        "statuts_sci",
+        "pacte_familial",
+        "juridique",
+        "assemblee_generale",
+        "fiscal",
+        "other",
+      ],
       space_type: ["family", "indivision", "sci", "personal", "multi_family"],
       ticket_priority: ["low", "medium", "high", "urgent"],
       ticket_status: ["open", "in_progress", "resolved"],
