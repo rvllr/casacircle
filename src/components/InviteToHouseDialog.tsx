@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -17,19 +19,31 @@ import { UserPlus } from "lucide-react";
 interface InviteToHouseDialogProps {
   houseId: string;
   houseName: string;
+  familyId?: string | null;
   onInvited: () => void;
 }
 
-const InviteToHouseDialog = ({ houseId, houseName, onInvited }: InviteToHouseDialogProps) => {
+const roleOptions = [
+  { value: "admin", label: "Admin — gère la maison et les membres" },
+  { value: "editor", label: "Éditeur — peut réserver, ajouter dépenses et souvenirs" },
+  { value: "member", label: "Membre — peut réserver et ajouter des dépenses" },
+  { value: "viewer", label: "Lecteur — consultation seule" },
+  { value: "guest", label: "Invité — accès limité temporaire" },
+  { value: "maintenance", label: "Maintenance — accès technique uniquement" },
+];
+
+const InviteToHouseDialog = ({ houseId, houseName, familyId, onInvited }: InviteToHouseDialogProps) => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [selectedRole, setSelectedRole] = useState("member");
+  const [addToSpace, setAddToSpace] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const { toast } = useToast();
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !user) return;
 
     setLoading(true);
 
@@ -73,10 +87,18 @@ const InviteToHouseDialog = ({ houseId, houseName, onInvited }: InviteToHouseDia
       return;
     }
 
-    // Add with selected role
-    const { error: insertError } = await supabase
+    const accessScope = addToSpace && familyId ? "mixed" : "house_only";
+
+    // Add house member
+    const { error: insertError } = await (supabase
       .from("house_members")
-      .insert({ house_id: houseId, user_id: profile.user_id, role: selectedRole });
+      .insert({
+        house_id: houseId,
+        user_id: profile.user_id,
+        role: selectedRole,
+        added_by_user_id: user.id,
+        access_scope: accessScope,
+      } as any));
 
     if (insertError) {
       toast({ title: "Erreur", description: insertError.message, variant: "destructive" });
@@ -84,8 +106,28 @@ const InviteToHouseDialog = ({ houseId, houseName, onInvited }: InviteToHouseDia
       return;
     }
 
-    toast({ title: "Membre ajouté !", description: `${email} a maintenant accès à ${houseName}.` });
+    // Also add to space if requested
+    if (addToSpace && familyId) {
+      const { data: existingFm } = await supabase
+        .from("family_members")
+        .select("id")
+        .eq("family_id", familyId)
+        .eq("user_id", profile.user_id)
+        .maybeSingle();
+
+      if (!existingFm) {
+        await supabase.from("family_members").insert({
+          family_id: familyId,
+          user_id: profile.user_id,
+          role: "member",
+        });
+      }
+    }
+
+    toast({ title: "Membre ajouté !", description: `${email} a maintenant accès à cette maison.` });
     setEmail("");
+    setSelectedRole("member");
+    setAddToSpace(false);
     setOpen(false);
     setLoading(false);
     onInvited();
@@ -101,7 +143,7 @@ const InviteToHouseDialog = ({ houseId, houseName, onInvited }: InviteToHouseDia
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="font-display">Inviter à {houseName}</DialogTitle>
+          <DialogTitle className="font-display">Inviter un membre</DialogTitle>
           <DialogDescription>
             Ajoutez un membre qui pourra accéder à cette maison.
           </DialogDescription>
@@ -128,11 +170,28 @@ const InviteToHouseDialog = ({ houseId, houseName, onInvited }: InviteToHouseDia
               onChange={(e) => setSelectedRole(e.target.value)}
               className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background text-foreground"
             >
-              <option value="member">Membre — peut réserver et ajouter des dépenses</option>
-              <option value="guest">Invité — consultation seule</option>
-              <option value="admin">Admin — gère la maison</option>
+              {roleOptions.map((r) => (
+                <option key={r.value} value={r.value}>{r.label}</option>
+              ))}
             </select>
           </div>
+          {familyId && (
+            <div className="flex items-start space-x-3 rounded-lg border border-border p-3 bg-muted/30">
+              <Checkbox
+                id="addToSpace"
+                checked={addToSpace}
+                onCheckedChange={(checked) => setAddToSpace(checked === true)}
+              />
+              <div className="space-y-1">
+                <Label htmlFor="addToSpace" className="text-sm font-medium cursor-pointer">
+                  Ajouter aussi à l'espace patrimoine
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Donne accès à toutes les maisons de l'espace, aux votes et aux documents juridiques.
+                </p>
+              </div>
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Invitation..." : "Ajouter le membre"}
           </Button>

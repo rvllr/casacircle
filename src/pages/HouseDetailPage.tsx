@@ -66,6 +66,7 @@ interface HouseMember {
   id: string;
   user_id: string;
   role: string;
+  access_scope?: string;
   profile?: { first_name: string | null; last_name: string | null; email: string | null; phone: string | null };
 }
 
@@ -128,7 +129,7 @@ const HouseDetailPage = () => {
       { data: ticketsData },
     ] = await Promise.all([
       supabase.from("houses").select("*").eq("id", id).single(),
-      supabase.from("house_members").select("id, user_id, role").eq("house_id", id),
+      supabase.from("house_members").select("id, user_id, role").eq("house_id", id) as any,
       supabase.from("house_units").select("id, name, type, parent_id, capacity, description").eq("house_id", id).order("type").order("name"),
       supabase.from("house_guides").select("id, title, content, type").eq("house_id", id).order("type"),
       supabase.from("maintenance_tickets").select("*").eq("house_id", id).order("created_at", { ascending: false }),
@@ -144,7 +145,7 @@ const HouseDetailPage = () => {
     setGuides(guidesData || []);
 
     // Fetch member profiles
-    const membersList = membersData || [];
+    const membersList = (membersData || []) as Array<{ id: string; user_id: string; role: string; access_scope?: string }>;
     const ticketCreatorIds = [...new Set((ticketsData || []).map((t) => t.created_by))];
     const allUserIds = [...new Set([...membersList.map((m) => m.user_id), ...ticketCreatorIds])];
     const { data: profiles } = allUserIds.length > 0
@@ -634,8 +635,17 @@ const GuideCard = ({
 
 const roleConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" }> = {
   admin: { label: "Admin", variant: "default" },
+  editor: { label: "Éditeur", variant: "secondary" },
   member: { label: "Membre", variant: "secondary" },
+  viewer: { label: "Lecteur", variant: "outline" },
   guest: { label: "Invité", variant: "outline" },
+  maintenance: { label: "Maintenance", variant: "outline" },
+};
+
+const accessScopeConfig: Record<string, { label: string; color: string }> = {
+  space_inherited: { label: "Hérité espace", color: "bg-primary/10 text-primary" },
+  house_only: { label: "Accès maison", color: "bg-accent/10 text-accent-foreground" },
+  mixed: { label: "Mixte", color: "bg-secondary text-secondary-foreground" },
 };
 
 const MembersTab = ({
@@ -652,23 +662,35 @@ const MembersTab = ({
 
   const renderRoleCell = (m: HouseMember) => {
     const rc = roleConfig[m.role] || roleConfig.member;
+    const scope = accessScopeConfig[m.access_scope || "house_only"];
     if (isAdmin && m.user_id !== userId) {
       return (
-        <select
-          value={m.role}
-          onChange={async (e) => {
-            await supabase.from("house_members").update({ role: e.target.value }).eq("id", m.id);
-            fetchHouse();
-          }}
-          className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground"
-        >
-          <option value="admin">Admin</option>
-          <option value="member">Membre</option>
-          <option value="guest">Invité</option>
-        </select>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <select
+            value={m.role}
+            onChange={async (e) => {
+              await supabase.from("house_members").update({ role: e.target.value }).eq("id", m.id);
+              fetchHouse();
+            }}
+            className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground"
+          >
+            <option value="admin">Admin</option>
+            <option value="editor">Éditeur</option>
+            <option value="member">Membre</option>
+            <option value="viewer">Lecteur</option>
+            <option value="guest">Invité</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+          {scope && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${scope.color}`}>{scope.label}</span>}
+        </div>
       );
     }
-    return <Badge variant={rc.variant} className="text-xs">{rc.label}</Badge>;
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <Badge variant={rc.variant} className="text-xs">{rc.label}</Badge>
+        {scope && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${scope.color}`}>{scope.label}</span>}
+      </div>
+    );
   };
 
   return (
@@ -692,8 +714,8 @@ const MembersTab = ({
             <LayoutList className="h-3.5 w-3.5" />
           </Button>
         </div>
-        {isAdmin && !familyId && (
-          <InviteToHouseDialog houseId={houseId} houseName="" onInvited={fetchHouse} />
+        {isAdmin && (
+          <InviteToHouseDialog houseId={houseId} houseName="" familyId={familyId} onInvited={fetchHouse} />
         )}
       </div>
 
