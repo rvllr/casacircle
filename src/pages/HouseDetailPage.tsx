@@ -12,6 +12,8 @@ import PricingPeriodsManager from "@/components/PricingPeriodsManager";
 import OwnershipTab from "@/components/OwnershipTab";
 import UsageTab from "@/components/UsageTab";
 import FairnessScore from "@/components/FairnessScore";
+import FinancialDashboard from "@/components/FinancialDashboard";
+import DecisionRegister from "@/components/DecisionRegister";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
