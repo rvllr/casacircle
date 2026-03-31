@@ -318,7 +318,7 @@ const HouseDetailPage = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="guides" className="space-y-6">
-          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-9 h-auto gap-1">
+          <TabsList className="w-full flex flex-wrap h-auto gap-1">
             <TabsTrigger value="guides" className="gap-1.5 text-xs sm:text-sm py-1.5">
               <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Guides</span>
             </TabsTrigger>
@@ -340,6 +340,17 @@ const HouseDetailPage = () => {
             <TabsTrigger value="decisions" className="gap-1.5 text-xs sm:text-sm py-1.5">
               <BookMarked className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Décisions</span>
             </TabsTrigger>
+            <TabsTrigger value="history" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Histoire</span>
+            </TabsTrigger>
+            <TabsTrigger value="album" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Album</span>
+            </TabsTrigger>
+            {house.family_id && (
+              <TabsTrigger value="family" className="gap-1.5 text-xs sm:text-sm py-1.5">
+                <TreePine className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Famille</span>
+              </TabsTrigger>
+            )}
             <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
               <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Signalements</span>
