@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import heroHouse from "@/assets/hero-house.png";
 import { useDemo } from "@/contexts/DemoContext";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
+import logoStackEasy from "@/assets/logo-stackeasy.png";
 
 const Reveal = ({ children, delay = 0, className = "" }: {children: ReactNode;delay?: number;className?: string;}) => {
   const ref = useRef(null);
@@ -367,13 +368,19 @@ const LandingPage = () => {
 
       {/* Footer */}
       <footer className="py-8 border-t border-border/30">
-        <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <img src={logoCasaCircle} alt="CasaCircle" className="h-8 w-auto" />
+        <div className="container flex flex-col items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
+            <div className="flex items-center gap-2.5">
+              <img src={logoCasaCircle} alt="CasaCircle" className="h-8 w-auto" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} CasaCircle. Tous droits réservés.
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} CasaCircle. Tous droits réservés.
-          </p>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
+            <span>Powered by</span>
+            <img src={logoStackEasy} alt="StackEasy" className="h-5 w-auto" />
+          </div>
         </div>
       </footer>
     </div>);
