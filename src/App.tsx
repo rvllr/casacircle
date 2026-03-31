@@ -23,6 +23,7 @@ import PublicHousePage from "./pages/PublicHousePage";
 import MaintenancePage from "./pages/MaintenancePage";
 import DocumentsPage from "./pages/DocumentsPage";
 import VotesPage from "./pages/VotesPage";
+import CGUPage from "./pages/CGUPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
