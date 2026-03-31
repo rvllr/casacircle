@@ -378,6 +378,7 @@ const LandingPage = () => {
                 © {new Date().getFullYear()} CasaCircle. Tous droits réservés.
               </p>
               <Link to="/cgu" className="text-sm text-muted-foreground hover:text-primary transition-colors">CGU</Link>
+              <Link to="/mentions-legales" className="text-sm text-muted-foreground hover:text-primary transition-colors">Mentions légales</Link>
             </div>
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground/60">

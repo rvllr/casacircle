@@ -24,6 +24,7 @@ import MaintenancePage from "./pages/MaintenancePage";
 import DocumentsPage from "./pages/DocumentsPage";
 import VotesPage from "./pages/VotesPage";
 import CGUPage from "./pages/CGUPage";
+import MentionsLegalesPage from "./pages/MentionsLegalesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,7 @@ const App = () => (
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/p/:id" element={<PublicHousePage />} />
             <Route path="/cgu" element={<CGUPage />} />
+            <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </HouseProvider>
