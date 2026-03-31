@@ -368,7 +368,7 @@ const HousesPage = () => {
                       <Card>
                         <CardContent className="py-8 text-center">
                           <Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-muted-foreground text-sm">Aucune maison dans cette famille.</p>
+                          <p className="text-muted-foreground text-sm">Aucune maison dans cet espace.</p>
                         </CardContent>
                       </Card>
                     ) : (

@@ -32,6 +32,9 @@ export const DEMO_FAMILY = {
   id: "demo-family",
   name: "Famille Dupont",
   created_by: "demo-user-1",
+  type: "family" as const,
+  description: "Patrimoine familial Dupont",
+  ownership_enabled: true,
 };
 
 export const DEMO_FAMILY_MEMBERS = [
