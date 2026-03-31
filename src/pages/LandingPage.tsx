@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import heroHouse from "@/assets/hero-house.png";
 import { useDemo } from "@/contexts/DemoContext";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
+import logoStackEasy from "@/assets/logo-stackeasy.png";
 
 const Reveal = ({ children, delay = 0, className = "" }: {children: ReactNode;delay?: number;className?: string;}) => {
   const ref = useRef(null);
