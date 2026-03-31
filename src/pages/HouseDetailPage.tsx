@@ -312,20 +312,25 @@ const HouseDetailPage = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="guides" className="space-y-6">
-          <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto gap-1">
+          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-7 h-auto gap-1">
             <TabsTrigger value="guides" className="gap-1.5 text-xs sm:text-sm py-1.5">
-              <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Guides
+              <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Guides</span>
             </TabsTrigger>
             <TabsTrigger value="spaces" className="gap-1.5 text-xs sm:text-sm py-1.5">
-              <DoorOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Espaces
+              <DoorOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Espaces</span>
             </TabsTrigger>
             <TabsTrigger value="members" className="gap-1.5 text-xs sm:text-sm py-1.5">
-              <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Membres
+              <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Membres</span>
+            </TabsTrigger>
+            <TabsTrigger value="ownership" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <PieChart className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Propriété</span>
+            </TabsTrigger>
+            <TabsTrigger value="usage" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Usage</span>
             </TabsTrigger>
             <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
               <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Signalements</span>
-              <span className="sm:hidden">Tickets</span>
               {tickets.filter(t => t.status !== "resolved").length > 0 && (
                 <span className="ml-1 inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[10px] sm:text-xs rounded-full bg-destructive text-destructive-foreground">
                   {tickets.filter(t => t.status !== "resolved").length}
