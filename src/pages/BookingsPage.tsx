@@ -652,7 +652,24 @@ const BookingCard = ({
                 </Button>
               )
             )}
+            {isApprovedOrPending && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 text-xs rounded-lg"
+                onClick={() => setShowChecklist(!showChecklist)}
+              >
+                {showChecklist ? <ChevronUp className="h-3.5 w-3.5 mr-1" /> : <ChevronDown className="h-3.5 w-3.5 mr-1" />}
+                Checklist
+              </Button>
+            )}
           </div>
+
+          {showChecklist && isApprovedOrPending && (
+            <div className="pt-2 border-t border-border/30">
+              <BookingChecklist bookingId={booking.id} houseId={booking.house_id} />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
