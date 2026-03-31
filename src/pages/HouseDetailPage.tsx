@@ -547,6 +547,7 @@ const HouseDetailPage = () => {
             <FamilyPact houseId={house.id} isAdmin={isAdmin} members={members} />
           </TabsContent>
 
+          <TabsContent value="tickets" className="space-y-4">
             <TicketsTab tickets={tickets} houseId={house.id} isAdmin={isAdmin} userId={user?.id} onRefresh={fetchHouse} />
           </TabsContent>
         </Tabs>
