@@ -26,6 +26,8 @@ import VotesPage from "./pages/VotesPage";
 import CGUPage from "./pages/CGUPage";
 import MentionsLegalesPage from "./pages/MentionsLegalesPage";
 import JoinHousePage from "./pages/JoinHousePage";
+import PatrimonySpacesPage from "./pages/PatrimonySpacesPage";
+import PatrimonySpaceDetailPage from "./pages/PatrimonySpaceDetailPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +75,8 @@ const App = () => (
             <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/rejoindre" element={<ProtectedRoute><JoinHousePage /></ProtectedRoute>} />
+            <Route path="/spaces" element={<ProtectedRoute><PatrimonySpacesPage /></ProtectedRoute>} />
+            <Route path="/spaces/:id" element={<ProtectedRoute><PatrimonySpaceDetailPage /></ProtectedRoute>} />
             <Route path="/p/:id" element={<PublicHousePage />} />
             <Route path="/cgu" element={<CGUPage />} />
             <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
