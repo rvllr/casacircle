@@ -373,9 +373,12 @@ const LandingPage = () => {
             <div className="flex items-center gap-2.5">
               <img src={logoCasaCircle} alt="CasaCircle" className="h-8 w-auto" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} CasaCircle. Tous droits réservés.
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} CasaCircle. Tous droits réservés.
+              </p>
+              <Link to="/cgu" className="text-sm text-muted-foreground hover:text-primary transition-colors">CGU</Link>
+            </div>
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
             <span>Powered by</span>
