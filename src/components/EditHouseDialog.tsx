@@ -123,6 +123,22 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const regenerateJoinCode = async () => {
+    setRegenerating(true);
+    const newCode = "CASA-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    const { error } = await supabase
+      .from("houses")
+      .update({ join_code: newCode } as any)
+      .eq("id", house.id);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      setJoinCode(newCode);
+      toast({ title: "Code d'invitation régénéré !" });
+    }
+    setRegenerating(false);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
