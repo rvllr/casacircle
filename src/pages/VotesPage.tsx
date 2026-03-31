@@ -6,7 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import WeightedVoteResults from "@/components/WeightedVoteResults";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
-import { Vote, Plus, ThumbsUp, ThumbsDown, Minus, Loader2, CalendarDays } from "lucide-react";
+import { Vote, Plus, ThumbsUp, ThumbsDown, Minus, Loader2, BookMarked, Scale } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -30,6 +30,8 @@ interface VoteRow {
   created_at: string;
   house_name?: string;
   creator_name?: string;
+  voting_mode?: string;
+  majority_rule?: string;
 }
 
 interface VoteResponse {
@@ -51,11 +53,13 @@ const VotesPage = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedHouse, setSelectedHouse] = useState("");
+  const [votingMode, setVotingMode] = useState("simple");
+  const [majorityRule, setMajorityRule] = useState("simple");
   const [submitting, setSubmitting] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (isDemo) {
-      setVotes(DEMO_VOTES);
+      setVotes(DEMO_VOTES.map(v => ({ ...v, voting_mode: "simple", majority_rule: "simple" })));
       setResponses(DEMO_VOTE_RESPONSES as any);
       setLoading(false);
       return;
@@ -90,6 +94,8 @@ const VotesPage = () => {
         ...v,
         house_name: houseMap[v.house_id] || "Maison",
         creator_name: profMap[v.created_by] || "Membre",
+        voting_mode: (v as any).voting_mode || "simple",
+        majority_rule: (v as any).majority_rule || "simple",
       })));
       setResponses((responsesData || []) as VoteResponse[]);
     } else {
@@ -113,13 +119,17 @@ const VotesPage = () => {
       description: description.trim() || null,
       house_id: selectedHouse,
       created_by: user.id,
-    });
+      voting_mode: votingMode,
+      majority_rule: majorityRule,
+    } as any);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Vote créé !" });
       setTitle("");
       setDescription("");
+      setVotingMode("simple");
+      setMajorityRule("simple");
       setDialogOpen(false);
       fetchData();
     }
@@ -140,6 +150,55 @@ const VotesPage = () => {
       });
     }
     fetchData();
+  };
+
+  const handleValidateVote = async (vote: VoteRow) => {
+    if (!user) return;
+    const voteResponses = responses.filter((r) => r.vote_id === vote.id);
+    const yes = voteResponses.filter((r) => r.response === "yes").length;
+    const no = voteResponses.filter((r) => r.response === "no").length;
+    const abstain = voteResponses.filter((r) => r.response === "abstain").length;
+
+    // Calculate weighted results if needed
+    let yesW = 0, noW = 0;
+    if (vote.voting_mode === "weighted") {
+      const { data: sharesData } = await supabase
+        .from("ownership_shares").select("user_id, percentage").eq("house_id", vote.house_id);
+      const shares: Record<string, number> = {};
+      (sharesData || []).forEach((s: any) => { shares[s.user_id] = s.percentage; });
+      yesW = voteResponses.filter(r => r.response === "yes").reduce((s, r) => s + (shares[r.user_id] || 0), 0);
+      noW = voteResponses.filter(r => r.response === "no").reduce((s, r) => s + (shares[r.user_id] || 0), 0);
+    }
+
+    const threshold = vote.majority_rule === "two_thirds" ? 66.67 : 50;
+    let isApproved: boolean;
+    if (vote.voting_mode === "weighted") {
+      const base = yesW + noW;
+      isApproved = base > 0 ? (yesW / base) * 100 > threshold : false;
+    } else {
+      isApproved = yes + no > 0 ? (yes / (yes + no)) * 100 > threshold : false;
+    }
+
+    const { error } = await supabase.from("decision_register").insert({
+      vote_id: vote.id,
+      house_id: vote.house_id,
+      title: vote.title,
+      description: vote.description,
+      decision: isApproved ? "approved" : "rejected",
+      yes_count: yes,
+      no_count: no,
+      abstain_count: abstain,
+      yes_weighted: yesW,
+      no_weighted: noW,
+      majority_rule: vote.majority_rule || "simple",
+      voting_mode: vote.voting_mode || "simple",
+    } as any);
+
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: isApproved ? "Vote validé ✓" : "Vote rejeté ✗", description: "La décision a été enregistrée." });
+    }
   };
 
   if (loading || housesLoading) {
@@ -184,6 +243,28 @@ const VotesPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs flex items-center gap-1"><Scale className="h-3 w-3" /> Mode de vote</Label>
+                    <Select value={votingMode} onValueChange={setVotingMode}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="simple">Simple (1 personne = 1 voix)</SelectItem>
+                        <SelectItem value="weighted">Pondéré (par quote-part)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Règle de majorité</Label>
+                    <Select value={majorityRule} onValueChange={setMajorityRule}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="simple">Majorité simple (&gt;50%)</SelectItem>
+                        <SelectItem value="two_thirds">Majorité 2/3 (&gt;66%)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
                 <Button onClick={handleCreate} disabled={!title.trim() || !selectedHouse || submitting} className="w-full">
                   {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                   Créer le vote
@@ -213,6 +294,7 @@ const VotesPage = () => {
               const abstain = voteResponses.filter((r) => r.response === "abstain").length;
               const myResponse = voteResponses.find((r) => r.user_id === user?.id);
               const isExpired = vote.deadline && new Date(vote.deadline) < new Date();
+              const isWeighted = vote.voting_mode === "weighted";
 
               return (
                 <Card key={vote.id}>
@@ -223,6 +305,7 @@ const VotesPage = () => {
                         {vote.description && <p className="text-sm text-muted-foreground">{vote.description}</p>}
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                           <Badge variant="outline">{vote.house_name}</Badge>
+                          {isWeighted && <Badge variant="secondary" className="text-xs gap-1"><Scale className="h-3 w-3" />Pondéré</Badge>}
                           <span>par {vote.creator_name}</span>
                           <span>{format(new Date(vote.created_at), "d MMM yyyy", { locale: fr })}</span>
                         </div>
@@ -230,7 +313,7 @@ const VotesPage = () => {
                       {isExpired && <Badge variant="secondary">Terminé</Badge>}
                     </div>
 
-                    {/* Results */}
+                    {/* Simple results */}
                     {total > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
@@ -245,6 +328,17 @@ const VotesPage = () => {
                         </div>
                         <p className="text-xs text-muted-foreground">{total} vote{total > 1 ? "s" : ""}</p>
                       </div>
+                    )}
+
+                    {/* Weighted results */}
+                    {isWeighted && total > 0 && (
+                      <WeightedVoteResults
+                        voteId={vote.id}
+                        houseId={vote.house_id}
+                        votingMode={vote.voting_mode || "simple"}
+                        majorityRule={vote.majority_rule || "simple"}
+                        responses={voteResponses}
+                      />
                     )}
 
                     {/* Vote buttons */}
@@ -266,6 +360,19 @@ const VotesPage = () => {
                             {label}
                           </Button>
                         ))}
+                        
+                        {/* Validate vote button (for votes with responses) */}
+                        {total > 0 && vote.created_by === user?.id && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs sm:text-sm ml-auto"
+                            onClick={() => handleValidateVote(vote)}
+                          >
+                            <BookMarked className="h-3.5 w-3.5 mr-1" />
+                            Enregistrer la décision
+                          </Button>
+                        )}
                       </div>
                     )}
                   </CardContent>
