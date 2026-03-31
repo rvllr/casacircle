@@ -354,6 +354,9 @@ const HouseDetailPage = () => {
                 <TreePine className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Famille</span>
               </TabsTrigger>
             )}
+            <TabsTrigger value="pact" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Pacte</span>
+            </TabsTrigger>
             <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
               <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Signalements</span>
