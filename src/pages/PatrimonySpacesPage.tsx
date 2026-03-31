@@ -139,7 +139,7 @@ const PatrimonySpacesPage = () => {
               Organisez vos biens par structure familiale ou juridique.
             </p>
           </div>
-          <CreateFamilyDialog onCreated={fetchSpaces} />
+          <CreateSpaceWizard onCreated={fetchSpaces} />
         </div>
 
         {spaces.length === 0 ? (
