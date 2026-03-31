@@ -517,7 +517,23 @@ const HouseDetailPage = () => {
             <DecisionRegister houseId={house.id} />
           </TabsContent>
 
-          {/* Tickets Tab */}
+          {/* History Tab */}
+          <TabsContent value="history" className="space-y-4">
+            <HouseTimeline houseId={house.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          {/* Album Tab */}
+          <TabsContent value="album" className="space-y-4">
+            <SmartAlbum houseId={house.id} members={members} />
+          </TabsContent>
+
+          {/* Family Tab */}
+          {house.family_id && (
+            <TabsContent value="family" className="space-y-4">
+              <FamilyTree familyId={house.family_id} isAdmin={isAdmin} />
+            </TabsContent>
+          )}
+
           <TabsContent value="tickets" className="space-y-4">
             <TicketsTab tickets={tickets} houseId={house.id} isAdmin={isAdmin} userId={user?.id} onRefresh={fetchHouse} />
           </TabsContent>
