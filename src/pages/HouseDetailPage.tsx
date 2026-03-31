@@ -542,7 +542,11 @@ const HouseDetailPage = () => {
             </TabsContent>
           )}
 
-          <TabsContent value="tickets" className="space-y-4">
+          {/* Pact Tab */}
+          <TabsContent value="pact" className="space-y-4">
+            <FamilyPact houseId={house.id} isAdmin={isAdmin} members={members} />
+          </TabsContent>
+
             <TicketsTab tickets={tickets} houseId={house.id} isAdmin={isAdmin} userId={user?.id} onRefresh={fetchHouse} />
           </TabsContent>
         </Tabs>
