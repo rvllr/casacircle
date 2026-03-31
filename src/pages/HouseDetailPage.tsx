@@ -22,6 +22,7 @@ import {
   Building2, MapPin, Users, Crown, User, DoorOpen,
   ArrowLeft, LogIn, LogOut, BookOpen, Wrench, Info,
   LayoutList, LayoutGrid, AlertTriangle, Plus, CheckCircle2, Clock, Loader2,
+  Eye,
 } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
