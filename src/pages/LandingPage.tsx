@@ -370,7 +370,6 @@ const LandingPage = () => {
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <img src={logoCasaCircle} alt="CasaCircle" className="h-8 w-auto" />
-            <span className="font-display text-foreground">CasaCircle</span>
           </div>
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} CasaCircle. Tous droits réservés.
