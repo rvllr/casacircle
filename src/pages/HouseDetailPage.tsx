@@ -17,6 +17,9 @@ import DecisionRegister from "@/components/DecisionRegister";
 import HouseTimeline from "@/components/HouseTimeline";
 import SmartAlbum from "@/components/SmartAlbum";
 import FamilyTree from "@/components/FamilyTree";
+import BookingPriority from "@/components/BookingPriority";
+import FamilyPact from "@/components/FamilyPact";
+import NotaryExport from "@/components/NotaryExport";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +34,7 @@ import {
   ArrowLeft, LogIn, LogOut, BookOpen, Wrench, Info,
   LayoutList, LayoutGrid, AlertTriangle, Plus, CheckCircle2, Clock, Loader2,
   Eye, PieChart, BarChart3, Scale, Wallet, BookMarked,
-  History, Camera, TreePine,
+  History, Camera, TreePine, Shield, Briefcase,
 } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -351,6 +354,9 @@ const HouseDetailPage = () => {
                 <TreePine className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Famille</span>
               </TabsTrigger>
             )}
+            <TabsTrigger value="pact" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Pacte</span>
+            </TabsTrigger>
             <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
               <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Signalements</span>
@@ -503,8 +509,9 @@ const HouseDetailPage = () => {
           </TabsContent>
 
           {/* Usage Tab */}
-          <TabsContent value="usage" className="space-y-4">
+          <TabsContent value="usage" className="space-y-6">
             <UsageTab houseId={house.id} members={members} />
+            <BookingPriority houseId={house.id} members={members} />
           </TabsContent>
 
           {/* Finances Tab */}
@@ -515,6 +522,7 @@ const HouseDetailPage = () => {
           {/* Decisions Tab */}
           <TabsContent value="decisions" className="space-y-4">
             <DecisionRegister houseId={house.id} />
+            <NotaryExport houseId={house.id} houseName={house.name} members={members} />
           </TabsContent>
 
           {/* History Tab */}
@@ -533,6 +541,11 @@ const HouseDetailPage = () => {
               <FamilyTree familyId={house.family_id} isAdmin={isAdmin} />
             </TabsContent>
           )}
+
+          {/* Pact Tab */}
+          <TabsContent value="pact" className="space-y-4">
+            <FamilyPact houseId={house.id} isAdmin={isAdmin} members={members} />
+          </TabsContent>
 
           <TabsContent value="tickets" className="space-y-4">
             <TicketsTab tickets={tickets} houseId={house.id} isAdmin={isAdmin} userId={user?.id} onRefresh={fetchHouse} />
