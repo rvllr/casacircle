@@ -12,6 +12,8 @@ import PricingPeriodsManager from "@/components/PricingPeriodsManager";
 import OwnershipTab from "@/components/OwnershipTab";
 import UsageTab from "@/components/UsageTab";
 import FairnessScore from "@/components/FairnessScore";
+import FinancialDashboard from "@/components/FinancialDashboard";
+import DecisionRegister from "@/components/DecisionRegister";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +27,7 @@ import {
   Building2, MapPin, Users, Crown, User, DoorOpen,
   ArrowLeft, LogIn, LogOut, BookOpen, Wrench, Info,
   LayoutList, LayoutGrid, AlertTriangle, Plus, CheckCircle2, Clock, Loader2,
-  Eye, PieChart, BarChart3, Scale,
+  Eye, PieChart, BarChart3, Scale, Wallet, BookMarked,
 } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -312,7 +314,7 @@ const HouseDetailPage = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="guides" className="space-y-6">
-          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-7 h-auto gap-1">
+          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-9 h-auto gap-1">
             <TabsTrigger value="guides" className="gap-1.5 text-xs sm:text-sm py-1.5">
               <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Guides</span>
             </TabsTrigger>
@@ -327,6 +329,12 @@ const HouseDetailPage = () => {
             </TabsTrigger>
             <TabsTrigger value="usage" className="gap-1.5 text-xs sm:text-sm py-1.5">
               <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Usage</span>
+            </TabsTrigger>
+            <TabsTrigger value="finances" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Finances</span>
+            </TabsTrigger>
+            <TabsTrigger value="decisions" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <BookMarked className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Décisions</span>
             </TabsTrigger>
             <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
               <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -482,6 +490,16 @@ const HouseDetailPage = () => {
           {/* Usage Tab */}
           <TabsContent value="usage" className="space-y-4">
             <UsageTab houseId={house.id} members={members} />
+          </TabsContent>
+
+          {/* Finances Tab */}
+          <TabsContent value="finances" className="space-y-4">
+            <FinancialDashboard houseId={house.id} members={members} />
+          </TabsContent>
+
+          {/* Decisions Tab */}
+          <TabsContent value="decisions" className="space-y-4">
+            <DecisionRegister houseId={house.id} />
           </TabsContent>
 
           {/* Tickets Tab */}
