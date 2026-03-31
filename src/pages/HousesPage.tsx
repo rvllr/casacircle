@@ -13,7 +13,7 @@ import AddUnitDialog from "@/components/AddUnitDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, MapPin, Users, Crown, User, DoorOpen } from "lucide-react";
+import { Building2, MapPin, Users, Crown, User, DoorOpen, Landmark, Scale } from "lucide-react";
 
 interface Family {
   id: string;
