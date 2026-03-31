@@ -318,10 +318,13 @@ const HousesPage = () => {
                 {families.map((family) => (
                   <section key={family.id} className="space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-wrap">
                         <h3 className="font-display text-xl text-foreground">{family.name}</h3>
+                        <Badge className={`text-xs border-0 ${SPACE_TYPE_LABELS[family.type || "family"]?.color || "bg-secondary text-secondary-foreground"}`}>
+                          {SPACE_TYPE_LABELS[family.type || "family"]?.label || "Famille"}
+                        </Badge>
                         <Badge variant={family.userRole === "admin" ? "default" : "secondary"} className="text-xs">
-                          {family.userRole === "admin" ? "Admin" : "Membre"}
+                          {family.userRole === "admin" ? "Admin" : family.userRole === "legal_representative" ? "Représentant légal" : "Membre"}
                         </Badge>
                       </div>
                       {family.userRole === "admin" && (
