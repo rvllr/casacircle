@@ -492,6 +492,16 @@ const HouseDetailPage = () => {
             <UsageTab houseId={house.id} members={members} />
           </TabsContent>
 
+          {/* Finances Tab */}
+          <TabsContent value="finances" className="space-y-4">
+            <FinancialDashboard houseId={house.id} members={members} />
+          </TabsContent>
+
+          {/* Decisions Tab */}
+          <TabsContent value="decisions" className="space-y-4">
+            <DecisionRegister houseId={house.id} />
+          </TabsContent>
+
           {/* Tickets Tab */}
           <TabsContent value="tickets" className="space-y-4">
             <TicketsTab tickets={tickets} houseId={house.id} isAdmin={isAdmin} userId={user?.id} onRefresh={fetchHouse} />
