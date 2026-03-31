@@ -71,6 +71,7 @@ const App = () => (
             <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/p/:id" element={<PublicHousePage />} />
+            <Route path="/cgu" element={<CGUPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </HouseProvider>
