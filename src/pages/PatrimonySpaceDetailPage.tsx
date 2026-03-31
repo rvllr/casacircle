@@ -249,12 +249,18 @@ const PatrimonySpaceDetailPage = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="houses" className="space-y-6">
-          <TabsList>
+          <TabsList className="flex flex-wrap h-auto gap-1">
             <TabsTrigger value="houses" className="gap-1.5">
               <Building2 className="h-4 w-4" /> Maisons
             </TabsTrigger>
             <TabsTrigger value="members" className="gap-1.5">
               <Users className="h-4 w-4" /> Membres
+            </TabsTrigger>
+            <TabsTrigger value="documents" className="gap-1.5">
+              <FileText className="h-4 w-4" /> Documents
+            </TabsTrigger>
+            <TabsTrigger value="votes" className="gap-1.5">
+              <Vote className="h-4 w-4" /> Votes
             </TabsTrigger>
           </TabsList>
 
