@@ -23,6 +23,7 @@ import PublicHousePage from "./pages/PublicHousePage";
 import MaintenancePage from "./pages/MaintenancePage";
 import DocumentsPage from "./pages/DocumentsPage";
 import VotesPage from "./pages/VotesPage";
+import CGUPage from "./pages/CGUPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/p/:id" element={<PublicHousePage />} />
+            <Route path="/cgu" element={<CGUPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </HouseProvider>
