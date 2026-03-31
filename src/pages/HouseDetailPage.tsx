@@ -662,23 +662,35 @@ const MembersTab = ({
 
   const renderRoleCell = (m: HouseMember) => {
     const rc = roleConfig[m.role] || roleConfig.member;
+    const scope = accessScopeConfig[m.access_scope || "house_only"];
     if (isAdmin && m.user_id !== userId) {
       return (
-        <select
-          value={m.role}
-          onChange={async (e) => {
-            await supabase.from("house_members").update({ role: e.target.value }).eq("id", m.id);
-            fetchHouse();
-          }}
-          className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground"
-        >
-          <option value="admin">Admin</option>
-          <option value="member">Membre</option>
-          <option value="guest">Invité</option>
-        </select>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <select
+            value={m.role}
+            onChange={async (e) => {
+              await supabase.from("house_members").update({ role: e.target.value }).eq("id", m.id);
+              fetchHouse();
+            }}
+            className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground"
+          >
+            <option value="admin">Admin</option>
+            <option value="editor">Éditeur</option>
+            <option value="member">Membre</option>
+            <option value="viewer">Lecteur</option>
+            <option value="guest">Invité</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+          {scope && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${scope.color}`}>{scope.label}</span>}
+        </div>
       );
     }
-    return <Badge variant={rc.variant} className="text-xs">{rc.label}</Badge>;
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <Badge variant={rc.variant} className="text-xs">{rc.label}</Badge>
+        {scope && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${scope.color}`}>{scope.label}</span>}
+      </div>
+    );
   };
 
   return (
