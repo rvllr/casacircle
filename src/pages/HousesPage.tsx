@@ -118,7 +118,7 @@ const HousesPage = () => {
 
     // Fetch families
     const { data: familiesData } = familyIds.length > 0
-      ? await supabase.from("families").select("id, name, created_by").in("id", familyIds)
+      ? await supabase.from("families").select("id, name, created_by, type, description, ownership_enabled").in("id", familyIds)
       : { data: [] };
 
     setAdminFamilies(
