@@ -264,7 +264,7 @@ const HousesPage = () => {
                 Mes maisons ({directHouses.length + families.reduce((s, f) => s + f.houses.length, 0)})
               </TabsTrigger>
               {families.length > 0 && (
-                <TabsTrigger value="families">Familles ({families.length})</TabsTrigger>
+                <TabsTrigger value="families">Espaces patrimoine ({families.length})</TabsTrigger>
               )}
             </TabsList>
 
