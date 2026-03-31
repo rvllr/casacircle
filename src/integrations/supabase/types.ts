@@ -418,6 +418,57 @@ export type Database = {
           },
         ]
       }
+      family_tree_nodes: {
+        Row: {
+          birth_year: number | null
+          created_at: string
+          death_year: number | null
+          family_id: string
+          id: string
+          name: string
+          parent_node_id: string | null
+          photo_url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          birth_year?: number | null
+          created_at?: string
+          death_year?: number | null
+          family_id: string
+          id?: string
+          name: string
+          parent_node_id?: string | null
+          photo_url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          birth_year?: number | null
+          created_at?: string
+          death_year?: number | null
+          family_id?: string
+          id?: string
+          name?: string
+          parent_node_id?: string | null
+          photo_url?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_tree_nodes_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_tree_nodes_parent_node_id_fkey"
+            columns: ["parent_node_id"]
+            isOneToOne: false
+            referencedRelation: "family_tree_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       house_guides: {
         Row: {
           content: string | null
@@ -456,6 +507,57 @@ export type Database = {
           },
           {
             foreignKeyName: "house_guides_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      house_history_events: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          event_date: string
+          event_type: string
+          house_id: string
+          id: string
+          photo_url: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          event_date: string
+          event_type?: string
+          house_id: string
+          id?: string
+          photo_url?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          event_date?: string
+          event_type?: string
+          house_id?: string
+          id?: string
+          photo_url?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "house_history_events_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "house_history_events_house_id_fkey"
             columns: ["house_id"]
             isOneToOne: false
             referencedRelation: "public_houses"

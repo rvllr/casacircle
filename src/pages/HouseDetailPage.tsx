@@ -14,6 +14,9 @@ import UsageTab from "@/components/UsageTab";
 import FairnessScore from "@/components/FairnessScore";
 import FinancialDashboard from "@/components/FinancialDashboard";
 import DecisionRegister from "@/components/DecisionRegister";
+import HouseTimeline from "@/components/HouseTimeline";
+import SmartAlbum from "@/components/SmartAlbum";
+import FamilyTree from "@/components/FamilyTree";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +31,7 @@ import {
   ArrowLeft, LogIn, LogOut, BookOpen, Wrench, Info,
   LayoutList, LayoutGrid, AlertTriangle, Plus, CheckCircle2, Clock, Loader2,
   Eye, PieChart, BarChart3, Scale, Wallet, BookMarked,
+  History, Camera, TreePine,
 } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -314,7 +318,7 @@ const HouseDetailPage = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="guides" className="space-y-6">
-          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-9 h-auto gap-1">
+          <TabsList className="w-full flex flex-wrap h-auto gap-1">
             <TabsTrigger value="guides" className="gap-1.5 text-xs sm:text-sm py-1.5">
               <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Guides</span>
             </TabsTrigger>
@@ -336,6 +340,17 @@ const HouseDetailPage = () => {
             <TabsTrigger value="decisions" className="gap-1.5 text-xs sm:text-sm py-1.5">
               <BookMarked className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Décisions</span>
             </TabsTrigger>
+            <TabsTrigger value="history" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Histoire</span>
+            </TabsTrigger>
+            <TabsTrigger value="album" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Album</span>
+            </TabsTrigger>
+            {house.family_id && (
+              <TabsTrigger value="family" className="gap-1.5 text-xs sm:text-sm py-1.5">
+                <TreePine className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Famille</span>
+              </TabsTrigger>
+            )}
             <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
               <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Signalements</span>
@@ -502,7 +517,23 @@ const HouseDetailPage = () => {
             <DecisionRegister houseId={house.id} />
           </TabsContent>
 
-          {/* Tickets Tab */}
+          {/* History Tab */}
+          <TabsContent value="history" className="space-y-4">
+            <HouseTimeline houseId={house.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          {/* Album Tab */}
+          <TabsContent value="album" className="space-y-4">
+            <SmartAlbum houseId={house.id} members={members} />
+          </TabsContent>
+
+          {/* Family Tab */}
+          {house.family_id && (
+            <TabsContent value="family" className="space-y-4">
+              <FamilyTree familyId={house.family_id} isAdmin={isAdmin} />
+            </TabsContent>
+          )}
+
           <TabsContent value="tickets" className="space-y-4">
             <TicketsTab tickets={tickets} houseId={house.id} isAdmin={isAdmin} userId={user?.id} onRefresh={fetchHouse} />
           </TabsContent>
