@@ -645,6 +645,7 @@ export type Database = {
           family_id: string | null
           id: string
           is_public: boolean
+          join_code: string | null
           location: string | null
           name: string
           owner_id: string | null
@@ -662,6 +663,7 @@ export type Database = {
           family_id?: string | null
           id?: string
           is_public?: boolean
+          join_code?: string | null
           location?: string | null
           name: string
           owner_id?: string | null
@@ -679,6 +681,7 @@ export type Database = {
           family_id?: string | null
           id?: string
           is_public?: boolean
+          join_code?: string | null
           location?: string | null
           name?: string
           owner_id?: string | null
@@ -1095,6 +1098,10 @@ export type Database = {
       is_house_member: {
         Args: { _house_id: string; _user_id: string }
         Returns: boolean
+      }
+      join_house_by_code: {
+        Args: { _join_code: string; _user_id: string }
+        Returns: string
       }
     }
     Enums: {

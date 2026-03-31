@@ -15,7 +15,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Upload, X, Loader2, ImageIcon, Globe, Copy, Check, ShieldCheck } from "lucide-react";
+import { Settings, Upload, X, Loader2, ImageIcon, Globe, Copy, Check, ShieldCheck, KeyRound, RefreshCw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
@@ -33,6 +33,7 @@ interface EditHouseDialogProps {
     wifi_password?: string | null;
     access_code?: string | null;
     emergency_contact?: string | null;
+    join_code?: string | null;
   };
   onSaved: () => void;
 }
@@ -52,6 +53,9 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
   const [accessCode, setAccessCode] = useState(house.access_code || "");
   const [emergencyContact, setEmergencyContact] = useState(house.emergency_contact || "");
   const [copied, setCopied] = useState(false);
+  const [joinCodeCopied, setJoinCodeCopied] = useState(false);
+  const [joinCode, setJoinCode] = useState(house.join_code || "");
+  const [regenerating, setRegenerating] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,6 +76,8 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       setAccessCode(house.access_code || "");
       setEmergencyContact(house.emergency_contact || "");
       setCopied(false);
+      setJoinCodeCopied(false);
+      setJoinCode(house.join_code || "");
     }
     setOpen(isOpen);
   };
@@ -115,6 +121,22 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
     setPhotoUrl("");
     setPhotoPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const regenerateJoinCode = async () => {
+    setRegenerating(true);
+    const newCode = "CASA-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    const { error } = await supabase
+      .from("houses")
+      .update({ join_code: newCode } as any)
+      .eq("id", house.id);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      setJoinCode(newCode);
+      toast({ title: "Code d'invitation régénéré !" });
+    }
+    setRegenerating(false);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -358,6 +380,69 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
                 </Button>
               </div>
             )}
+          </div>
+
+          {/* Join code */}
+          <Separator />
+          <div className="space-y-3">
+            <div className="space-y-0.5">
+              <Label className="flex items-center gap-2">
+                <KeyRound className="h-4 w-4 text-primary" />
+                Code d'invitation
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Partagez ce code pour permettre à quelqu'un de rejoindre la maison
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input
+                readOnly
+                value={joinCode}
+                className="text-sm h-9 bg-muted font-mono tracking-wider text-center"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0 h-9"
+                onClick={() => {
+                  navigator.clipboard.writeText(joinCode);
+                  setJoinCodeCopied(true);
+                  setTimeout(() => setJoinCodeCopied(false), 2000);
+                }}
+              >
+                {joinCodeCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0 h-9"
+                onClick={regenerateJoinCode}
+                disabled={regenerating}
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${regenerating ? "animate-spin" : ""}`} />
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input
+                readOnly
+                value={`${window.location.origin}/rejoindre?code=${joinCode}`}
+                className="text-xs h-8 bg-muted"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="shrink-0 h-8 text-xs"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/rejoindre?code=${joinCode}`);
+                  toast({ title: "Lien copié !" });
+                }}
+              >
+                <Copy className="h-3 w-3 mr-1" /> Lien
+              </Button>
+            </div>
           </div>
 
           <Button type="submit" className="w-full" disabled={loading || !name.trim()}>
