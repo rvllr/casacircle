@@ -418,6 +418,54 @@ export type Database = {
           },
         ]
       }
+      family_pacts: {
+        Row: {
+          content: string | null
+          created_at: string
+          created_by: string
+          house_id: string
+          id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          created_by: string
+          house_id: string
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          created_by?: string
+          house_id?: string
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_pacts_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_pacts_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_tree_nodes: {
         Row: {
           birth_year: number | null
@@ -1101,6 +1149,35 @@ export type Database = {
           },
         ]
       }
+      pact_signatures: {
+        Row: {
+          id: string
+          pact_id: string
+          signed_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          pact_id: string
+          signed_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          pact_id?: string
+          signed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pact_signatures_pact_id_fkey"
+            columns: ["pact_id"]
+            isOneToOne: false
+            referencedRelation: "family_pacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_periods: {
         Row: {
           created_at: string
@@ -1350,6 +1427,7 @@ export type Database = {
         Args: { _memory_id: string }
         Returns: string
       }
+      get_house_id_from_pact: { Args: { _pact_id: string }; Returns: string }
       get_house_id_from_unit: { Args: { _unit_id: string }; Returns: string }
       get_house_id_from_vote: { Args: { _vote_id: string }; Returns: string }
       is_co_member: {
