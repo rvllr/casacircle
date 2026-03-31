@@ -15,7 +15,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Upload, X, Loader2, ImageIcon, Globe, Copy, Check, ShieldCheck } from "lucide-react";
+import { Settings, Upload, X, Loader2, ImageIcon, Globe, Copy, Check, ShieldCheck, KeyRound, RefreshCw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
