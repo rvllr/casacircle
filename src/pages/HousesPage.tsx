@@ -240,7 +240,7 @@ const HousesPage = () => {
           </div>
           <div className="flex items-center gap-2">
             <CreateHouseDialog families={adminFamilies} onCreated={fetchData} />
-            <CreateFamilyDialog onCreated={fetchData} />
+            <CreateSpaceWizard onCreated={fetchData} />
           </div>
         </div>
 
