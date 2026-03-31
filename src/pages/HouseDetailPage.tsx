@@ -474,6 +474,16 @@ const HouseDetailPage = () => {
             <MembersTab members={members} isAdmin={isAdmin} userId={user?.id} houseId={house.id} familyId={house.family_id} fetchHouse={fetchHouse} />
           </TabsContent>
 
+          {/* Ownership Tab */}
+          <TabsContent value="ownership" className="space-y-4">
+            <OwnershipTab houseId={house.id} isAdmin={isAdmin} members={members} />
+          </TabsContent>
+
+          {/* Usage Tab */}
+          <TabsContent value="usage" className="space-y-4">
+            <UsageTab houseId={house.id} members={members} />
+          </TabsContent>
+
           {/* Tickets Tab */}
           <TabsContent value="tickets" className="space-y-4">
             <TicketsTab tickets={tickets} houseId={house.id} isAdmin={isAdmin} userId={user?.id} onRefresh={fetchHouse} />
