@@ -404,20 +404,29 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          description: string | null
           id: string
           name: string
+          ownership_enabled: boolean
+          type: Database["public"]["Enums"]["space_type"]
         }
         Insert: {
           created_at?: string
           created_by: string
+          description?: string | null
           id?: string
           name: string
+          ownership_enabled?: boolean
+          type?: Database["public"]["Enums"]["space_type"]
         }
         Update: {
           created_at?: string
           created_by?: string
+          description?: string | null
           id?: string
           name?: string
+          ownership_enabled?: boolean
+          type?: Database["public"]["Enums"]["space_type"]
         }
         Relationships: []
       }
@@ -1599,13 +1608,14 @@ export type Database = {
         | "taxes"
         | "menage"
         | "autre"
-      family_role: "admin" | "member"
+      family_role: "admin" | "member" | "legal_representative"
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
       payment_method: "declarative" | "stripe" | "both"
       payment_status: "not_applicable" | "unpaid" | "partial" | "paid"
       price_type: "absolute" | "multiplier"
       pricing_mode: "per_night" | "per_person" | "per_person_per_night"
+      space_type: "family" | "indivision" | "sci" | "personal" | "multi_family"
       ticket_priority: "low" | "medium" | "high" | "urgent"
       ticket_status: "open" | "in_progress" | "resolved"
       unit_type: "building" | "room"
@@ -1750,13 +1760,14 @@ export const Constants = {
         "menage",
         "autre",
       ],
-      family_role: ["admin", "member"],
+      family_role: ["admin", "member", "legal_representative"],
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],
       payment_method: ["declarative", "stripe", "both"],
       payment_status: ["not_applicable", "unpaid", "partial", "paid"],
       price_type: ["absolute", "multiplier"],
       pricing_mode: ["per_night", "per_person", "per_person_per_night"],
+      space_type: ["family", "indivision", "sci", "personal", "multi_family"],
       ticket_priority: ["low", "medium", "high", "urgent"],
       ticket_status: ["open", "in_progress", "resolved"],
       unit_type: ["building", "room"],
