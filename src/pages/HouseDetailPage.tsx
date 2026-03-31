@@ -635,8 +635,17 @@ const GuideCard = ({
 
 const roleConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" }> = {
   admin: { label: "Admin", variant: "default" },
+  editor: { label: "Éditeur", variant: "secondary" },
   member: { label: "Membre", variant: "secondary" },
+  viewer: { label: "Lecteur", variant: "outline" },
   guest: { label: "Invité", variant: "outline" },
+  maintenance: { label: "Maintenance", variant: "outline" },
+};
+
+const accessScopeConfig: Record<string, { label: string; color: string }> = {
+  space_inherited: { label: "Hérité espace", color: "bg-primary/10 text-primary" },
+  house_only: { label: "Accès maison", color: "bg-accent/10 text-accent-foreground" },
+  mixed: { label: "Mixte", color: "bg-secondary text-secondary-foreground" },
 };
 
 const MembersTab = ({
