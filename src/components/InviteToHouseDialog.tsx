@@ -90,7 +90,7 @@ const InviteToHouseDialog = ({ houseId, houseName, familyId, onInvited }: Invite
     const accessScope = addToSpace && familyId ? "mixed" : "house_only";
 
     // Add house member
-    const { error: insertError } = await supabase
+    const { error: insertError } = await (supabase
       .from("house_members")
       .insert({
         house_id: houseId,
@@ -98,7 +98,7 @@ const InviteToHouseDialog = ({ houseId, houseName, familyId, onInvited }: Invite
         role: selectedRole,
         added_by_user_id: user.id,
         access_scope: accessScope,
-      });
+      } as any));
 
     if (insertError) {
       toast({ title: "Erreur", description: insertError.message, variant: "destructive" });
