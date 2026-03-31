@@ -366,6 +366,69 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
             )}
           </div>
 
+          {/* Join code */}
+          <Separator />
+          <div className="space-y-3">
+            <div className="space-y-0.5">
+              <Label className="flex items-center gap-2">
+                <KeyRound className="h-4 w-4 text-primary" />
+                Code d'invitation
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Partagez ce code pour permettre à quelqu'un de rejoindre la maison
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input
+                readOnly
+                value={joinCode}
+                className="text-sm h-9 bg-muted font-mono tracking-wider text-center"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0 h-9"
+                onClick={() => {
+                  navigator.clipboard.writeText(joinCode);
+                  setJoinCodeCopied(true);
+                  setTimeout(() => setJoinCodeCopied(false), 2000);
+                }}
+              >
+                {joinCodeCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0 h-9"
+                onClick={regenerateJoinCode}
+                disabled={regenerating}
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${regenerating ? "animate-spin" : ""}`} />
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input
+                readOnly
+                value={`${window.location.origin}/rejoindre?code=${joinCode}`}
+                className="text-xs h-8 bg-muted"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="shrink-0 h-8 text-xs"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/rejoindre?code=${joinCode}`);
+                  toast({ title: "Lien copié !" });
+                }}
+              >
+                <Copy className="h-3 w-3 mr-1" /> Lien
+              </Button>
+            </div>
+          </div>
+
           <Button type="submit" className="w-full" disabled={loading || !name.trim()}>
             {loading ? "Enregistrement..." : "Enregistrer"}
           </Button>
