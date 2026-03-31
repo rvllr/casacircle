@@ -303,6 +303,9 @@ const HouseDetailPage = () => {
           </div>
         )}
 
+        {/* Fairness Score */}
+        <FairnessScore houseId={house.id} members={members} />
+
         {/* Pricing */}
         <HousePricingConfig houseId={house.id} isAdmin={isAdmin} />
         <PricingPeriodsManager houseId={house.id} isAdmin={isAdmin} />
