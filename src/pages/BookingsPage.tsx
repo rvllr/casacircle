@@ -547,6 +547,8 @@ const BookingCard = ({
 
   const [editingAmount, setEditingAmount] = useState(false);
   const [amountInput, setAmountInput] = useState(amountPaid.toString());
+  const [showChecklist, setShowChecklist] = useState(false);
+  const isApprovedOrPending = booking.status === "approved" || booking.status === "pending";
 
   const handleAmountSubmit = () => {
     const val = parseFloat(amountInput);
