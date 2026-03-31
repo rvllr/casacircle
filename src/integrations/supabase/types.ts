@@ -167,6 +167,82 @@ export type Database = {
           },
         ]
       }
+      decision_register: {
+        Row: {
+          abstain_count: number | null
+          created_at: string
+          decided_at: string
+          decision: string
+          description: string | null
+          house_id: string
+          id: string
+          majority_rule: string | null
+          no_count: number | null
+          no_weighted: number | null
+          title: string
+          vote_id: string | null
+          voting_mode: string | null
+          yes_count: number | null
+          yes_weighted: number | null
+        }
+        Insert: {
+          abstain_count?: number | null
+          created_at?: string
+          decided_at?: string
+          decision?: string
+          description?: string | null
+          house_id: string
+          id?: string
+          majority_rule?: string | null
+          no_count?: number | null
+          no_weighted?: number | null
+          title: string
+          vote_id?: string | null
+          voting_mode?: string | null
+          yes_count?: number | null
+          yes_weighted?: number | null
+        }
+        Update: {
+          abstain_count?: number | null
+          created_at?: string
+          decided_at?: string
+          decision?: string
+          description?: string | null
+          house_id?: string
+          id?: string
+          majority_rule?: string | null
+          no_count?: number | null
+          no_weighted?: number | null
+          title?: string
+          vote_id?: string | null
+          voting_mode?: string | null
+          yes_count?: number | null
+          yes_weighted?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decision_register_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decision_register_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "public_houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decision_register_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "votes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           created_at: string
@@ -1065,7 +1141,9 @@ export type Database = {
           description: string | null
           house_id: string
           id: string
+          majority_rule: string
           title: string
+          voting_mode: string
         }
         Insert: {
           created_at?: string
@@ -1074,7 +1152,9 @@ export type Database = {
           description?: string | null
           house_id: string
           id?: string
+          majority_rule?: string
           title: string
+          voting_mode?: string
         }
         Update: {
           created_at?: string
@@ -1083,7 +1163,9 @@ export type Database = {
           description?: string | null
           house_id?: string
           id?: string
+          majority_rule?: string
           title?: string
+          voting_mode?: string
         }
         Relationships: [
           {
