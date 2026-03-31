@@ -204,7 +204,7 @@ const HousesPage = () => {
         .filter((m: any) => m.family_id === f.id)
         .map((m: any) => ({
           ...m,
-          role: m.role as "admin" | "member",
+          role: m.role as "admin" | "member" | "legal_representative",
           users_profiles: profilesMap[m.user_id] || null,
         })),
     }));
