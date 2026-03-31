@@ -150,7 +150,7 @@ const PatrimonySpacesPage = () => {
               <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                 Créez votre premier espace pour regrouper vos biens immobiliers.
               </p>
-              <CreateFamilyDialog onCreated={fetchSpaces} />
+              <CreateSpaceWizard onCreated={fetchSpaces} />
             </CardContent>
           </Card>
         ) : (
