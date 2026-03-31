@@ -76,6 +76,8 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       setAccessCode(house.access_code || "");
       setEmergencyContact(house.emergency_contact || "");
       setCopied(false);
+      setJoinCodeCopied(false);
+      setJoinCode(house.join_code || "");
     }
     setOpen(isOpen);
   };
