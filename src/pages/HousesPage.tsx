@@ -291,7 +291,9 @@ const HousesPage = () => {
                   <div key={family.id} className="space-y-3">
                     <div className="flex items-center gap-2">
                       <h4 className="font-display text-lg text-foreground">{family.name}</h4>
-                      <Badge variant="secondary" className="text-xs">Famille</Badge>
+                      <Badge className={`text-xs border-0 ${SPACE_TYPE_LABELS[family.type || "family"]?.color || "bg-secondary text-secondary-foreground"}`}>
+                        {SPACE_TYPE_LABELS[family.type || "family"]?.label || "Famille"}
+                      </Badge>
                     </div>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {family.houses.map((house) => (
