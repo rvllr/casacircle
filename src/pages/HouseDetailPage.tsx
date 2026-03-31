@@ -9,6 +9,9 @@ import HouseGuideEditor, { parseContent, groupByCategory } from "@/components/Ho
 import EditHouseDialog from "@/components/EditHouseDialog";
 import HousePricingConfig from "@/components/HousePricingConfig";
 import PricingPeriodsManager from "@/components/PricingPeriodsManager";
+import OwnershipTab from "@/components/OwnershipTab";
+import UsageTab from "@/components/UsageTab";
+import FairnessScore from "@/components/FairnessScore";
 import LocationMap from "@/components/LocationMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +25,7 @@ import {
   Building2, MapPin, Users, Crown, User, DoorOpen,
   ArrowLeft, LogIn, LogOut, BookOpen, Wrench, Info,
   LayoutList, LayoutGrid, AlertTriangle, Plus, CheckCircle2, Clock, Loader2,
-  Eye,
+  Eye, PieChart, BarChart3, Scale,
 } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -300,26 +303,34 @@ const HouseDetailPage = () => {
           </div>
         )}
 
+        {/* Fairness Score */}
+        <FairnessScore houseId={house.id} members={members} />
+
         {/* Pricing */}
         <HousePricingConfig houseId={house.id} isAdmin={isAdmin} />
         <PricingPeriodsManager houseId={house.id} isAdmin={isAdmin} />
 
         {/* Tabs */}
         <Tabs defaultValue="guides" className="space-y-6">
-          <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 h-auto gap-1">
+          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-7 h-auto gap-1">
             <TabsTrigger value="guides" className="gap-1.5 text-xs sm:text-sm py-1.5">
-              <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Guides
+              <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Guides</span>
             </TabsTrigger>
             <TabsTrigger value="spaces" className="gap-1.5 text-xs sm:text-sm py-1.5">
-              <DoorOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Espaces
+              <DoorOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Espaces</span>
             </TabsTrigger>
             <TabsTrigger value="members" className="gap-1.5 text-xs sm:text-sm py-1.5">
-              <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Membres
+              <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Membres</span>
+            </TabsTrigger>
+            <TabsTrigger value="ownership" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <PieChart className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Propriété</span>
+            </TabsTrigger>
+            <TabsTrigger value="usage" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Usage</span>
             </TabsTrigger>
             <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
               <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Signalements</span>
-              <span className="sm:hidden">Tickets</span>
               {tickets.filter(t => t.status !== "resolved").length > 0 && (
                 <span className="ml-1 inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[10px] sm:text-xs rounded-full bg-destructive text-destructive-foreground">
                   {tickets.filter(t => t.status !== "resolved").length}
@@ -461,6 +472,16 @@ const HouseDetailPage = () => {
           {/* Members Tab */}
           <TabsContent value="members" className="space-y-4">
             <MembersTab members={members} isAdmin={isAdmin} userId={user?.id} houseId={house.id} familyId={house.family_id} fetchHouse={fetchHouse} />
+          </TabsContent>
+
+          {/* Ownership Tab */}
+          <TabsContent value="ownership" className="space-y-4">
+            <OwnershipTab houseId={house.id} isAdmin={isAdmin} members={members} />
+          </TabsContent>
+
+          {/* Usage Tab */}
+          <TabsContent value="usage" className="space-y-4">
+            <UsageTab houseId={house.id} members={members} />
           </TabsContent>
 
           {/* Tickets Tab */}
