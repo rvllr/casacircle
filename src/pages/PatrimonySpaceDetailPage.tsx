@@ -338,6 +338,14 @@ const PatrimonySpaceDetailPage = () => {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="documents">
+            <SpaceDocuments spaceId={space.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="votes">
+            <SpaceVotes spaceId={space.id} isAdmin={isAdmin} />
+          </TabsContent>
         </Tabs>
       </div>
     </AppLayout>
