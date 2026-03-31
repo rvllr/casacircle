@@ -33,6 +33,7 @@ interface EditHouseDialogProps {
     wifi_password?: string | null;
     access_code?: string | null;
     emergency_contact?: string | null;
+    join_code?: string | null;
   };
   onSaved: () => void;
 }
