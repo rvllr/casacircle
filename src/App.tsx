@@ -25,6 +25,7 @@ import DocumentsPage from "./pages/DocumentsPage";
 import VotesPage from "./pages/VotesPage";
 import CGUPage from "./pages/CGUPage";
 import MentionsLegalesPage from "./pages/MentionsLegalesPage";
+import JoinHousePage from "./pages/JoinHousePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
