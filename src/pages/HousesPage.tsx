@@ -27,7 +27,7 @@ interface Family {
 interface FamilyMember {
   id: string;
   user_id: string;
-  role: "admin" | "member";
+  role: "admin" | "member" | "legal_representative";
   users_profiles: {
     first_name: string | null;
     last_name: string | null;
