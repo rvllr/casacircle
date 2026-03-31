@@ -551,6 +551,11 @@ const HouseDetailPage = () => {
             <FamilyPact houseId={house.id} isAdmin={isAdmin} members={members} />
           </TabsContent>
 
+          {/* Checklists Tab */}
+          <TabsContent value="checklists" className="space-y-4">
+            <ChecklistConfig houseId={house.id} isAdmin={isAdmin} />
+          </TabsContent>
+
           <TabsContent value="tickets" className="space-y-4">
             <TicketsTab tickets={tickets} houseId={house.id} isAdmin={isAdmin} userId={user?.id} onRefresh={fetchHouse} />
           </TabsContent>
