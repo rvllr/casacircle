@@ -314,7 +314,7 @@ const HouseDetailPage = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="guides" className="space-y-6">
-          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-7 h-auto gap-1">
+          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-9 h-auto gap-1">
             <TabsTrigger value="guides" className="gap-1.5 text-xs sm:text-sm py-1.5">
               <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Guides</span>
             </TabsTrigger>
@@ -329,6 +329,12 @@ const HouseDetailPage = () => {
             </TabsTrigger>
             <TabsTrigger value="usage" className="gap-1.5 text-xs sm:text-sm py-1.5">
               <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Usage</span>
+            </TabsTrigger>
+            <TabsTrigger value="finances" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Finances</span>
+            </TabsTrigger>
+            <TabsTrigger value="decisions" className="gap-1.5 text-xs sm:text-sm py-1.5">
+              <BookMarked className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Décisions</span>
             </TabsTrigger>
             <TabsTrigger value="tickets" className="gap-1.5 text-xs sm:text-sm py-1.5 relative">
               <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
