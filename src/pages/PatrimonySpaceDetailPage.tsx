@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Building2, Users, ArrowLeft, Crown, User, MapPin,
-  Wallet, CalendarDays, AlertTriangle, Landmark, Network, Scale,
-  ChevronRight,
+  Wallet, AlertTriangle, Scale,
+  ChevronRight, FileText, Vote,
 } from "lucide-react";
 
 const SPACE_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
