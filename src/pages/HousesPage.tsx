@@ -19,6 +19,9 @@ interface Family {
   id: string;
   name: string;
   created_by: string;
+  type?: string;
+  description?: string | null;
+  ownership_enabled?: boolean;
 }
 
 interface FamilyMember {
