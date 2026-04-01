@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useDemo } from "@/contexts/DemoContext";
-import { DEMO_ALL_EXPENSES, DEMO_EXPENSE_SHARES, DEMO_PROFILES } from "@/lib/demoData";
+import { DEMO_PROFILES } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
+import { useExpenses, type Expense, type ExpenseShare } from "@/hooks/useExpenses";
+import { useUserProfiles } from "@/hooks/useUserProfiles";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
