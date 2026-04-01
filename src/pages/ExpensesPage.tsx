@@ -40,11 +40,6 @@ const ExpensesPage = () => {
     return shares.filter((s) => expIds.has(s.expense_id));
   }, [filteredExpenses, shares]);
 
-  const getName = (userId: string) => {
-    const p = profiles.find((pr) => pr.user_id === userId);
-    if (p?.first_name) return `${p.first_name}${p.last_name ? ` ${p.last_name}` : ""}`;
-    return "Membre";
-  };
 
   const totalExpenses = filteredExpenses.reduce((s, e) => s + e.amount, 0);
 
