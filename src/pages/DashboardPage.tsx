@@ -205,6 +205,26 @@ const DashboardPage = () => {
     fetchData();
   }, [user, selectedHouseId, isDemo]);
 
+  // Fetch active plan for the selected space
+  const { activeType: ctxType, activeSpaceId: ctxSpaceId } = useActiveSpace();
+  useEffect(() => {
+    if (isDemo || !ctxSpaceId || ctxType !== "space") {
+      setActivePlanName(null);
+      return;
+    }
+    const fetchPlan = async () => {
+      const { data } = await supabase
+        .from("space_subscriptions")
+        .select("subscription_plans(name)")
+        .eq("space_id", ctxSpaceId)
+        .eq("status", "active")
+        .maybeSingle();
+      const plan = data?.subscription_plans as { name: string } | null;
+      setActivePlanName(plan?.name || null);
+    };
+    fetchPlan();
+  }, [ctxSpaceId, ctxType, isDemo]);
+
   const getAuthorName = (userId: string) => {
     const p = profiles.find((pr) => pr.user_id === userId);
     return p?.first_name || "Membre";
