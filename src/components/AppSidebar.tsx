@@ -40,6 +40,10 @@ const manageItems = [
   { title: "Documents", url: "/documents", icon: FileText },
 ];
 
+const settingsItems = [
+  { title: "Mon profil", url: "/profile", icon: User },
+];
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
