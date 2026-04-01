@@ -24,6 +24,7 @@ interface Memory {
 }
 
 const JournalPage = () => {
+  const { toast } = useToast();
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
