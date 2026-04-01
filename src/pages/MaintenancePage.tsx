@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { useHouseContext } from "@/contexts/HouseContext";
+import HouseSelector from "@/components/HouseSelector";
 
 interface Ticket {
   id: string;
