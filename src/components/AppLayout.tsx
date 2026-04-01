@@ -60,7 +60,9 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
               </div>
             </header>
             <main className="flex-1 p-4 sm:p-5 md:p-8 overflow-auto">
-              {children}
+              <ErrorBoundary fallbackTitle="Erreur sur cette page" showHomeButton={true}>
+                {children}
+              </ErrorBoundary>
             </main>
           </div>
         </div>

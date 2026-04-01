@@ -63,6 +63,7 @@ const App = () => (
         <AuthProvider>
           <ActiveSpaceProvider>
           <HouseProvider>
+          <ErrorBoundary>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ErrorBoundary>
           </HouseProvider>
           </ActiveSpaceProvider>
         </AuthProvider>
