@@ -57,6 +57,7 @@ const houseManageItems = [
 
 const settingsItems = [
   { title: "Mon profil", url: "/profile", icon: User },
+  { title: "Abonnement", url: "/subscription", icon: Crown },
 ];
 
 export function AppSidebar() {
