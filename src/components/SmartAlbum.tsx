@@ -130,11 +130,19 @@ const SmartAlbum = ({ houseId, members }: SmartAlbumProps) => {
 
   if (groups.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <Camera className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-          <h3 className="font-display text-lg text-foreground mb-1">Aucun souvenir</h3>
-          <p className="text-sm text-muted-foreground">Les souvenirs du journal apparaîtront ici, regroupés par séjour.</p>
+      <Card className="border-border/50 shadow-soft">
+        <CardContent className="py-12 text-center space-y-3">
+          <div className="h-12 w-12 rounded-2xl bg-lavender/10 flex items-center justify-center mx-auto">
+            <Camera className="h-6 w-6 text-lavender" />
+          </div>
+          <h3 className="font-display text-lg text-foreground">Aucun souvenir</h3>
+          <p className="text-sm text-muted-foreground max-w-xs mx-auto">Partagez vos plus beaux moments en ajoutant un premier souvenir.</p>
+          <Button variant="outline" className="rounded-xl mt-1" asChild>
+            <a href="/journal">
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Ajouter votre premier souvenir
+            </a>
+          </Button>
         </CardContent>
       </Card>
     );
