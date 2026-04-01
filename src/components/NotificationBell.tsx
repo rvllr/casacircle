@@ -189,8 +189,8 @@ const NotificationBell = () => {
         <ScrollArea className="max-h-72">
           {(() => {
             const filtered = filter === "all"
-              ? notifications
-              : notifications.filter((n) => getFilterCategory(n.type) === filter);
+              ? contextNotifications
+              : contextNotifications.filter((n) => getFilterCategory(n.type) === filter);
 
             if (filtered.length === 0) {
               return (
