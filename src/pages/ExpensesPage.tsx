@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useDemo } from "@/contexts/DemoContext";
-import { DEMO_ALL_EXPENSES, DEMO_EXPENSE_SHARES, DEMO_PROFILES } from "@/lib/demoData";
+import { DEMO_PROFILES } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
+import { useExpenses, type Expense, type ExpenseShare } from "@/hooks/useExpenses";
+import { useUserProfiles } from "@/hooks/useUserProfiles";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
@@ -16,14 +18,6 @@ import { exportExpensesCsv } from "@/lib/csvExport";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
-interface Expense {
-  id: string; house_id: string; paid_by: string;
-  description: string; amount: number; created_at: string;
-  category?: string; expense_date?: string | null;
-  houses: { name: string } | null;
-}
-interface ExpenseShare { id: string; expense_id: string; user_id: string; amount: number; }
 interface BalanceEntry { userId: string; name: string; paid: number; owes: number; balance: number; }
 interface Settlement { from: string; to: string; amount: number; }
 
@@ -31,54 +25,10 @@ const ExpensesPage = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [shares, setShares] = useState<ExpenseShare[]>([]);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: expenses, shares, loading: expensesLoading, refetch: fetchData } = useExpenses();
+  const { getName, loading: profilesLoading } = useUserProfiles();
 
-  const fetchData = useCallback(async () => {
-    if (isDemo) {
-      setExpenses(DEMO_ALL_EXPENSES as any);
-      setShares(DEMO_EXPENSE_SHARES);
-      setProfiles(DEMO_PROFILES);
-      setLoading(false);
-      return;
-    }
-    if (!user) return;
-    setLoading(true);
-
-    const { data: expData } = await supabase
-      .from("expenses")
-      .select("id, house_id, paid_by, description, amount, created_at, category, expense_date, houses(name)")
-      .order("created_at", { ascending: false });
-
-    const expList = (expData || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] }));
-    setExpenses(expList);
-
-    const expIds = expList.map((e) => e.id);
-    if (expIds.length > 0) {
-      const { data: sharesData } = await supabase
-        .from("expense_shares")
-        .select("id, expense_id, user_id, amount")
-        .in("expense_id", expIds);
-      setShares(sharesData || []);
-    } else {
-      setShares([]);
-    }
-
-    const userIds = [...new Set(expList.map((e) => e.paid_by))];
-    if (userIds.length > 0) {
-      const { data: profs } = await supabase
-        .from("users_profiles")
-        .select("user_id, first_name, last_name")
-        .in("user_id", userIds);
-      setProfiles(profs || []);
-    }
-
-    setLoading(false);
-  }, [user, isDemo]);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
+  const loading = expensesLoading || profilesLoading;
 
   const contextHouseIds = new Set(houses.map(h => h.id));
   const filteredExpenses = selectedHouseId === "all"
@@ -90,11 +40,6 @@ const ExpensesPage = () => {
     return shares.filter((s) => expIds.has(s.expense_id));
   }, [filteredExpenses, shares]);
 
-  const getName = (userId: string) => {
-    const p = profiles.find((pr) => pr.user_id === userId);
-    if (p?.first_name) return `${p.first_name}${p.last_name ? ` ${p.last_name}` : ""}`;
-    return "Membre";
-  };
 
   const totalExpenses = filteredExpenses.reduce((s, e) => s + e.amount, 0);
 
@@ -113,7 +58,7 @@ const ExpensesPage = () => {
     return Array.from(map.entries()).map(([userId, { paid, owes }]) => ({
       userId, name: getName(userId), paid, owes, balance: paid - owes,
     })).sort((a, b) => b.balance - a.balance);
-  }, [filteredExpenses, filteredShares, profiles]);
+  }, [filteredExpenses, filteredShares, getName]);
 
   const settlements: Settlement[] = useMemo(() => {
     const debtors = balances.filter((b) => b.balance < 0).map((b) => ({ ...b, remaining: -b.balance }));

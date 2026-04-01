@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBookings, type BookingRow, type BlockedPeriod } from "@/hooks/useBookings";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
@@ -24,104 +25,26 @@ import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_BOOKINGS_ENRICHED, DEMO_PROFILES } from "@/lib/demoData";
 import { BOOKING_STATUS_CONFIG, PAYMENT_STATUS_CONFIG } from "@/lib/constants";
 
-interface BookingRow {
-  id: string;
-  house_id: string;
-  unit_id: string | null;
-  user_id: string;
-  start_date: string;
-  end_date: string;
-  status: string;
-  created_at: string;
-  payment_status: string;
-  total_price: number | null;
-  amount_paid: number | null;
-  houses: { name: string; family_id: string | null } | null;
-  house_units: { name: string; type: string } | null;
-  users_profiles: { first_name: string | null; last_name: string | null } | null;
-}
-
 const paymentStatusConfig = PAYMENT_STATUS_CONFIG;
 
 const statusConfig = BOOKING_STATUS_CONFIG;
-
-interface BlockedPeriod {
-  id: string;
-  house_id: string;
-  start_date: string;
-  end_date: string;
-  reason: string | null;
-}
 
 const BookingsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
-  const [bookings, setBookings] = useState<BookingRow[]>([]);
-  const [blockedPeriods, setBlockedPeriods] = useState<BlockedPeriod[]>([]);
-  const [pricingActiveHouseIds, setPricingActiveHouseIds] = useState<Set<string>>(new Set());
+  const { data: bookings, blockedPeriods, pricingActiveHouseIds, loading, refetch: fetchData } = useBookings();
   const [calendarMonth, setCalendarMonth] = useState(new Date());
-  const [loading, setLoading] = useState(true);
   const [newBookingOpen, setNewBookingOpen] = useState(false);
   const [newBookingStartDate, setNewBookingStartDate] = useState<Date | undefined>();
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
 
   const handleCalendarDayClick = (date: Date) => {
-    // Only open dialog for available (future) days
     if (date < new Date(new Date().toDateString())) return;
     setNewBookingStartDate(date);
     setNewBookingOpen(true);
   };
-
-  const fetchData = useCallback(async () => {
-    if (isDemo) {
-      setBookings(DEMO_BOOKINGS_ENRICHED as any);
-      setBlockedPeriods([]);
-      setPricingActiveHouseIds(new Set());
-      setLoading(false);
-      return;
-    }
-    if (!user) return;
-    setLoading(true);
-
-    const [{ data: bookingsData }, { data: blockedData }, { data: pricingData }, { data: profiles }] = await Promise.all([
-      supabase
-        .from("bookings")
-        .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, payment_status, total_price, amount_paid, houses(name, family_id), house_units(name, type)")
-        .order("start_date", { ascending: true }),
-      supabase
-        .from("blocked_periods")
-        .select("id, house_id, start_date, end_date, reason"),
-      supabase
-        .from("house_pricing")
-        .select("house_id, is_active")
-        .eq("is_active", true),
-      supabase
-        .from("users_profiles")
-        .select("user_id, first_name, last_name"),
-    ]);
-
-    setPricingActiveHouseIds(new Set((pricingData || []).map((p) => p.house_id)));
-
-    setBlockedPeriods((blockedData || []) as BlockedPeriod[]);
-
-    const profileMap = Object.fromEntries((profiles || []).map((p) => [p.user_id, p]));
-
-    const enriched: BookingRow[] = (bookingsData || []).map((b) => ({
-      ...b,
-      houses: b.houses as BookingRow["houses"],
-      house_units: b.house_units as BookingRow["house_units"],
-      users_profiles: profileMap[b.user_id] || null,
-    }));
-
-    setBookings(enriched);
-    setLoading(false);
-  }, [user, isDemo]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   const contextHouseIds = new Set(houses.map(h => h.id));
   const filteredBookings = selectedHouseId === "all"
