@@ -11,17 +11,14 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart as 
 import { startOfYear, endOfYear, differenceInCalendarDays, eachMonthOfInterval, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
 
 interface FinancialDashboardProps {
   houseId: string;
   members: { user_id: string; profile?: { first_name: string | null; last_name: string | null; email: string | null } }[];
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  courses: "Courses", travaux: "Travaux", entretien: "Entretien",
-  energie: "Énergie", assurance: "Assurance", taxes: "Taxes",
-  menage: "Ménage", autre: "Autre",
-};
+const CATEGORY_LABELS = EXPENSE_CATEGORY_LABELS;
 
 const PIE_COLORS = [
   "hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--chart-1))",

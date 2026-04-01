@@ -6,6 +6,7 @@ import { useHouseContext } from "@/contexts/HouseContext";
 import { useDemo } from "@/contexts/DemoContext";
 import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
 import { DEMO_BOOKINGS, DEMO_ALL_BOOKINGS, DEMO_EXPENSES, DEMO_ALL_EXPENSES, DEMO_MEMORIES, DEMO_NEWS, DEMO_PROFILES, DEMO_PROFILE } from "@/lib/demoData";
+import { BOOKING_STATUS_CONFIG, EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
 import AppLayout from "@/components/AppLayout";
 import ContextPickerScreen from "@/components/ContextPickerScreen";
 import HouseSelector from "@/components/HouseSelector";
@@ -47,18 +48,9 @@ interface NewsRow {
   houses: { name: string } | null;
 }
 
-const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  pending: { label: "En attente", variant: "secondary" },
-  approved: { label: "Confirmée", variant: "default" },
-  refused: { label: "Refusée", variant: "destructive" },
-  cancelled: { label: "Annulée", variant: "outline" },
-};
+const statusLabels = BOOKING_STATUS_CONFIG;
 
-const CATEGORY_LABELS: Record<string, string> = {
-  courses: "Courses", travaux: "Travaux", entretien: "Entretien",
-  energie: "Énergie", assurance: "Assurance", taxes: "Taxes",
-  menage: "Ménage", autre: "Autre",
-};
+const CATEGORY_LABELS = EXPENSE_CATEGORY_LABELS;
 
 const PIE_COLORS = [
   "hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--honey))",

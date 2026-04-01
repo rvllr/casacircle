@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { BOOKING_STATUS_LABELS } from "@/lib/constants";
 
 function escapeCsv(value: string | number | null | undefined): string {
   if (value == null) return "";
@@ -36,12 +37,7 @@ export function exportBookingsCsv(
   }[]
 ) {
   const headers = ["Maison", "Unité", "Membre", "Début", "Fin", "Statut"];
-  const statusLabels: Record<string, string> = {
-    pending: "En attente",
-    approved: "Confirmée",
-    refused: "Refusée",
-    cancelled: "Annulée",
-  };
+  const statusLabels = BOOKING_STATUS_LABELS;
   const rows = bookings.map((b) => [
     b.houseName,
     b.unitName || "",
