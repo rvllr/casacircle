@@ -26,7 +26,12 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
               {title && (
                 <>
                   <Separator orientation="vertical" className="h-5 mx-1" />
-                  <h1 className="font-display text-base text-foreground/80 truncate flex-1">{title}</h1>
+                  <h1 className="font-display text-base text-foreground/80 truncate flex-1">
+                    {title}
+                    {activeType && (
+                      <span className="text-muted-foreground font-normal text-sm ml-2">— {activeLabel}</span>
+                    )}
+                  </h1>
                 </>
               )}
               <div className="ml-auto flex items-center gap-1">
