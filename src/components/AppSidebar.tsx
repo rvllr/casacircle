@@ -111,6 +111,11 @@ export function AppSidebar() {
           )}
         </div>
 
+        {/* Space Selector */}
+        <div className={cn("mb-1", collapsed ? "px-1" : "px-3")}>
+          <SpaceSelectorDropdown />
+        </div>
+
         <SidebarGroup>
           <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-body font-semibold px-3 mb-1">
             Principal
