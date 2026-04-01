@@ -71,6 +71,63 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
     return map;
   }, [bookings]);
 
+  // Pre-index bookings by date string for O(1) lookups instead of O(n) per day
+  const bookingsByDate = useMemo(() => {
+    const map = new Map<string, CalendarBooking[]>();
+    for (const b of bookings) {
+      if (b.status !== "approved" && b.status !== "pending") continue;
+      const bStart = new Date(b.start_date);
+      const bEnd = new Date(b.end_date);
+      const days = eachDayOfInterval({ start: bStart, end: bEnd });
+      for (const day of days) {
+        const key = format(day, "yyyy-MM-dd");
+        const arr = map.get(key);
+        if (arr) arr.push(b);
+        else map.set(key, [b]);
+      }
+    }
+    return map;
+  }, [bookings]);
+
+  // Pre-index blocked periods by date string
+  const blockedByDate = useMemo(() => {
+    const map = new Map<string, string | null>();
+    for (const bp of blockedPeriods) {
+      const bpStart = new Date(bp.start_date);
+      const bpEnd = new Date(bp.end_date);
+      const days = eachDayOfInterval({ start: bpStart, end: bpEnd });
+      for (const day of days) {
+        map.set(format(day, "yyyy-MM-dd"), bp.reason || null);
+      }
+    }
+    return map;
+  }, [blockedPeriods]);
+
+  const getBookingsForDay = (date: Date): CalendarBooking[] => {
+    return bookingsByDate.get(format(date, "yyyy-MM-dd")) || [];
+  };
+
+  const isBlocked = (date: Date): boolean => {
+    return blockedByDate.has(format(date, "yyyy-MM-dd"));
+  };
+
+  const getBlockedReason = (date: Date): string | null => {
+    return blockedByDate.get(format(date, "yyyy-MM-dd")) ?? null;
+  };
+
+  const getDayStatus = (date: Date): "available" | "pending" | "booked" | "past" | "blocked" => {
+    if (isBefore(date, startOfDay(new Date()))) return "past";
+    if (isBlocked(date)) return "blocked";
+    const dayBookings = getBookingsForDay(date);
+    if (dayBookings.some((b) => b.status === "approved")) return "booked";
+    if (dayBookings.some((b) => b.status === "pending")) return "pending";
+    return "available";
+  };
+
+  const hasBooking = (date: Date): boolean => {
+    return bookingsByDate.has(format(date, "yyyy-MM-dd"));
+  };
+
   // Month view days
   const monthDays = useMemo(() => {
     const start = startOfMonth(month);
@@ -95,45 +152,6 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
     return eachDayOfInterval({ start: periodRange.from, end });
   }, [periodRange]);
 
-  const getBookingsForDay = (date: Date): CalendarBooking[] => {
-    return bookings.filter((b) => {
-      const bStart = new Date(b.start_date);
-      const bEnd = new Date(b.end_date);
-      return date >= bStart && date <= bEnd && (b.status === "approved" || b.status === "pending");
-    });
-  };
-
-  const isBlocked = (date: Date): boolean => {
-    return blockedPeriods.some((bp) => {
-      const bpStart = new Date(bp.start_date);
-      const bpEnd = new Date(bp.end_date);
-      return date >= bpStart && date <= bpEnd;
-    });
-  };
-
-  const getBlockedReason = (date: Date): string | null => {
-    const bp = blockedPeriods.find((bp) => {
-      const bpStart = new Date(bp.start_date);
-      const bpEnd = new Date(bp.end_date);
-      return date >= bpStart && date <= bpEnd;
-    });
-    return bp?.reason || null;
-  };
-
-  const getDayStatus = (date: Date): "available" | "pending" | "booked" | "past" | "blocked" => {
-    if (isBefore(date, startOfDay(new Date()))) return "past";
-    if (isBlocked(date)) return "blocked";
-    const dayBookings = getBookingsForDay(date);
-    if (dayBookings.some((b) => b.status === "approved")) return "booked";
-    if (dayBookings.some((b) => b.status === "pending")) return "pending";
-    return "available";
-  };
-
-  const hasBooking = (date: Date): boolean => {
-    return getBookingsForDay(date).length > 0;
-  };
-
-  const filterDay = (date: Date): boolean => {
     if (dayFilter === "all") return true;
     if (dayFilter === "booked") return hasBooking(date);
     if (dayFilter === "available") return !hasBooking(date) && !isBlocked(date);
