@@ -43,6 +43,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { formatDate } from "@/lib/dateFormatter";
 
 interface House {
   id: string;

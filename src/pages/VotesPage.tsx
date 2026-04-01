@@ -19,6 +19,7 @@ import { Vote, Plus, ThumbsUp, ThumbsDown, Minus, Loader2, BookMarked, Scale } f
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { formatDate } from "@/lib/dateFormatter";
 
 interface VoteRow {
   id: string;

@@ -15,8 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { FileText, Plus, Download, Trash2, Loader2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { formatDate } from "@/lib/dateFormatter";
 
 const docTypeLabels: Record<string, string> = {
   legal: "Juridique",
