@@ -142,6 +142,10 @@ const DashboardPage = () => {
         .select("id, house_id", { count: "exact", head: true })
         .in("status", ["open", "in_progress"]);
 
+      let profilesQuery = supabase
+        .from("users_profiles")
+        .select("user_id, first_name, last_name");
+
       if (selectedHouseId !== "all") {
         bookingsQuery = bookingsQuery.eq("house_id", selectedHouseId);
         allBookingsQuery = allBookingsQuery.eq("house_id", selectedHouseId);
@@ -152,7 +156,7 @@ const DashboardPage = () => {
         ticketsQuery = ticketsQuery.eq("house_id", selectedHouseId);
       }
 
-      const [profileRes, bookingsRes, allBookingsRes, expensesRes, allExpensesRes, memoriesRes, newsRes, ticketsRes] = await Promise.all([
+      const [profileRes, bookingsRes, allBookingsRes, expensesRes, allExpensesRes, memoriesRes, newsRes, ticketsRes, allProfilesRes] = await Promise.all([
         supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
         bookingsQuery,
         allBookingsQuery,
@@ -161,6 +165,7 @@ const DashboardPage = () => {
         memoriesQuery,
         newsQuery,
         ticketsQuery,
+        profilesQuery,
       ]);
 
       if (profileRes.data) setMyProfile(profileRes.data);
@@ -185,19 +190,7 @@ const DashboardPage = () => {
 
       setOpenTicketsCount(ticketsRes.count || 0);
 
-      const authorIds = [...new Set([
-        ...expensesList.map((e) => e.paid_by),
-        ...memList.map((m) => m.created_by),
-        ...bookingsList.map((b) => b.user_id),
-        ...newsList.map((n) => n.created_by),
-      ])];
-      if (authorIds.length > 0) {
-        const { data: profs } = await supabase
-          .from("users_profiles")
-          .select("user_id, first_name, last_name")
-          .in("user_id", authorIds);
-        setProfiles(profs || []);
-      }
+      setProfiles(allProfilesRes.data || []);
 
       setLoading(false);
     };
