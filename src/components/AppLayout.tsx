@@ -13,6 +13,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children, title }: AppLayoutProps) => {
+  const { activeLabel, activeType } = useActiveSpace();
   return (
     <SidebarProvider>
       <div className="min-h-screen flex flex-col w-full bg-background">
