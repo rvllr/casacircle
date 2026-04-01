@@ -166,8 +166,8 @@ const NotificationBell = () => {
         <div className="flex gap-1 px-3 py-2 border-b border-border">
           {filterLabels.map((f) => {
             const count = f.value === "all"
-              ? notifications.filter((n) => !n.is_read).length
-              : notifications.filter((n) => !n.is_read && getFilterCategory(n.type) === f.value).length;
+              ? contextNotifications.filter((n) => !n.is_read).length
+              : contextNotifications.filter((n) => !n.is_read && getFilterCategory(n.type) === f.value).length;
             return (
               <Button
                 key={f.value}
