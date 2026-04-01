@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useBookings, type BookingRow, type BlockedPeriod } from "@/hooks/useBookings";
+import { useBookings, type BookingRow } from "@/hooks/useBookings";
 import { formatDate } from "@/lib/dateFormatter";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
@@ -9,26 +9,17 @@ import HouseSelector from "@/components/HouseSelector";
 import BookingCalendar from "@/components/BookingCalendar";
 import NewBookingDialog from "@/components/NewBookingDialog";
 import BlockPeriodDialog from "@/components/BlockPeriodDialog";
+import BookingCard from "@/components/bookings/BookingCard";
+import BookingFilters from "@/components/bookings/BookingFilters";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Check, X, Users, BarChart3, Plus, Ban, Trash2, Download, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
-import { ChecklistSummaryBadge } from "@/components/BookingChecklist";
-import BookingChecklist from "@/components/BookingChecklist";
+import { CalendarDays, Users, BarChart3, Plus, Download } from "lucide-react";
 import { exportBookingsCsv } from "@/lib/csvExport";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { format, differenceInCalendarDays } from "date-fns";
-import { fr } from "date-fns/locale";
+import { differenceInCalendarDays } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useDemo } from "@/contexts/DemoContext";
-import { DEMO_BOOKINGS_ENRICHED, DEMO_PROFILES } from "@/lib/demoData";
-import { BOOKING_STATUS_CONFIG, PAYMENT_STATUS_CONFIG } from "@/lib/constants";
-
-const paymentStatusConfig = PAYMENT_STATUS_CONFIG;
-
-const statusConfig = BOOKING_STATUS_CONFIG;
 
 const BookingsPage = () => {
   const { user } = useAuth();
@@ -116,16 +107,10 @@ const BookingsPage = () => {
       });
   }, [user, isDemo]);
 
-  const canManageBooking = (booking: BookingRow) => {
-    return adminHouseIds.has(booking.house_id);
-  };
+  const canManageBooking = (booking: BookingRow) => adminHouseIds.has(booking.house_id);
 
   const updateBookingStatus = async (bookingId: string, status: "approved" | "refused" | "cancelled") => {
-    const { error } = await supabase
-      .from("bookings")
-      .update({ status })
-      .eq("id", bookingId);
-
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", bookingId);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
@@ -138,7 +123,6 @@ const BookingsPage = () => {
   const updatePaymentStatus = async (bookingId: string, paymentStatus: string, amountPaid?: number) => {
     const updateData: any = { payment_status: paymentStatus };
     if (amountPaid !== undefined) updateData.amount_paid = amountPaid;
-    // Auto-set status based on amount
     if (amountPaid !== undefined) {
       const booking = bookings.find((b) => b.id === bookingId);
       const total = booking?.total_price ? Number(booking.total_price) : 0;
@@ -146,12 +130,7 @@ const BookingsPage = () => {
       else if (total > 0 && amountPaid >= total) updateData.payment_status = "paid";
       else updateData.payment_status = "partial";
     }
-
-    const { error } = await supabase
-      .from("bookings")
-      .update(updateData)
-      .eq("id", bookingId);
-
+    const { error } = await supabase.from("bookings").update(updateData).eq("id", bookingId);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
@@ -159,7 +138,6 @@ const BookingsPage = () => {
       fetchData();
     }
   };
-
 
   const getUserName = (b: BookingRow) => {
     const p = b.users_profiles;
@@ -175,6 +153,23 @@ const BookingsPage = () => {
     }
     return houseName;
   };
+
+  const renderBookingCard = (b: BookingRow, canManageOverride?: boolean) => (
+    <BookingCard
+      key={b.id}
+      booking={b}
+      label={getBookingLabel(b)}
+      userName={getUserName(b)}
+      canManage={canManageOverride !== undefined ? canManageOverride : (b.status === "pending" && canManageBooking(b))}
+      canCancel={b.user_id === user?.id && (b.status === "pending" || b.status === "approved")}
+      hasPricing={pricingActiveHouseIds.has(b.house_id)}
+      onApprove={() => updateBookingStatus(b.id, "approved")}
+      onRefuse={() => updateBookingStatus(b.id, "refused")}
+      onCancel={() => updateBookingStatus(b.id, "cancelled")}
+      onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
+      onAmountPaidChange={(amount) => updatePaymentStatus(b.id, b.payment_status, amount)}
+    />
+  );
 
   if (loading || housesLoading) {
     return (
@@ -296,23 +291,7 @@ const BookingsPage = () => {
                 </Card>
               ) : (
                 <div className="space-y-3">
-                  {pendingBookings.map((b) => (
-                    <BookingCard
-                      key={b.id}
-                      booking={b}
-                      label={getBookingLabel(b)}
-                      userName={getUserName(b)}
-                      formatDate={formatDate}
-                      canManage={canManageBooking(b)}
-                      canCancel={b.user_id === user?.id}
-                      hasPricing={pricingActiveHouseIds.has(b.house_id)}
-                      onApprove={() => updateBookingStatus(b.id, "approved")}
-                      onRefuse={() => updateBookingStatus(b.id, "refused")}
-                      onCancel={() => updateBookingStatus(b.id, "cancelled")}
-                      onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
-                      onAmountPaidChange={(amount) => updatePaymentStatus(b.id, b.payment_status, amount)}
-                    />
-                  ))}
+                  {pendingBookings.map((b) => renderBookingCard(b, canManageBooking(b)))}
                 </div>
               )}
             </TabsContent>
@@ -362,26 +341,7 @@ const BookingsPage = () => {
             </TabsContent>
 
             <TabsContent value="all">
-              <div className="flex items-center gap-2 mb-3">
-                <CreditCard className="h-4 w-4 text-muted-foreground" />
-                <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                  <SelectTrigger className="w-[180px] h-8 text-xs">
-                    <SelectValue placeholder="Statut paiement" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous les paiements</SelectItem>
-                    <SelectItem value="unpaid">Non payé</SelectItem>
-                    <SelectItem value="partial">Partiel</SelectItem>
-                    <SelectItem value="paid">Payé</SelectItem>
-                    <SelectItem value="not_applicable">N/A</SelectItem>
-                  </SelectContent>
-                </Select>
-                {paymentFilter !== "all" && (
-                  <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setPaymentFilter("all")}>
-                    <X className="h-3.5 w-3.5 mr-1" /> Réinitialiser
-                  </Button>
-                )}
-              </div>
+              <BookingFilters paymentFilter={paymentFilter} onPaymentFilterChange={setPaymentFilter} />
               {(() => {
                 const displayed = paymentFilter === "all"
                   ? filteredBookings
@@ -394,23 +354,7 @@ const BookingsPage = () => {
                   </Card>
                 ) : (
                   <div className="space-y-3">
-                    {displayed.map((b) => (
-                      <BookingCard
-                        key={b.id}
-                        booking={b}
-                        label={getBookingLabel(b)}
-                        userName={getUserName(b)}
-                        formatDate={formatDate}
-                        canManage={b.status === "pending" && canManageBooking(b)}
-                        canCancel={b.user_id === user?.id && (b.status === "pending" || b.status === "approved")}
-                        hasPricing={pricingActiveHouseIds.has(b.house_id)}
-                        onApprove={() => updateBookingStatus(b.id, "approved")}
-                        onRefuse={() => updateBookingStatus(b.id, "refused")}
-                        onCancel={() => updateBookingStatus(b.id, "cancelled")}
-                        onPaymentStatusChange={(ps) => updatePaymentStatus(b.id, ps)}
-                        onAmountPaidChange={(amount) => updatePaymentStatus(b.id, b.payment_status, amount)}
-                      />
-                    ))}
+                    {displayed.map((b) => renderBookingCard(b))}
                   </div>
                 );
               })()}
@@ -419,170 +363,6 @@ const BookingsPage = () => {
         )}
       </div>
     </AppLayout>
-  );
-};
-
-const BookingCard = ({
-  booking,
-  label,
-  userName,
-  formatDate,
-  canManage,
-  canCancel = false,
-  hasPricing = false,
-  onApprove,
-  onRefuse,
-  onCancel,
-  onPaymentStatusChange,
-  onAmountPaidChange,
-}: {
-  booking: BookingRow;
-  label: string;
-  userName: string;
-  formatDate: (d: string) => string;
-  canManage: boolean;
-  canCancel?: boolean;
-  hasPricing?: boolean;
-  onApprove: () => void;
-  onRefuse: () => void;
-  onCancel?: () => void;
-  onPaymentStatusChange?: (status: string) => void;
-  onAmountPaidChange?: (amount: number) => void;
-}) => {
-  const showPayment = hasPricing && booking.payment_status !== "not_applicable";
-  const showPaymentSelector = hasPricing && canManage;
-  const totalPrice = booking.total_price != null ? Number(booking.total_price) : 0;
-  const amountPaid = booking.amount_paid != null ? Number(booking.amount_paid) : 0;
-  const remaining = Math.max(0, totalPrice - amountPaid);
-
-  const [editingAmount, setEditingAmount] = useState(false);
-  const [amountInput, setAmountInput] = useState(amountPaid.toString());
-  const [showChecklist, setShowChecklist] = useState(false);
-  const isApprovedOrPending = booking.status === "approved" || booking.status === "pending";
-
-  const handleAmountSubmit = () => {
-    const val = parseFloat(amountInput);
-    if (!isNaN(val) && val >= 0 && onAmountPaidChange) {
-      onAmountPaidChange(val);
-    }
-    setEditingAmount(false);
-  };
-
-  return (
-    <Card className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
-      <CardContent className="p-4 sm:py-4 sm:px-5">
-        <div className="flex flex-col gap-2.5">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="font-medium text-sm sm:text-base text-foreground">{label}</p>
-              <Badge variant={statusConfig[booking.status]?.variant || "secondary"} className="text-[10px] sm:text-xs">
-                {statusConfig[booking.status]?.label || booking.status}
-              </Badge>
-              {showPayment && (
-                <Badge variant={paymentStatusConfig[booking.payment_status]?.variant || "outline"} className="text-[10px] sm:text-xs">
-                  <CreditCard className="h-3 w-3 mr-1" />
-                  {paymentStatusConfig[booking.payment_status]?.label || booking.payment_status}
-                </Badge>
-              )}
-              {isApprovedOrPending && (
-                <ChecklistSummaryBadge bookingId={booking.id} houseId={booking.house_id} />
-              )}
-            </div>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              {userName} · {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
-            </p>
-          </div>
-
-          {/* Payment details */}
-          {showPayment && totalPrice > 0 && (
-            <div className="flex items-center gap-3 text-xs sm:text-sm flex-wrap p-2 rounded-lg bg-muted/50">
-              <span className="text-muted-foreground">Total : <span className="font-semibold text-foreground">{totalPrice.toFixed(2)} €</span></span>
-              <span className="text-muted-foreground">Payé : <span className="font-semibold text-foreground">{amountPaid.toFixed(2)} €</span></span>
-              {remaining > 0 && (
-                <span className="text-destructive font-medium">Reste : {remaining.toFixed(2)} €</span>
-              )}
-              {remaining <= 0 && amountPaid > 0 && (
-                <span className="text-accent font-medium">✓ Soldé</span>
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 flex-wrap">
-            {canManage && (
-              <>
-                <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg" onClick={onApprove}>
-                  <Check className="h-3.5 w-3.5 mr-1" /> Accepter
-                </Button>
-                <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg text-destructive border-destructive/30 hover:bg-destructive/5" onClick={onRefuse}>
-                  <X className="h-3.5 w-3.5 mr-1" /> Refuser
-                </Button>
-              </>
-            )}
-            {canCancel && onCancel && (
-              <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg text-destructive border-destructive/30 hover:bg-destructive/5" onClick={onCancel}>
-                <X className="h-3.5 w-3.5 mr-1" /> Annuler
-              </Button>
-            )}
-            {showPaymentSelector && onPaymentStatusChange && (
-              <Select value={booking.payment_status} onValueChange={onPaymentStatusChange}>
-                <SelectTrigger className="h-8 w-[130px] text-xs rounded-lg">
-                  <CreditCard className="h-3.5 w-3.5 mr-1" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unpaid">Non payé</SelectItem>
-                  <SelectItem value="partial">Partiel</SelectItem>
-                  <SelectItem value="paid">Payé</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-            {showPaymentSelector && totalPrice > 0 && onAmountPaidChange && (
-              editingAmount ? (
-                <div className="flex items-center gap-1">
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={amountInput}
-                    onChange={(e) => setAmountInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAmountSubmit()}
-                    className="h-8 w-24 text-xs rounded-lg"
-                    autoFocus
-                  />
-                  <Button size="sm" variant="outline" className="h-8 text-xs rounded-lg" onClick={handleAmountSubmit}>
-                    <Check className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button size="sm" variant="ghost" className="h-8 text-xs rounded-lg" onClick={() => setEditingAmount(false)}>
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ) : (
-                <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg" onClick={() => { setAmountInput(amountPaid.toString()); setEditingAmount(true); }}>
-                  💰 Saisir paiement
-                </Button>
-              )
-            )}
-            {isApprovedOrPending && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-8 text-xs rounded-lg"
-                onClick={() => setShowChecklist(!showChecklist)}
-              >
-                {showChecklist ? <ChevronUp className="h-3.5 w-3.5 mr-1" /> : <ChevronDown className="h-3.5 w-3.5 mr-1" />}
-                Checklist
-              </Button>
-            )}
-          </div>
-
-          {showChecklist && isApprovedOrPending && (
-            <div className="pt-2 border-t border-border/30">
-              <BookingChecklist bookingId={booking.id} houseId={booking.house_id} />
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
   );
 };
 
