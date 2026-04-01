@@ -296,13 +296,14 @@ const PatrimonySpaceDetailPage = () => {
                     </CardHeader>
                     <CardContent className="space-y-2">
                       {house.location && (
-                        <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                          <MapPin className="h-3.5 w-3.5" /> {house.location}
+                        <p className="text-sm text-muted-foreground flex items-start gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                          <span className="line-clamp-2">{house.location}</span>
                         </p>
                       )}
                       {house.capacity && (
                         <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                          <Users className="h-3.5 w-3.5" /> {house.capacity} personnes
+                          <Users className="h-3.5 w-3.5 shrink-0" /> {house.capacity} personnes
                         </p>
                       )}
                     </CardContent>
