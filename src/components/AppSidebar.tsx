@@ -66,7 +66,12 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
   const { isDemo, exitDemo } = useDemo();
+  const { activeType } = useActiveSpace();
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; avatar_url: string | null } | null>(null);
+
+  // Filter menu based on active context type
+  const currentMainItems = activeType === "house" ? houseMainItems : spaceMainItems;
+  const currentManageItems = activeType === "house" ? houseManageItems : spaceManageItems;
 
   useEffect(() => {
     if (isDemo) {
