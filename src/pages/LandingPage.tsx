@@ -53,8 +53,23 @@ const LandingPage = () => {
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5">
             <img src={logoCasaCircle} alt="CasaCircle" className="h-9 w-auto" />
-            
           </Link>
+          <nav className="hidden md:flex items-center gap-1">
+            {[
+              { label: "Fonctionnalités", href: "#solution" },
+              { label: "Comment ça marche", href: "#how" },
+              { label: "Avantages", href: "#benefits" },
+              { label: "FAQ", href: "#faq" },
+            ].map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary/60"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" className="hidden sm:inline-flex rounded-xl" asChild>
               <Link to="/login">Connexion</Link>
