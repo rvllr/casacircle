@@ -186,7 +186,27 @@ const HouseDetailPage = () => {
         .single();
       isFamilyAdmin = fm?.role === "admin";
     }
-    setIsAdmin(isHouseAdmin || isFamilyAdmin);
+    const adminStatus = isHouseAdmin || isFamilyAdmin;
+    setIsAdmin(adminStatus);
+
+    // Fetch user's spaces for admin transfer
+    if (adminStatus) {
+      const { data: memberShips } = await supabase
+        .from("family_members")
+        .select("family_id")
+        .eq("user_id", user.id);
+      if (memberShips && memberShips.length > 0) {
+        const spaceIds = memberShips.map((m) => m.family_id);
+        const { data: spaces } = await supabase
+          .from("families")
+          .select("id, name, type")
+          .in("id", spaceIds);
+        setUserSpaces(spaces || []);
+      } else {
+        setUserSpaces([]);
+      }
+    }
+
     setLoading(false);
   }, [id, user, navigate]);
 
