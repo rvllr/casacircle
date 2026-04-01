@@ -308,7 +308,7 @@ const VotesPage = () => {
                           <Badge variant="outline">{vote.house_name}</Badge>
                           {isWeighted && <Badge variant="secondary" className="text-xs gap-1"><Scale className="h-3 w-3" />Pondéré</Badge>}
                           <span>par {vote.creator_name}</span>
-                          <span>{format(new Date(vote.created_at), "d MMM yyyy", { locale: fr })}</span>
+                          <span>{formatDate(vote.created_at)}</span>
                         </div>
                       </div>
                       {isExpired && <Badge variant="secondary">Terminé</Badge>}

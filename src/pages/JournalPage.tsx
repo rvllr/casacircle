@@ -89,15 +89,8 @@ const JournalPage = () => {
   const getPhotosForMemory = (memoryId: string) =>
     photos.filter((p) => p.memory_id === memoryId);
 
-  const formatDate = (d: string) => {
-    try { return format(new Date(d), "d MMMM yyyy", { locale: fr }); }
-    catch { return d; }
-  };
-
-  const formatShortDate = (d: string) => {
-    try { return format(new Date(d), "d MMM yyyy", { locale: fr }); }
-    catch { return d; }
-  };
+  const fmtLong = (d: string) => formatDateLong(d);
+  const fmtShort = (d: string) => formatDate(d);
 
   const grouped = filtered.reduce<Record<string, Memory[]>>((acc, m) => {
     const dateStr = m.visit_start || m.created_at;

@@ -217,10 +217,6 @@ const DashboardPage = () => {
     return p?.first_name || "Membre";
   };
 
-  const formatDate = (dateStr: string) => {
-    try { return format(new Date(dateStr), "d MMM yyyy", { locale: fr }); }
-    catch { return dateStr; }
-  };
 
   const filteredHouseCount = selectedHouseId === "all" ? houses.length : 1;
 

@@ -79,10 +79,6 @@ const ExpensesPage = () => {
     return result;
   }, [balances]);
 
-  const formatDate = (d: string) => {
-    try { return format(new Date(d), "d MMM yyyy", { locale: fr }); }
-    catch { return d; }
-  };
 
   if (loading || housesLoading) {
     return (

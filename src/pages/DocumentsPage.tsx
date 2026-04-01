@@ -251,7 +251,7 @@ const DocumentsPage = () => {
                         <Badge variant="outline" className="text-xs">{docTypeLabels[doc.type] || doc.type}</Badge>
                         <span>{doc.house_name}</span>
                         <span>par {doc.uploader_name}</span>
-                        <span>{format(new Date(doc.created_at), "d MMM yyyy", { locale: fr })}</span>
+                        <span>{formatDate(doc.created_at)}</span>
                       </div>
                     </div>
                   </div>

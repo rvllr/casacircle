@@ -160,10 +160,6 @@ const BookingsPage = () => {
     }
   };
 
-  const formatDate = (d: string) => {
-    try { return format(new Date(d), "d MMM yyyy", { locale: fr }); }
-    catch { return d; }
-  };
 
   const getUserName = (b: BookingRow) => {
     const p = b.users_profiles;

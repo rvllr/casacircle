@@ -84,7 +84,7 @@ const DecisionRegister = ({ houseId }: DecisionRegisterProps) => {
                     </Badge>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <span>{format(new Date(d.decided_at), "d MMMM yyyy", { locale: fr })}</span>
+                    <span>{formatDateLong(d.decided_at)}</span>
                     <span>·</span>
                     <span>Oui: {d.yes_count} · Non: {d.no_count} · Abst: {d.abstain_count}</span>
                     {d.voting_mode === "weighted" && (

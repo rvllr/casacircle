@@ -243,7 +243,7 @@ const FamilyPact = ({ houseId, isAdmin, members }: FamilyPactProps) => {
                         {pact.title}
                       </h4>
                       <p className="text-xs text-muted-foreground">
-                        Mis à jour le {format(new Date(pact.updated_at), "d MMMM yyyy", { locale: fr })}
+                        Mis à jour le {formatDateLong(pact.updated_at)}
                       </p>
                     </div>
                     <Badge variant={pact.status === "active" ? "default" : "secondary"} className={`text-xs shrink-0 ${cfg.color}`}>
