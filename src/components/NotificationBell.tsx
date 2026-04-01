@@ -54,7 +54,7 @@ const getFilterCategory = (type: string): FilterType => {
 
 const NotificationBell = () => {
   const { user } = useAuth();
-  const { isDemo } = useDemo();
+  const { houses } = useHouseContext();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
