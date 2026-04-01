@@ -255,7 +255,7 @@ const LandingPage = () => {
       </section>
 
       {/* How it works */}
-      <section className="py-16 md:py-24 bg-card border-y border-border/30">
+      <section id="how" className="py-16 md:py-24 bg-card border-y border-border/30">
         <div className="container">
           <Reveal>
             <h2 className="text-3xl md:text-4xl font-display text-foreground text-center mb-12 tracking-tight">
