@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, CalendarDays, BookOpen, Receipt, User, LogOut, Wrench, FileText, Vote, Eye, KeyRound, Briefcase, ClipboardCheck, Info } from "lucide-react";
+import { LayoutDashboard, Building2, CalendarDays, BookOpen, Receipt, User, LogOut, Wrench, FileText, Vote, Eye, KeyRound, Briefcase, ClipboardCheck, Info, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
