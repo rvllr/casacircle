@@ -34,70 +34,17 @@ const BookingsPage = () => {
   const { toast } = useToast();
   const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
-  const [bookings, setBookings] = useState<BookingRow[]>([]);
-  const [blockedPeriods, setBlockedPeriods] = useState<BlockedPeriod[]>([]);
-  const [pricingActiveHouseIds, setPricingActiveHouseIds] = useState<Set<string>>(new Set());
+  const { data: bookings, blockedPeriods, pricingActiveHouseIds, loading, refetch: fetchData } = useBookings();
   const [calendarMonth, setCalendarMonth] = useState(new Date());
-  const [loading, setLoading] = useState(true);
   const [newBookingOpen, setNewBookingOpen] = useState(false);
   const [newBookingStartDate, setNewBookingStartDate] = useState<Date | undefined>();
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
 
   const handleCalendarDayClick = (date: Date) => {
-    // Only open dialog for available (future) days
     if (date < new Date(new Date().toDateString())) return;
     setNewBookingStartDate(date);
     setNewBookingOpen(true);
   };
-
-  const fetchData = useCallback(async () => {
-    if (isDemo) {
-      setBookings(DEMO_BOOKINGS_ENRICHED as any);
-      setBlockedPeriods([]);
-      setPricingActiveHouseIds(new Set());
-      setLoading(false);
-      return;
-    }
-    if (!user) return;
-    setLoading(true);
-
-    const [{ data: bookingsData }, { data: blockedData }, { data: pricingData }, { data: profiles }] = await Promise.all([
-      supabase
-        .from("bookings")
-        .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, payment_status, total_price, amount_paid, houses(name, family_id), house_units(name, type)")
-        .order("start_date", { ascending: true }),
-      supabase
-        .from("blocked_periods")
-        .select("id, house_id, start_date, end_date, reason"),
-      supabase
-        .from("house_pricing")
-        .select("house_id, is_active")
-        .eq("is_active", true),
-      supabase
-        .from("users_profiles")
-        .select("user_id, first_name, last_name"),
-    ]);
-
-    setPricingActiveHouseIds(new Set((pricingData || []).map((p) => p.house_id)));
-
-    setBlockedPeriods((blockedData || []) as BlockedPeriod[]);
-
-    const profileMap = Object.fromEntries((profiles || []).map((p) => [p.user_id, p]));
-
-    const enriched: BookingRow[] = (bookingsData || []).map((b) => ({
-      ...b,
-      houses: b.houses as BookingRow["houses"],
-      house_units: b.house_units as BookingRow["house_units"],
-      users_profiles: profileMap[b.user_id] || null,
-    }));
-
-    setBookings(enriched);
-    setLoading(false);
-  }, [user, isDemo]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   const contextHouseIds = new Set(houses.map(h => h.id));
   const filteredBookings = selectedHouseId === "all"
