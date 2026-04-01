@@ -329,9 +329,22 @@ const DashboardPage = () => {
                 Contexte actif : <span className="font-semibold text-foreground">{activeLabel}</span>
               </span>
             </div>
-            <span className="sm:ml-auto text-xs text-muted-foreground">
-              {filteredHouseCount} bien{filteredHouseCount > 1 ? "s" : ""} · {bookings.length} résa · {expenses.reduce((s, e) => s + Number(e.amount), 0).toFixed(0)}€ dépenses
-            </span>
+            <div className="sm:ml-auto flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span>{filteredHouseCount} bien{filteredHouseCount > 1 ? "s" : ""}</span>
+              <span>·</span>
+              <span>{bookings.length} résa</span>
+              <span>·</span>
+              <span>{expenses.reduce((s, e) => s + Number(e.amount), 0).toFixed(0)}€ dépenses</span>
+              {openTicketsCount > 0 && (
+                <>
+                  <span>·</span>
+                  <span className="flex items-center gap-1 text-destructive font-medium">
+                    <Wrench className="h-3 w-3" />
+                    {openTicketsCount} ticket{openTicketsCount > 1 ? "s" : ""} ouvert{openTicketsCount > 1 ? "s" : ""}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         )}
 
