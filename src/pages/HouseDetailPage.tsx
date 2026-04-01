@@ -109,6 +109,7 @@ const HouseDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [house, setHouse] = useState<House | null>(null);
   const [members, setMembers] = useState<HouseMember[]>([]);
   const [units, setUnits] = useState<HouseUnit[]>([]);
@@ -116,6 +117,8 @@ const HouseDetailPage = () => {
   const [tickets, setTickets] = useState<MaintenanceTicket[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userSpaces, setUserSpaces] = useState<{ id: string; name: string; type: string }[]>([]);
+  const [changingSpace, setChangingSpace] = useState(false);
 
   const fetchHouse = useCallback(async () => {
     if (!id || !user) return;
@@ -183,13 +186,50 @@ const HouseDetailPage = () => {
         .single();
       isFamilyAdmin = fm?.role === "admin";
     }
-    setIsAdmin(isHouseAdmin || isFamilyAdmin);
+    const adminStatus = isHouseAdmin || isFamilyAdmin;
+    setIsAdmin(adminStatus);
+
+    // Fetch user's spaces for admin transfer
+    if (adminStatus) {
+      const { data: memberShips } = await supabase
+        .from("family_members")
+        .select("family_id")
+        .eq("user_id", user.id);
+      if (memberShips && memberShips.length > 0) {
+        const spaceIds = memberShips.map((m) => m.family_id);
+        const { data: spaces } = await supabase
+          .from("families")
+          .select("id, name, type")
+          .in("id", spaceIds);
+        setUserSpaces(spaces || []);
+      } else {
+        setUserSpaces([]);
+      }
+    }
+
     setLoading(false);
   }, [id, user, navigate]);
 
   useEffect(() => {
     fetchHouse();
   }, [fetchHouse]);
+
+  const handleChangeSpace = async (spaceId: string) => {
+    if (!house) return;
+    setChangingSpace(true);
+    const newFamilyId = spaceId === "none" ? null : spaceId;
+    const { error } = await supabase
+      .from("houses")
+      .update({ family_id: newFamilyId })
+      .eq("id", house.id);
+    setChangingSpace(false);
+    if (error) {
+      toast({ title: "Erreur", description: "Impossible de changer l'espace.", variant: "destructive" });
+    } else {
+      toast({ title: "Espace modifié", description: "Le bien a été transféré avec succès." });
+      fetchHouse();
+    }
+  };
 
   if (loading || !house) {
     return (
@@ -312,6 +352,35 @@ const HouseDetailPage = () => {
               </Card>
             )}
           </div>
+        )}
+
+        {/* Espace patrimoine */}
+        {isAdmin && (
+          <Card className="border-border/50 shadow-soft">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground font-medium mb-1">🏛️ Espace patrimoine</p>
+                <Select
+                  value={house.family_id || "none"}
+                  onValueChange={handleChangeSpace}
+                  disabled={changingSpace}
+                >
+                  <SelectTrigger className="w-full max-w-xs">
+                    <SelectValue placeholder="Aucun espace" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Aucun espace</SelectItem>
+                    {userSpaces.map((space) => (
+                      <SelectItem key={space.id} value={space.id}>
+                        {space.name} ({space.type === "sci" ? "SCI" : space.type === "family" ? "Famille" : space.type === "indivision" ? "Indivision" : "Personnel"})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {changingSpace && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+            </CardContent>
+          </Card>
         )}
 
         {/* Fairness Score */}
