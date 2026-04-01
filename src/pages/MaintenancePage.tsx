@@ -195,10 +195,17 @@ const MaintenancePage = () => {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : filtered.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Wrench className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">Aucun signalement {filter !== "all" ? "dans cette catégorie" : ""}</p>
+          <Card className="border-border/50 shadow-soft">
+            <CardContent className="py-12 text-center space-y-3">
+              <div className="h-12 w-12 rounded-2xl bg-accent/8 flex items-center justify-center mx-auto">
+                <Wrench className="h-6 w-6 text-accent" />
+              </div>
+              <h3 className="font-display text-lg text-foreground">
+                {filter !== "all" ? "Aucun signalement dans cette catégorie" : "Aucun signalement"}
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                {filter !== "all" ? "Essayez un autre filtre ou créez un nouveau ticket." : "Tout fonctionne ! Signalez un problème si besoin."}
+              </p>
             </CardContent>
           </Card>
         ) : (

@@ -142,11 +142,14 @@ const JournalPage = () => {
             </CardContent>
           </Card>
         ) : filtered.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-display text-xl text-foreground mb-2">Aucun souvenir</h3>
-              <p className="text-muted-foreground">Ajoutez votre premier souvenir pour commencer le journal.</p>
+          <Card className="border-border/50 shadow-soft">
+            <CardContent className="py-12 text-center space-y-3">
+              <div className="h-12 w-12 rounded-2xl bg-lavender/10 flex items-center justify-center mx-auto">
+                <BookOpen className="h-6 w-6 text-lavender" />
+              </div>
+              <h3 className="font-display text-lg text-foreground">Aucun souvenir</h3>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">Immortalisez vos plus beaux moments en ajoutant un premier souvenir.</p>
+              <NewMemoryDialog onCreated={fetchData} />
             </CardContent>
           </Card>
         ) : (
