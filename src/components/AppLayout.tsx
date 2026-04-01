@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
@@ -6,14 +6,33 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Separator } from "@/components/ui/separator";
 import DemoBanner from "@/components/DemoBanner";
 import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface AppLayoutProps {
   children: ReactNode;
   title?: string;
 }
 
+// Routes only available in "space" or no-context mode
+const SPACE_ONLY_ROUTES = ["/spaces", "/houses", "/expenses", "/votes"];
+
+// Routes available in both contexts
+const UNIVERSAL_ROUTES = ["/dashboard", "/bookings", "/journal", "/maintenance", "/documents", "/profile", "/rejoindre"];
+
 const AppLayout = ({ children, title }: AppLayoutProps) => {
   const { activeLabel, activeType } = useActiveSpace();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Redirect away from space-only pages when in house context
+  useEffect(() => {
+    if (activeType === "house") {
+      const currentPath = location.pathname;
+      if (SPACE_ONLY_ROUTES.some(r => currentPath === r || currentPath.startsWith(r + "/"))) {
+        navigate("/dashboard", { replace: true });
+      }
+    }
+  }, [activeType, location.pathname, navigate]);
   return (
     <SidebarProvider>
       <div className="min-h-screen flex flex-col w-full bg-background">
