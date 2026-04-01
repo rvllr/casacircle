@@ -285,11 +285,17 @@ const VotesPage = () => {
         <HouseSelector />
 
         {filtered.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Vote className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-display text-xl text-foreground mb-2">Aucun vote</h3>
-              <p className="text-muted-foreground">Créez un vote pour décider ensemble.</p>
+          <Card className="border-border/50 shadow-soft">
+            <CardContent className="py-12 text-center space-y-3">
+              <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mx-auto">
+                <Vote className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-display text-lg text-foreground">Aucun vote</h3>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">Créez un vote pour prendre des décisions ensemble.</p>
+              <Button onClick={() => setOpen(true)} className="rounded-xl mt-1">
+                <Plus className="h-4 w-4 mr-2" />
+                Proposer un premier vote
+              </Button>
             </CardContent>
           </Card>
         ) : (

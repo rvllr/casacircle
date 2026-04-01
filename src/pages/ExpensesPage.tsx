@@ -253,9 +253,13 @@ const ExpensesPage = () => {
 
             <TabsContent value="list">
               {filteredExpenses.length === 0 ? (
-                <Card>
-                  <CardContent className="py-8 text-center">
-                    <p className="text-muted-foreground">Aucune dépense.</p>
+                <Card className="border-border/50 shadow-soft">
+                  <CardContent className="py-12 text-center space-y-3">
+                    <div className="h-12 w-12 rounded-2xl bg-accent/8 flex items-center justify-center mx-auto">
+                      <Receipt className="h-6 w-6 text-accent" />
+                    </div>
+                    <h3 className="font-display text-lg text-foreground">Aucune dépense</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs mx-auto">L'historique des dépenses apparaîtra ici.</p>
                   </CardContent>
                 </Card>
               ) : (

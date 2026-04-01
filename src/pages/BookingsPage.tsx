@@ -378,9 +378,21 @@ const BookingsPage = () => {
                   ? filteredBookings
                   : filteredBookings.filter((b) => b.payment_status === paymentFilter);
                 return displayed.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-8 text-center">
-                      <p className="text-muted-foreground">Aucune réservation{paymentFilter !== "all" ? " avec ce statut de paiement" : ""}.</p>
+                  <Card className="border-border/50 shadow-soft">
+                    <CardContent className="py-12 text-center space-y-3">
+                      <div className="h-12 w-12 rounded-2xl bg-primary/8 flex items-center justify-center mx-auto">
+                        <CalendarDays className="h-6 w-6 text-primary" />
+                      </div>
+                      <h3 className="font-display text-lg text-foreground">Aucune réservation</h3>
+                      <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                        {paymentFilter !== "all" ? "Aucune réservation avec ce statut de paiement." : "Planifiez votre premier séjour en quelques clics."}
+                      </p>
+                      {paymentFilter === "all" && (
+                        <Button onClick={() => { setNewBookingStartDate(undefined); setNewBookingOpen(true); }} className="rounded-xl mt-1">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Créer une première réservation
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ) : (
