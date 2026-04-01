@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { HouseProvider } from "@/contexts/HouseContext";
 import { ActiveSpaceProvider } from "@/contexts/ActiveSpaceContext";
 import { DemoProvider, useDemo } from "@/contexts/DemoContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import LandingPage from "./pages/LandingPage";
 import HousesPage from "./pages/HousesPage";
 import HouseDetailPage from "./pages/HouseDetailPage";
@@ -62,6 +63,7 @@ const App = () => (
         <AuthProvider>
           <ActiveSpaceProvider>
           <HouseProvider>
+          <ErrorBoundary>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
@@ -88,6 +90,7 @@ const App = () => (
             <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ErrorBoundary>
           </HouseProvider>
           </ActiveSpaceProvider>
         </AuthProvider>
