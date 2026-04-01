@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, CalendarDays, User, ImageIcon } from "lucide-react";
 import { formatDateLong, formatDate } from "@/lib/dateFormatter";
+import { useToast } from "@/hooks/use-toast";
 
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
 interface MemoryPhoto { id: string; memory_id: string; image_url: string; }
