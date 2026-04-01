@@ -277,7 +277,6 @@ const DashboardPage = () => {
   }
 
   if (needsContextPicker) {
-    const ContextPickerScreen = require("@/components/ContextPickerScreen").default;
     return (
       <AppLayout title="Dashboard">
         <ContextPickerScreen />
