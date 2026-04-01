@@ -6,18 +6,17 @@ import { useHouseContext } from "@/contexts/HouseContext";
 import { useDemo } from "@/contexts/DemoContext";
 import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
 import { DEMO_BOOKINGS, DEMO_ALL_BOOKINGS, DEMO_EXPENSES, DEMO_ALL_EXPENSES, DEMO_MEMORIES, DEMO_NEWS, DEMO_PROFILES, DEMO_PROFILE } from "@/lib/demoData";
-import { BOOKING_STATUS_CONFIG, EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/dateFormatter";
 import AppLayout from "@/components/AppLayout";
 import ContextPickerScreen from "@/components/ContextPickerScreen";
 import HouseSelector from "@/components/HouseSelector";
+import BookingsSummaryCard from "@/components/dashboard/BookingsSummaryCard";
+import ExpensesSummaryCard from "@/components/dashboard/ExpensesSummaryCard";
+import OccupancyStats from "@/components/dashboard/OccupancyStats";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, TrendingUp, AlertCircle, Wrench, Crown } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachMonthOfInterval, differenceInCalendarDays, startOfYear, endOfYear, isWithinInterval } from "date-fns";
-import { fr } from "date-fns/locale";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, AlertCircle, Wrench, Crown } from "lucide-react";
 
 interface Booking {
   id: string; start_date: string; end_date: string; status: string;
@@ -48,16 +47,6 @@ interface NewsRow {
   created_at: string; created_by: string; house_id: string;
   houses: { name: string } | null;
 }
-
-const statusLabels = BOOKING_STATUS_CONFIG;
-
-const CATEGORY_LABELS = EXPENSE_CATEGORY_LABELS;
-
-const PIE_COLORS = [
-  "hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--honey))",
-  "hsl(var(--lavender))", "hsl(var(--chart-1))", "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))", "hsl(var(--chart-4))",
-];
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -151,40 +140,19 @@ const DashboardPage = () => {
 
       const [profileRes, bookingsRes, allBookingsRes, expensesRes, allExpensesRes, memoriesRes, newsRes, ticketsRes, allProfilesRes] = await Promise.all([
         supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
-        bookingsQuery,
-        allBookingsQuery,
-        expensesQuery,
-        allExpensesQuery,
-        memoriesQuery,
-        newsQuery,
-        ticketsQuery,
-        profilesQuery,
+        bookingsQuery, allBookingsQuery, expensesQuery, allExpensesQuery,
+        memoriesQuery, newsQuery, ticketsQuery, profilesQuery,
       ]);
 
       if (profileRes.data) setMyProfile(profileRes.data);
-
-      const bookingsList = (bookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] }));
-      setBookings(bookingsList);
-
-      const allBookingsList = (allBookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] }));
-      setAllBookings(allBookingsList);
-
-      const expensesList = (expensesRes.data || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] }));
-      setExpenses(expensesList);
-
-      const allExpensesList = (allExpensesRes.data || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] }));
-      setAllExpenses(allExpensesList);
-
-      const memList = (memoriesRes.data || []).map((m) => ({ ...m, houses: m.houses as MemoryRow["houses"] }));
-      setMemories(memList);
-
-      const newsList = (newsRes.data || []).map((n) => ({ ...n, houses: n.houses as NewsRow["houses"] }));
-      setNews(newsList);
-
+      setBookings((bookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] })));
+      setAllBookings((allBookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] })));
+      setExpenses((expensesRes.data || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] })));
+      setAllExpenses((allExpensesRes.data || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] })));
+      setMemories((memoriesRes.data || []).map((m) => ({ ...m, houses: m.houses as MemoryRow["houses"] })));
+      setNews((newsRes.data || []).map((n) => ({ ...n, houses: n.houses as NewsRow["houses"] })));
       setOpenTicketsCount(ticketsRes.count || 0);
-
       setProfiles(allProfilesRes.data || []);
-
       setLoading(false);
     };
 
@@ -193,7 +161,6 @@ const DashboardPage = () => {
 
   const { activeType, activeSpaceId, activeLabel, activeIcon, spaces, directHouses, loading: contextLoading } = useActiveSpace();
 
-  // Fetch active plan for the selected space
   useEffect(() => {
     if (isDemo || !activeSpaceId || activeType !== "space") {
       setActivePlanName(null);
@@ -217,65 +184,7 @@ const DashboardPage = () => {
     return p?.first_name || "Membre";
   };
 
-
   const filteredHouseCount = selectedHouseId === "all" ? houses.length : 1;
-
-  // ===== CHART DATA =====
-  const now = new Date();
-  const yearStart = startOfYear(now);
-  const yearEnd = endOfYear(now);
-  const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
-
-  // Occupancy per month (approved bookings)
-  const occupancyData = months.map((month) => {
-    const mStart = startOfMonth(month);
-    const mEnd = endOfMonth(month);
-    const totalDays = differenceInCalendarDays(mEnd, mStart) + 1;
-    let bookedDays = 0;
-
-    allBookings.forEach((b) => {
-      const bStart = new Date(b.start_date);
-      const bEnd = new Date(b.end_date);
-      const overlapStart = bStart < mStart ? mStart : bStart;
-      const overlapEnd = bEnd > mEnd ? mEnd : bEnd;
-      if (overlapStart <= overlapEnd) {
-        bookedDays += differenceInCalendarDays(overlapEnd, overlapStart) + 1;
-      }
-    });
-
-    const rate = totalDays > 0 ? Math.min(100, Math.round((bookedDays / totalDays) * 100)) : 0;
-    return {
-      month: format(month, "MMM", { locale: fr }),
-      taux: rate,
-    };
-  });
-
-  // Expense breakdown by category
-  const expenseByCategory = (() => {
-    const map = new Map<string, number>();
-    allExpenses.forEach((e) => {
-      const cat = e.category || "autre";
-      map.set(cat, (map.get(cat) || 0) + e.amount);
-    });
-    return Array.from(map.entries())
-      .map(([category, amount]) => ({
-        name: CATEGORY_LABELS[category] || category,
-        value: Math.round(amount * 100) / 100,
-      }))
-      .sort((a, b) => b.value - a.value);
-  })();
-
-  // Annual totals
-  const yearBookings = allBookings.filter((b) => {
-    const d = new Date(b.start_date);
-    return isWithinInterval(d, { start: yearStart, end: yearEnd });
-  });
-  const totalNightsYear = yearBookings.reduce((sum, b) => {
-    return sum + Math.max(1, differenceInCalendarDays(new Date(b.end_date), new Date(b.start_date)));
-  }, 0);
-  const totalExpensesYear = allExpenses
-    .filter((e) => isWithinInterval(new Date(e.created_at), { start: yearStart, end: yearEnd }))
-    .reduce((sum, e) => sum + e.amount, 0);
 
   const needsContextPicker = !isDemo && !contextLoading && !activeType && (spaces.length + directHouses.length) > 1;
 
@@ -296,6 +205,17 @@ const DashboardPage = () => {
       </AppLayout>
     );
   }
+
+  // Pending payments
+  const pendingPayments = [...bookings, ...allBookings]
+    .filter((b, i, arr) => arr.findIndex(x => x.id === b.id) === i)
+    .filter(b => b.status !== "cancelled" && b.status !== "refused" && (b.payment_status === "unpaid" || b.payment_status === "partial"));
+
+  const totalDue = pendingPayments.reduce((sum, b) => {
+    const total = Number(b.total_price) || 0;
+    const paid = Number(b.amount_paid) || 0;
+    return sum + (total - paid);
+  }, 0);
 
   return (
     <AppLayout title="Dashboard">
@@ -377,242 +297,55 @@ const DashboardPage = () => {
           ))}
         </div>
 
-        {/* Paiements en attente */}
-        {(() => {
-          const pendingPayments = [...bookings, ...allBookings]
-            .filter((b, i, arr) => arr.findIndex(x => x.id === b.id) === i)
-            .filter(b => b.status !== "cancelled" && b.status !== "refused" && (b.payment_status === "unpaid" || b.payment_status === "partial"));
-          
-          if (pendingPayments.length === 0) return null;
-
-          const totalDue = pendingPayments.reduce((sum, b) => {
-            const total = Number(b.total_price) || 0;
-            const paid = Number(b.amount_paid) || 0;
-            return sum + (total - paid);
-          }, 0);
-
-          return (
-            <section className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
-                  <AlertCircle className="h-5 w-5 text-destructive" />
-                  Paiements en attente
-                  <Badge variant="destructive" className="ml-1 text-xs">{pendingPayments.length}</Badge>
-                </h3>
-                <Link to="/bookings" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
-                  Voir les réservations <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-
-              <Card className="border-destructive/20 bg-destructive/5 shadow-soft">
-                <CardContent className="py-4 px-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm text-muted-foreground">Total restant dû</span>
-                    <span className="text-xl font-bold text-destructive">{totalDue.toFixed(2)} €</span>
-                  </div>
-                  <div className="space-y-2">
-                    {pendingPayments.slice(0, 5).map((b) => {
-                      const remaining = (Number(b.total_price) || 0) - (Number(b.amount_paid) || 0);
-                      return (
-                        <div key={b.id} className="flex items-center justify-between gap-2 text-sm">
-                          <div className="min-w-0 flex items-center gap-2">
-                            <Badge variant={b.payment_status === "unpaid" ? "destructive" : "secondary"} className="text-[10px] flex-shrink-0">
-                              {b.payment_status === "unpaid" ? "Impayé" : "Partiel"}
-                            </Badge>
-                            <span className="text-foreground truncate">{b.houses?.name}</span>
-                            <span className="text-muted-foreground text-xs whitespace-nowrap">
-                              {formatDate(b.start_date)} → {formatDate(b.end_date)}
-                            </span>
-                          </div>
-                          <span className="font-semibold text-foreground flex-shrink-0">{remaining.toFixed(2)} €</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-          );
-        })()}
-
-        {(allBookings.length > 0 || allExpenses.length > 0) && (
+        {/* Pending payments */}
+        {pendingPayments.length > 0 && (
           <section className="space-y-4">
-            <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              Statistiques {now.getFullYear()}
-            </h3>
-
-            {/* Annual summary cards */}
-            <div className="grid grid-cols-2 gap-3">
-              <Card className="border-border/50 shadow-soft">
-                <CardContent className="py-4 text-center">
-                  <p className="text-sm text-muted-foreground">Nuitées cette année</p>
-                  <p className="text-2xl font-display text-foreground">{totalNightsYear}</p>
-                </CardContent>
-              </Card>
-              <Card className="border-border/50 shadow-soft">
-                <CardContent className="py-4 text-center">
-                  <p className="text-sm text-muted-foreground">Dépenses cette année</p>
-                  <p className="text-2xl font-display text-foreground">{totalExpensesYear.toFixed(0)} €</p>
-                </CardContent>
-              </Card>
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
+                <AlertCircle className="h-5 w-5 text-destructive" />
+                Paiements en attente
+                <Badge variant="destructive" className="ml-1 text-xs">{pendingPayments.length}</Badge>
+              </h3>
+              <Link to="/bookings" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
+                Voir les réservations <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              {/* Occupancy chart */}
-              {allBookings.length > 0 && (
-                <Card className="border-border/50 shadow-soft">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="font-display text-base">Taux d'occupation mensuel</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-48">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={occupancyData}>
-                          <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                          <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" unit="%" domain={[0, 100]} />
-                          <Tooltip
-                            formatter={(value: number) => [`${value}%`, "Occupation"]}
-                            contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                          />
-                          <Bar dataKey="taux" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Expense pie chart */}
-              {expenseByCategory.length > 0 && (
-                <Card className="border-border/50 shadow-soft">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="font-display text-base">Répartition des dépenses</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-48 flex items-center">
-                      <ResponsiveContainer width="50%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={expenseByCategory}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={70}
-                            innerRadius={35}
-                          >
-                            {expenseByCategory.map((_, idx) => (
-                              <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip
-                            formatter={(value: number) => [`${value.toFixed(0)} €`]}
-                            contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                      <div className="flex-1 space-y-1.5 pl-2">
-                        {expenseByCategory.slice(0, 5).map((cat, idx) => (
-                          <div key={cat.name} className="flex items-center gap-2 text-xs">
-                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: PIE_COLORS[idx % PIE_COLORS.length] }} />
-                            <span className="text-muted-foreground truncate">{cat.name}</span>
-                            <span className="font-medium text-foreground ml-auto">{cat.value.toFixed(0)} €</span>
-                          </div>
-                        ))}
+            <Card className="border-destructive/20 bg-destructive/5 shadow-soft">
+              <CardContent className="py-4 px-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-muted-foreground">Total restant dû</span>
+                  <span className="text-xl font-bold text-destructive">{totalDue.toFixed(2)} €</span>
+                </div>
+                <div className="space-y-2">
+                  {pendingPayments.slice(0, 5).map((b) => {
+                    const remaining = (Number(b.total_price) || 0) - (Number(b.amount_paid) || 0);
+                    return (
+                      <div key={b.id} className="flex items-center justify-between gap-2 text-sm">
+                        <div className="min-w-0 flex items-center gap-2">
+                          <Badge variant={b.payment_status === "unpaid" ? "destructive" : "secondary"} className="text-[10px] flex-shrink-0">
+                            {b.payment_status === "unpaid" ? "Impayé" : "Partiel"}
+                          </Badge>
+                          <span className="text-foreground truncate">{b.houses?.name}</span>
+                          <span className="text-muted-foreground text-xs whitespace-nowrap">
+                            {formatDate(b.start_date)} → {formatDate(b.end_date)}
+                          </span>
+                        </div>
+                        <span className="font-semibold text-foreground flex-shrink-0">{remaining.toFixed(2)} €</span>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
           </section>
         )}
 
-        {/* Prochaines réservations */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-display text-xl text-foreground flex items-center gap-2.5">
-              <CalendarDays className="h-5 w-5 text-primary" />
-              Prochaines réservations
-            </h3>
-            <Link to="/bookings" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
-              Tout voir <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
+        <OccupancyStats allBookings={allBookings} allExpenses={allExpenses} />
 
-          {bookings.length === 0 ? (
-            <Card className="border-border/50 shadow-soft">
-              <CardContent className="empty-state">
-                <CalendarDays className="empty-state-icon" />
-                <p className="text-muted-foreground">Aucune réservation à venir.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-2.5">
-              {bookings.map((booking) => (
-                <Card key={booking.id} className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
-                  <CardContent className="py-4 px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="space-y-1">
-                      <p className="font-medium text-foreground">{booking.houses?.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatDate(booking.start_date)} → {formatDate(booking.end_date)}
-                        <span className="ml-2 text-xs opacity-70">par {getAuthorName(booking.user_id)}</span>
-                      </p>
-                    </div>
-                    <Badge variant={statusLabels[booking.status]?.variant || "secondary"} className="self-start sm:self-center">
-                      {statusLabels[booking.status]?.label || booking.status}
-                    </Badge>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </section>
+        <BookingsSummaryCard bookings={bookings} getAuthorName={getAuthorName} />
 
         <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-          {/* Dépenses récentes */}
-          <section className="space-y-4 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="font-display text-xl text-foreground flex items-center gap-2.5 truncate">
-                <Wallet className="h-5 w-5 text-primary flex-shrink-0" />
-                Dépenses récentes
-              </h3>
-              <Link to="/expenses" className="text-sm text-primary hover:underline flex items-center gap-1 font-medium whitespace-nowrap flex-shrink-0">
-                Tout voir <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-
-            {expenses.length === 0 ? (
-              <Card className="border-border/50 shadow-soft">
-                <CardContent className="empty-state">
-                  <Wallet className="empty-state-icon" />
-                  <p className="text-muted-foreground">Aucune dépense.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-2.5">
-                {expenses.map((expense) => (
-                  <Card key={expense.id} className="border-border/50 shadow-soft hover:shadow-card transition-all duration-200">
-                    <CardContent className="py-3.5 px-5 space-y-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="font-medium text-foreground text-sm truncate">{expense.description}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {getAuthorName(expense.paid_by)} · {formatDate(expense.created_at)}
-                          </p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="font-semibold text-foreground">{Number(expense.amount).toFixed(2)}€</p>
-                          <Badge variant="outline" className="text-[10px]">{expense.houses?.name}</Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </section>
+          <ExpensesSummaryCard expenses={expenses} getAuthorName={getAuthorName} />
 
           {/* Derniers souvenirs */}
           <section className="space-y-4 min-w-0">
