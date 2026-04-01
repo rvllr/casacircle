@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
+import SpaceSelectorDropdown from "@/components/SpaceSelectorDropdown";
 import {
   Sidebar,
   SidebarContent,
