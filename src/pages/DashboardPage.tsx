@@ -146,12 +146,12 @@ const DashboardPage = () => {
       ]);
 
       if (profileRes.data) setMyProfile(profileRes.data);
-      setBookings((bookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] })));
-      setAllBookings((allBookingsRes.data || []).map((b) => ({ ...b, houses: b.houses as Booking["houses"] })));
-      setExpenses((expensesRes.data || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] })));
-      setAllExpenses((allExpensesRes.data || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] })));
-      setMemories((memoriesRes.data || []).map((m) => ({ ...m, houses: m.houses as MemoryRow["houses"] })));
-      setNews((newsRes.data || []).map((n) => ({ ...n, houses: n.houses as NewsRow["houses"] })));
+      setBookings((bookingsRes.data || []).map((b) => ({ ...b, houses: normalizeRelation(b.houses) })));
+      setAllBookings((allBookingsRes.data || []).map((b) => ({ ...b, houses: normalizeRelation(b.houses) })));
+      setExpenses((expensesRes.data || []).map((e) => ({ ...e, houses: normalizeRelation(e.houses) })));
+      setAllExpenses((allExpensesRes.data || []).map((e) => ({ ...e, houses: normalizeRelation(e.houses) })));
+      setMemories((memoriesRes.data || []).map((m) => ({ ...m, houses: normalizeRelation(m.houses) })));
+      setNews((newsRes.data || []).map((n) => ({ ...n, houses: normalizeRelation(n.houses) })));
       setOpenTicketsCount(ticketsRes.count || 0);
       setProfiles(allProfilesRes.data || []);
       setLoading(false);
