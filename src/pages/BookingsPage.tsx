@@ -94,7 +94,7 @@ const BookingsPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const [{ data: bookingsData }, { data: blockedData }, { data: pricingData }] = await Promise.all([
+    const [{ data: bookingsData }, { data: blockedData }, { data: pricingData }, { data: profiles }] = await Promise.all([
       supabase
         .from("bookings")
         .select("id, house_id, unit_id, user_id, start_date, end_date, status, created_at, payment_status, total_price, amount_paid, houses(name, family_id), house_units(name, type)")
@@ -106,16 +106,14 @@ const BookingsPage = () => {
         .from("house_pricing")
         .select("house_id, is_active")
         .eq("is_active", true),
+      supabase
+        .from("users_profiles")
+        .select("user_id, first_name, last_name"),
     ]);
 
     setPricingActiveHouseIds(new Set((pricingData || []).map((p) => p.house_id)));
 
     setBlockedPeriods((blockedData || []) as BlockedPeriod[]);
-
-    const userIds = [...new Set((bookingsData || []).map((b) => b.user_id))];
-    const { data: profiles } = userIds.length > 0
-      ? await supabase.from("users_profiles").select("user_id, first_name, last_name").in("user_id", userIds)
-      : { data: [] };
 
     const profileMap = Object.fromEntries((profiles || []).map((p) => [p.user_id, p]));
 
