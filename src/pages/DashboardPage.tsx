@@ -78,6 +78,7 @@ const DashboardPage = () => {
   const [news, setNews] = useState<NewsRow[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [myProfile, setMyProfile] = useState<{ first_name: string | null } | null>(null);
+  const [openTicketsCount, setOpenTicketsCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
