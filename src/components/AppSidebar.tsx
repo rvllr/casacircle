@@ -169,40 +169,6 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-2">
-        {!collapsed && profile && (
-          <NavLink
-            to={isDemo ? "/dashboard" : "/profile"}
-            className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-secondary/60 transition-all"
-            activeClassName="bg-primary/10"
-          >
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={profile.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary text-xs font-display">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                {[profile.first_name, profile.last_name].filter(Boolean).join(" ") || (isDemo ? "Marie Dupont" : user?.email)}
-              </p>
-              <p className="text-[11px] text-muted-foreground truncate">
-                {isDemo ? "marie@demo.com" : user?.email}
-              </p>
-            </div>
-          </NavLink>
-        )}
-        {collapsed && (
-          <SidebarMenuButton asChild>
-            <NavLink to={isDemo ? "/dashboard" : "/profile"} className="flex items-center justify-center" activeClassName="bg-primary/10">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={profile?.avatar_url || undefined} />
-                <AvatarFallback className="bg-primary/10 text-primary text-xs font-display">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-            </NavLink>
-          </SidebarMenuButton>
-        )}
         <Button
           variant="ghost"
           size="sm"
