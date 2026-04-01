@@ -40,6 +40,7 @@ const MaintenancePage = () => {
   const { isDemo } = useDemo();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
