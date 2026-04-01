@@ -354,6 +354,35 @@ const HouseDetailPage = () => {
           </div>
         )}
 
+        {/* Espace patrimoine */}
+        {isAdmin && (
+          <Card className="border-border/50 shadow-soft">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground font-medium mb-1">🏛️ Espace patrimoine</p>
+                <Select
+                  value={house.family_id || "none"}
+                  onValueChange={handleChangeSpace}
+                  disabled={changingSpace}
+                >
+                  <SelectTrigger className="w-full max-w-xs">
+                    <SelectValue placeholder="Aucun espace" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Aucun espace</SelectItem>
+                    {userSpaces.map((space) => (
+                      <SelectItem key={space.id} value={space.id}>
+                        {space.name} ({space.type === "sci" ? "SCI" : space.type === "family" ? "Famille" : space.type === "indivision" ? "Indivision" : "Personnel"})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {changingSpace && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Fairness Score */}
         <FairnessScore houseId={house.id} members={members} />
 
