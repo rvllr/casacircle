@@ -263,6 +263,9 @@ const PatrimonySpaceDetailPage = () => {
             <TabsTrigger value="votes" className="gap-1.5">
               <Vote className="h-4 w-4" /> Votes
             </TabsTrigger>
+            <TabsTrigger value="subscription" className="gap-1.5">
+              <CreditCard className="h-4 w-4" /> Abonnement
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="houses" className="space-y-4">
