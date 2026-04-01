@@ -12,6 +12,7 @@ import BlockPeriodDialog from "@/components/BlockPeriodDialog";
 import BookingCard from "@/components/bookings/BookingCard";
 import BookingFilters from "@/components/bookings/BookingFilters";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

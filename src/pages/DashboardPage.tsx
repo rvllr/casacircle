@@ -17,6 +17,7 @@ import OccupancyStats from "@/components/dashboard/OccupancyStats";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, AlertCircle, Wrench, Crown } from "lucide-react";
 
 interface Booking {
