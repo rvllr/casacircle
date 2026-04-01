@@ -38,10 +38,10 @@ const queryClient = new QueryClient();
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const { isDemo } = useDemo();
-  if (isDemo) return <>{children}</>;
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Chargement...</div></div>;
-  if (!user) return <Navigate to="/login" replace />;
-  return <>{children}</>;
+  if (user) return <>{children}</>;
+  if (isDemo) return <>{children}</>;
+  return <Navigate to="/login" replace />;
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
