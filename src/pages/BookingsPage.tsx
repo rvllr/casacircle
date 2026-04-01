@@ -22,6 +22,7 @@ import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_BOOKINGS_ENRICHED, DEMO_PROFILES } from "@/lib/demoData";
+import { BOOKING_STATUS_CONFIG, PAYMENT_STATUS_CONFIG } from "@/lib/constants";
 
 interface BookingRow {
   id: string;

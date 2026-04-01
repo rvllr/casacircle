@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { BOOKING_STATUS_LABELS } from "@/lib/constants";
 
 function escapeCsv(value: string | number | null | undefined): string {
   if (value == null) return "";
