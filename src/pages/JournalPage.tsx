@@ -99,9 +99,6 @@ const JournalPage = () => {
   const getPhotosForMemory = (memoryId: string) =>
     photos.filter((p) => p.memory_id === memoryId);
 
-  const fmtLong = (d: string) => formatDateLong(d);
-  const fmtShort = (d: string) => formatDate(d);
-
   const grouped = filtered.reduce<Record<string, Memory[]>>((acc, m) => {
     const dateStr = m.visit_start || m.created_at;
     const year = new Date(dateStr).getFullYear().toString();
