@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHouseContext } from "@/contexts/HouseContext";
 import { useDemo } from "@/contexts/DemoContext";
+import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
 import { DEMO_BOOKINGS, DEMO_ALL_BOOKINGS, DEMO_EXPENSES, DEMO_ALL_EXPENSES, DEMO_MEMORIES, DEMO_NEWS, DEMO_PROFILES, DEMO_PROFILE } from "@/lib/demoData";
 import AppLayout from "@/components/AppLayout";
+import ContextPickerScreen from "@/components/ContextPickerScreen";
 import HouseSelector from "@/components/HouseSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -261,12 +263,23 @@ const DashboardPage = () => {
     .filter((e) => isWithinInterval(new Date(e.created_at), { start: yearStart, end: yearEnd }))
     .reduce((sum, e) => sum + e.amount, 0);
 
-  if (loading) {
+  const { activeType, spaces, directHouses, loading: contextLoading } = useActiveSpace();
+  const needsContextPicker = !isDemo && !contextLoading && !activeType && (spaces.length + directHouses.length) > 1;
+
+  if (loading && !needsContextPicker) {
     return (
       <AppLayout title="Dashboard">
         <div className="flex items-center justify-center h-64">
           <div className="animate-pulse text-muted-foreground">Chargement...</div>
         </div>
+      </AppLayout>
+    );
+  }
+
+  if (needsContextPicker) {
+    return (
+      <AppLayout title="Dashboard">
+        <ContextPickerScreen />
       </AppLayout>
     );
   }
