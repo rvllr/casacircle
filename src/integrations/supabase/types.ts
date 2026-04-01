@@ -1372,6 +1372,42 @@ export type Database = {
           },
         ]
       }
+      space_addons: {
+        Row: {
+          activated_at: string
+          addon_id: string
+          id: string
+          space_id: string
+        }
+        Insert: {
+          activated_at?: string
+          addon_id: string
+          id?: string
+          space_id: string
+        }
+        Update: {
+          activated_at?: string
+          addon_id?: string
+          id?: string
+          space_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "space_addons_addon_id_fkey"
+            columns: ["addon_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_addons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "space_addons_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       space_documents: {
         Row: {
           created_at: string
@@ -1409,6 +1445,132 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      space_subscriptions: {
+        Row: {
+          created_at: string
+          created_by_user_id: string
+          expires_at: string | null
+          id: string
+          plan_id: string
+          space_id: string
+          started_at: string
+          status: string
+          stripe_subscription_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by_user_id: string
+          expires_at?: string | null
+          id?: string
+          plan_id: string
+          space_id: string
+          started_at?: string
+          status?: string
+          stripe_subscription_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by_user_id?: string
+          expires_at?: string | null
+          id?: string
+          plan_id?: string
+          space_id?: string
+          started_at?: string
+          status?: string
+          stripe_subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "space_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "space_subscriptions_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: true
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_addons: {
+        Row: {
+          code: string
+          created_at: string
+          features: Json
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          code: string
+          created_at: string
+          features: Json
+          id: string
+          is_active: boolean
+          max_houses_per_space: number
+          max_members_per_space: number
+          max_spaces: number
+          monthly_price: number
+          name: string
+          stripe_price_id: string | null
+          yearly_price: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          max_houses_per_space?: number
+          max_members_per_space?: number
+          max_spaces?: number
+          monthly_price?: number
+          name: string
+          stripe_price_id?: string | null
+          yearly_price?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          max_houses_per_space?: number
+          max_members_per_space?: number
+          max_spaces?: number
+          monthly_price?: number
+          name?: string
+          stripe_price_id?: string | null
+          yearly_price?: number
+        }
+        Relationships: []
       }
       users_profiles: {
         Row: {
