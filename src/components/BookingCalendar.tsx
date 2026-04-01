@@ -71,53 +71,48 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
     return map;
   }, [bookings]);
 
-  // Month view days
-  const monthDays = useMemo(() => {
-    const start = startOfMonth(month);
-    const end = endOfMonth(month);
-    const allDays = eachDayOfInterval({ start, end });
-    const startPad = (getDay(start) + 6) % 7;
-    const paddedStart: (Date | null)[] = Array(startPad).fill(null);
-    return [...paddedStart, ...allDays];
-  }, [month]);
-
-  // Week view days
-  const weekDays = useMemo(() => {
-    const ws = startOfWeek(currentDate, { weekStartsOn: 1 });
-    const we = endOfWeek(currentDate, { weekStartsOn: 1 });
-    return eachDayOfInterval({ start: ws, end: we });
-  }, [currentDate]);
-
-  // Period view days
-  const periodDays = useMemo(() => {
-    if (!periodRange?.from) return [];
-    const end = periodRange.to || periodRange.from;
-    return eachDayOfInterval({ start: periodRange.from, end });
-  }, [periodRange]);
-
-  const getBookingsForDay = (date: Date): CalendarBooking[] => {
-    return bookings.filter((b) => {
+  // Pre-index bookings by date string for O(1) lookups instead of O(n) per day
+  const bookingsByDate = useMemo(() => {
+    const map = new Map<string, CalendarBooking[]>();
+    for (const b of bookings) {
+      if (b.status !== "approved" && b.status !== "pending") continue;
       const bStart = new Date(b.start_date);
       const bEnd = new Date(b.end_date);
-      return date >= bStart && date <= bEnd && (b.status === "approved" || b.status === "pending");
-    });
+      const days = eachDayOfInterval({ start: bStart, end: bEnd });
+      for (const day of days) {
+        const key = format(day, "yyyy-MM-dd");
+        const arr = map.get(key);
+        if (arr) arr.push(b);
+        else map.set(key, [b]);
+      }
+    }
+    return map;
+  }, [bookings]);
+
+  // Pre-index blocked periods by date string
+  const blockedByDate = useMemo(() => {
+    const map = new Map<string, string | null>();
+    for (const bp of blockedPeriods) {
+      const bpStart = new Date(bp.start_date);
+      const bpEnd = new Date(bp.end_date);
+      const days = eachDayOfInterval({ start: bpStart, end: bpEnd });
+      for (const day of days) {
+        map.set(format(day, "yyyy-MM-dd"), bp.reason || null);
+      }
+    }
+    return map;
+  }, [blockedPeriods]);
+
+  const getBookingsForDay = (date: Date): CalendarBooking[] => {
+    return bookingsByDate.get(format(date, "yyyy-MM-dd")) || [];
   };
 
   const isBlocked = (date: Date): boolean => {
-    return blockedPeriods.some((bp) => {
-      const bpStart = new Date(bp.start_date);
-      const bpEnd = new Date(bp.end_date);
-      return date >= bpStart && date <= bpEnd;
-    });
+    return blockedByDate.has(format(date, "yyyy-MM-dd"));
   };
 
   const getBlockedReason = (date: Date): string | null => {
-    const bp = blockedPeriods.find((bp) => {
-      const bpStart = new Date(bp.start_date);
-      const bpEnd = new Date(bp.end_date);
-      return date >= bpStart && date <= bpEnd;
-    });
-    return bp?.reason || null;
+    return blockedByDate.get(format(date, "yyyy-MM-dd")) ?? null;
   };
 
   const getDayStatus = (date: Date): "available" | "pending" | "booked" | "past" | "blocked" => {
@@ -130,7 +125,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
   };
 
   const hasBooking = (date: Date): boolean => {
-    return getBookingsForDay(date).length > 0;
+    return bookingsByDate.has(format(date, "yyyy-MM-dd"));
   };
 
   const filterDay = (date: Date): boolean => {
