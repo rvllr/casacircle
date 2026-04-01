@@ -103,7 +103,14 @@ const NotificationBell = () => {
     };
   }, [user]);
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  // Filter notifications by active context
+  const contextHouseIds = useMemo(() => new Set(houses.map(h => h.id)), [houses]);
+  const contextNotifications = useMemo(() => 
+    notifications.filter(n => !n.house_id || contextHouseIds.has(n.house_id)),
+    [notifications, contextHouseIds]
+  );
+
+  const unreadCount = contextNotifications.filter((n) => !n.is_read).length;
 
   const markAsRead = async (id: string) => {
     await supabase.from("notifications").update({ is_read: true } as any).eq("id", id);
