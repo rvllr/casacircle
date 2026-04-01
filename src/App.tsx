@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { HouseProvider } from "@/contexts/HouseContext";
+import { ActiveSpaceProvider } from "@/contexts/ActiveSpaceContext";
 import { DemoProvider, useDemo } from "@/contexts/DemoContext";
 import LandingPage from "./pages/LandingPage";
 import HousesPage from "./pages/HousesPage";
