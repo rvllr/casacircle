@@ -214,6 +214,23 @@ const HouseDetailPage = () => {
     fetchHouse();
   }, [fetchHouse]);
 
+  const handleChangeSpace = async (spaceId: string) => {
+    if (!house) return;
+    setChangingSpace(true);
+    const newFamilyId = spaceId === "none" ? null : spaceId;
+    const { error } = await supabase
+      .from("houses")
+      .update({ family_id: newFamilyId })
+      .eq("id", house.id);
+    setChangingSpace(false);
+    if (error) {
+      toast({ title: "Erreur", description: "Impossible de changer l'espace.", variant: "destructive" });
+    } else {
+      toast({ title: "Espace modifié", description: "Le bien a été transféré avec succès." });
+      fetchHouse();
+    }
+  };
+
   if (loading || !house) {
     return (
       <AppLayout title="Maison">
