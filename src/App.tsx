@@ -59,8 +59,8 @@ const App = () => (
       <BrowserRouter>
         <DemoProvider>
         <AuthProvider>
-          <HouseProvider>
           <ActiveSpaceProvider>
+          <HouseProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
