@@ -144,10 +144,10 @@ const MaintenancePage = () => {
   const filtered = filter === "all" ? contextTickets : contextTickets.filter((t) => t.status === filter);
 
   const counts = {
-    all: tickets.length,
-    open: tickets.filter((t) => t.status === "open").length,
-    in_progress: tickets.filter((t) => t.status === "in_progress").length,
-    resolved: tickets.filter((t) => t.status === "resolved").length,
+    all: contextTickets.length,
+    open: contextTickets.filter((t) => t.status === "open").length,
+    in_progress: contextTickets.filter((t) => t.status === "in_progress").length,
+    resolved: contextTickets.filter((t) => t.status === "resolved").length,
   };
 
   return (
