@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_BOOKINGS_ENRICHED } from "@/lib/demoData";
+import { normalizeRelation } from "@/lib/supabaseHelpers";
 
 export interface BookingRow {
   id: string;
@@ -38,10 +39,6 @@ interface UseBookingsReturn {
   refetch: () => Promise<void>;
 }
 
-/**
- * Fetches all bookings with houses, units, and user profiles joined in parallel.
- * Also fetches blocked periods and active pricing house IDs.
- */
 export function useBookings(): UseBookingsReturn {
   const { user } = useAuth();
   const { isDemo } = useDemo();
@@ -53,7 +50,7 @@ export function useBookings(): UseBookingsReturn {
 
   const refetch = useCallback(async () => {
     if (isDemo) {
-      setData(DEMO_BOOKINGS_ENRICHED as any);
+      setData(DEMO_BOOKINGS_ENRICHED as BookingRow[]);
       setBlockedPeriods([]);
       setPricingActiveHouseIds(new Set());
       setLoading(false);
@@ -91,17 +88,35 @@ export function useBookings(): UseBookingsReturn {
     }
 
     setPricingActiveHouseIds(new Set((pricingRes.data || []).map((p) => p.house_id)));
-    setBlockedPeriods((blockedRes.data || []) as BlockedPeriod[]);
+    setBlockedPeriods(
+      (blockedRes.data || []).map((bp) => ({
+        id: bp.id,
+        house_id: bp.house_id,
+        start_date: bp.start_date,
+        end_date: bp.end_date,
+        reason: bp.reason,
+      }))
+    );
 
-    const profileMap = Object.fromEntries(
-      (profilesRes.data || []).map((p) => [p.user_id, p])
+    const profileMap = new Map(
+      (profilesRes.data || []).map((p) => [p.user_id, { first_name: p.first_name, last_name: p.last_name }])
     );
 
     const enriched: BookingRow[] = (bookingsRes.data || []).map((b) => ({
-      ...b,
-      houses: b.houses as BookingRow["houses"],
-      house_units: b.house_units as BookingRow["house_units"],
-      users_profiles: profileMap[b.user_id] || null,
+      id: b.id,
+      house_id: b.house_id,
+      unit_id: b.unit_id,
+      user_id: b.user_id,
+      start_date: b.start_date,
+      end_date: b.end_date,
+      status: b.status,
+      created_at: b.created_at,
+      payment_status: b.payment_status,
+      total_price: b.total_price,
+      amount_paid: b.amount_paid,
+      houses: normalizeRelation(b.houses),
+      house_units: normalizeRelation(b.house_units),
+      users_profiles: profileMap.get(b.user_id) ?? null,
     }));
 
     setData(enriched);

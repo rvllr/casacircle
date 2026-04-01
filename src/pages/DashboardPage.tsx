@@ -174,8 +174,8 @@ const DashboardPage = () => {
         .eq("space_id", activeSpaceId)
         .eq("status", "active")
         .maybeSingle();
-      const plan = data?.subscription_plans as { name: string } | null;
-      setActivePlanName(plan?.name || null);
+      const plan = normalizeRelation(data?.subscription_plans ?? null);
+      setActivePlanName(plan?.name ?? null);
     };
     fetchPlan();
   }, [activeSpaceId, activeType, isDemo]);
