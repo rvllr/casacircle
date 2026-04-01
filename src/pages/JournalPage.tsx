@@ -10,6 +10,7 @@ import NewMemoryDialog from "@/components/NewMemoryDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, CalendarDays, User, ImageIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateLong, formatDate } from "@/lib/dateFormatter";
 import { useToast } from "@/hooks/use-toast";
 
