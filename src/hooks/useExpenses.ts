@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_ALL_EXPENSES, DEMO_EXPENSE_SHARES } from "@/lib/demoData";
+import { normalizeRelation } from "@/lib/supabaseHelpers";
 
 export interface Expense {
   id: string;
@@ -31,10 +32,6 @@ interface UseExpensesReturn {
   refetch: () => Promise<void>;
 }
 
-/**
- * Fetches all expenses with house names joined,
- * plus their expense_shares in parallel where possible.
- */
 export function useExpenses(): UseExpensesReturn {
   const { user } = useAuth();
   const { isDemo } = useDemo();
@@ -45,7 +42,7 @@ export function useExpenses(): UseExpensesReturn {
 
   const refetch = useCallback(async () => {
     if (isDemo) {
-      setData(DEMO_ALL_EXPENSES as any);
+      setData(DEMO_ALL_EXPENSES as Expense[]);
       setShares(DEMO_EXPENSE_SHARES);
       setLoading(false);
       return;
@@ -59,7 +56,6 @@ export function useExpenses(): UseExpensesReturn {
     setLoading(true);
     setError(null);
 
-    // Fetch expenses and all shares in parallel
     const [expRes, sharesRes] = await Promise.all([
       supabase
         .from("expenses")
@@ -76,13 +72,19 @@ export function useExpenses(): UseExpensesReturn {
       return;
     }
 
-    const expList = (expRes.data || []).map((e) => ({
-      ...e,
-      houses: e.houses as Expense["houses"],
+    const expList: Expense[] = (expRes.data || []).map((e) => ({
+      id: e.id,
+      house_id: e.house_id,
+      paid_by: e.paid_by,
+      description: e.description,
+      amount: e.amount,
+      created_at: e.created_at,
+      category: e.category,
+      expense_date: e.expense_date,
+      houses: normalizeRelation(e.houses),
     }));
     setData(expList);
 
-    // Filter shares to only include those for fetched expenses
     const expIds = new Set(expList.map((e) => e.id));
     setShares((sharesRes.data || []).filter((s) => expIds.has(s.expense_id)));
 
