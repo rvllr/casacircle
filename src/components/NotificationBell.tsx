@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDemo } from "@/contexts/DemoContext";
+import { useHouseContext } from "@/contexts/HouseContext";
 import { DEMO_NOTIFICATIONS } from "@/lib/demoData";
 import { Bell, Check, CalendarDays, X, AlertCircle, BanknoteIcon } from "lucide-react";
 import { toast } from "sonner";
