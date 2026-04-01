@@ -56,7 +56,7 @@ const PublicHousePage = () => {
       if (!id) return;
 
       const [houseResult, { data: guidesData }, { data: unitsData }] = await Promise.all([
-        supabase.from("houses").select("id, name, location, description, capacity, photo_url").eq("id", id).eq("is_public", true).single(),
+        supabase.from("public_houses").select("id, name, location, description, capacity, photo_url").eq("id", id).eq("is_public", true).single(),
         supabase.from("house_guides").select("id, title, content, type").eq("house_id", id).order("type"),
         supabase.from("house_units").select("id, name, type, parent_id, capacity, description").eq("house_id", id).order("type").order("name"),
       ]);
