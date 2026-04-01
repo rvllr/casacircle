@@ -6,7 +6,7 @@ import { CheckCircle2, XCircle, Crown, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { fetchPlans, fetchSpaceSubscription, SubscriptionPlan, SpaceSubscription, PLAN_LABELS, PLAN_COLORS, FEATURE_LABELS } from "@/lib/subscriptions";
 import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
-import { AppLayout } from "@/components/AppLayout";
+import AppLayout from "@/components/AppLayout";
 
 const SubscriptionPage = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
