@@ -26,8 +26,8 @@ import { Button } from "@/components/ui/button";
 
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Espaces", url: "/spaces", icon: Briefcase },
-  { title: "Maisons", url: "/houses", icon: Building2 },
+  { title: "Espaces patrimoine", url: "/spaces", icon: Briefcase },
+  { title: "Biens", url: "/houses", icon: Building2 },
   { title: "Rejoindre", url: "/rejoindre", icon: KeyRound },
   { title: "Réservations", url: "/bookings", icon: CalendarDays },
   { title: "Journal", url: "/journal", icon: BookOpen },
