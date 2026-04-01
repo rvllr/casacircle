@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, CalendarDays, BookOpen, Receipt, User, LogOut, Wrench, FileText, Vote, Eye, KeyRound, Briefcase } from "lucide-react";
+import { LayoutDashboard, Building2, CalendarDays, BookOpen, Receipt, User, LogOut, Wrench, FileText, Vote, Eye, KeyRound, Briefcase, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -38,6 +38,10 @@ const manageItems = [
   { title: "Votes", url: "/votes", icon: Vote },
   { title: "Maintenance", url: "/maintenance", icon: Wrench },
   { title: "Documents", url: "/documents", icon: FileText },
+];
+
+const settingsItems = [
+  { title: "Mon profil", url: "/profile", icon: User },
 ];
 
 export function AppSidebar() {
@@ -123,6 +127,17 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">{renderItems(manageItems)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator className="mx-3 my-2" />
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-body font-semibold px-3 mb-1">
+            Réglages
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-0.5">{renderItems(settingsItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
