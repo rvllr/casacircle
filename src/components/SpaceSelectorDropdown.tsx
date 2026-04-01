@@ -98,7 +98,7 @@ export default function SpaceSelectorDropdown() {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70">
-              Biens directs
+              Accès partiels à des biens
             </DropdownMenuLabel>
             {directHouses.map((house) => (
               <DropdownMenuItem
