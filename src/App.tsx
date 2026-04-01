@@ -28,6 +28,7 @@ import MentionsLegalesPage from "./pages/MentionsLegalesPage";
 import JoinHousePage from "./pages/JoinHousePage";
 import PatrimonySpacesPage from "./pages/PatrimonySpacesPage";
 import PatrimonySpaceDetailPage from "./pages/PatrimonySpaceDetailPage";
+import PricingPage from "./pages/PricingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
