@@ -1,9 +1,10 @@
-import { LayoutDashboard, Building2, CalendarDays, BookOpen, Receipt, User, LogOut, Wrench, FileText, Vote, Eye, KeyRound, Briefcase, Settings } from "lucide-react";
+import { LayoutDashboard, Building2, CalendarDays, BookOpen, Receipt, User, LogOut, Wrench, FileText, Vote, Eye, KeyRound, Briefcase, ClipboardCheck, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDemo } from "@/contexts/DemoContext";
+import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
 import { DEMO_PROFILE } from "@/lib/demoData";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
@@ -25,7 +26,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-const mainItems = [
+// Items visible when context = space or no context
+const spaceMainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Espaces patrimoine", url: "/spaces", icon: Briefcase },
   { title: "Biens", url: "/houses", icon: Building2 },
@@ -34,9 +36,21 @@ const mainItems = [
   { title: "Journal", url: "/journal", icon: BookOpen },
 ];
 
-const manageItems = [
+const spaceManageItems = [
   { title: "Dépenses", url: "/expenses", icon: Receipt },
   { title: "Votes", url: "/votes", icon: Vote },
+  { title: "Maintenance", url: "/maintenance", icon: Wrench },
+  { title: "Documents", url: "/documents", icon: FileText },
+];
+
+// Items visible when context = house only
+const houseMainItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Réservations", url: "/bookings", icon: CalendarDays },
+  { title: "Journal", url: "/journal", icon: BookOpen },
+];
+
+const houseManageItems = [
   { title: "Maintenance", url: "/maintenance", icon: Wrench },
   { title: "Documents", url: "/documents", icon: FileText },
 ];
@@ -52,7 +66,12 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
   const { isDemo, exitDemo } = useDemo();
+  const { activeType } = useActiveSpace();
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; avatar_url: string | null } | null>(null);
+
+  // Filter menu based on active context type
+  const currentMainItems = activeType === "house" ? houseMainItems : spaceMainItems;
+  const currentManageItems = activeType === "house" ? houseManageItems : spaceManageItems;
 
   useEffect(() => {
     if (isDemo) {
@@ -82,7 +101,7 @@ export function AppSidebar() {
     }
   };
 
-  const renderItems = (items: typeof mainItems) =>
+  const renderItems = (items: typeof spaceMainItems) =>
     items.map((item) => (
       <SidebarMenuItem key={item.title}>
         <SidebarMenuButton asChild>
@@ -121,7 +140,7 @@ export function AppSidebar() {
             Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">{renderItems(mainItems)}</SidebarMenu>
+            <SidebarMenu className="space-y-0.5">{renderItems(currentMainItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
@@ -132,7 +151,7 @@ export function AppSidebar() {
             Gestion
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">{renderItems(manageItems)}</SidebarMenu>
+            <SidebarMenu className="space-y-0.5">{renderItems(currentManageItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
