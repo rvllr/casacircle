@@ -98,7 +98,11 @@ export function AppSidebar() {
       <SidebarContent className="py-2">
         {/* Logo */}
         <div className="px-4 py-4 flex items-center justify-center">
-          <img src={logoCasaCircle} alt="CasaCircle" className="h-9 w-auto" />
+          {collapsed ? (
+            <img src="/favicon.png" alt="CasaCircle" className="h-8 w-8" />
+          ) : (
+            <img src={logoCasaCircle} alt="CasaCircle" className="h-9 w-auto" />
+          )}
         </div>
 
         <SidebarGroup>
