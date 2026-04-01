@@ -12,7 +12,7 @@ import HouseSelector from "@/components/HouseSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, TrendingUp, AlertCircle } from "lucide-react";
+import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, TrendingUp, AlertCircle, Wrench } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, differenceInCalendarDays, startOfYear, endOfYear, isWithinInterval } from "date-fns";
 import { fr } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -78,6 +78,7 @@ const DashboardPage = () => {
   const [news, setNews] = useState<NewsRow[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [myProfile, setMyProfile] = useState<{ first_name: string | null } | null>(null);
+  const [openTicketsCount, setOpenTicketsCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -135,6 +136,11 @@ const DashboardPage = () => {
         .order("created_at", { ascending: false })
         .limit(5);
 
+      let ticketsQuery = supabase
+        .from("maintenance_tickets")
+        .select("id, house_id", { count: "exact", head: true })
+        .in("status", ["open", "in_progress"]);
+
       if (selectedHouseId !== "all") {
         bookingsQuery = bookingsQuery.eq("house_id", selectedHouseId);
         allBookingsQuery = allBookingsQuery.eq("house_id", selectedHouseId);
@@ -142,9 +148,10 @@ const DashboardPage = () => {
         allExpensesQuery = allExpensesQuery.eq("house_id", selectedHouseId);
         memoriesQuery = memoriesQuery.eq("house_id", selectedHouseId);
         newsQuery = newsQuery.eq("house_id", selectedHouseId);
+        ticketsQuery = ticketsQuery.eq("house_id", selectedHouseId);
       }
 
-      const [profileRes, bookingsRes, allBookingsRes, expensesRes, allExpensesRes, memoriesRes, newsRes] = await Promise.all([
+      const [profileRes, bookingsRes, allBookingsRes, expensesRes, allExpensesRes, memoriesRes, newsRes, ticketsRes] = await Promise.all([
         supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
         bookingsQuery,
         allBookingsQuery,
@@ -152,6 +159,7 @@ const DashboardPage = () => {
         allExpensesQuery,
         memoriesQuery,
         newsQuery,
+        ticketsQuery,
       ]);
 
       if (profileRes.data) setMyProfile(profileRes.data);
@@ -173,6 +181,8 @@ const DashboardPage = () => {
 
       const newsList = (newsRes.data || []).map((n) => ({ ...n, houses: n.houses as NewsRow["houses"] }));
       setNews(newsList);
+
+      setOpenTicketsCount(ticketsRes.count || 0);
 
       const authorIds = [...new Set([
         ...expensesList.map((e) => e.paid_by),
@@ -319,9 +329,22 @@ const DashboardPage = () => {
                 Contexte actif : <span className="font-semibold text-foreground">{activeLabel}</span>
               </span>
             </div>
-            <span className="sm:ml-auto text-xs text-muted-foreground">
-              {filteredHouseCount} bien{filteredHouseCount > 1 ? "s" : ""} · {bookings.length} résa · {expenses.reduce((s, e) => s + Number(e.amount), 0).toFixed(0)}€ dépenses
-            </span>
+            <div className="sm:ml-auto flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span>{filteredHouseCount} bien{filteredHouseCount > 1 ? "s" : ""}</span>
+              <span>·</span>
+              <span>{bookings.length} résa</span>
+              <span>·</span>
+              <span>{expenses.reduce((s, e) => s + Number(e.amount), 0).toFixed(0)}€ dépenses</span>
+              {openTicketsCount > 0 && (
+                <>
+                  <span>·</span>
+                  <span className="flex items-center gap-1 text-destructive font-medium">
+                    <Wrench className="h-3 w-3" />
+                    {openTicketsCount} ticket{openTicketsCount > 1 ? "s" : ""} ouvert{openTicketsCount > 1 ? "s" : ""}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         )}
 
