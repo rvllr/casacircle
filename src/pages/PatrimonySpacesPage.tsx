@@ -190,12 +190,12 @@ const PatrimonySpacesPage = () => {
                     )}
 
                     <div className="flex items-center gap-4 text-sm text-muted-foreground pt-1">
-                      <span className="flex items-center gap-1.5">
-                        <Building2 className="h-3.5 w-3.5" />
+                      <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <Building2 className="h-3.5 w-3.5 shrink-0" />
                         {space.houseCount} maison{space.houseCount !== 1 ? "s" : ""}
                       </span>
-                      <span className="flex items-center gap-1.5">
-                        <Users className="h-3.5 w-3.5" />
+                      <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <Users className="h-3.5 w-3.5 shrink-0" />
                         {space.memberCount} membre{space.memberCount !== 1 ? "s" : ""}
                       </span>
                     </div>
