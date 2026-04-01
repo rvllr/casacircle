@@ -124,9 +124,10 @@ const CreateSpaceWizard = ({ onCreated }: CreateSpaceWizardProps) => {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" size="sm">
           <Plus className="h-4 w-4 mr-2" />
-          Créer un espace patrimoine
+          <span className="hidden sm:inline">Créer un espace patrimoine</span>
+          <span className="sm:hidden">Nouvel espace</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">

@@ -238,7 +238,7 @@ const HousesPage = () => {
             <h2 className="page-header-title">Mes maisons</h2>
             <p className="page-header-subtitle">Créez des maisons et invitez vos proches.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <CreateHouseDialog families={adminFamilies} onCreated={fetchData} />
             <CreateSpaceWizard onCreated={fetchData} />
           </div>
