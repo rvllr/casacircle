@@ -44,10 +44,16 @@ const JournalPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const { data: memData } = await supabase
+    const { data: memData, error: memError } = await supabase
       .from("house_memories")
       .select("id, house_id, created_by, title, description, visit_start, visit_end, created_at, houses(name)")
       .order("visit_start", { ascending: false, nullsFirst: false });
+
+    if (memError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les souvenirs.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
 
     const memList = (memData || []).map((m) => ({ ...m, houses: m.houses as Memory["houses"] }));
     setMemories(memList);

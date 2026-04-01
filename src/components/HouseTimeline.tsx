@@ -51,11 +51,14 @@ const HouseTimeline = ({ houseId, isAdmin }: HouseTimelineProps) => {
   const [eventType, setEventType] = useState("other");
 
   const fetchEvents = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from("house_history_events")
       .select("*")
       .eq("house_id", houseId)
       .order("event_date", { ascending: false });
+    if (fetchError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer la chronologie.", variant: "destructive" });
+    }
     setEvents((data || []) as HistoryEvent[]);
     setLoading(false);
   }, [houseId]);

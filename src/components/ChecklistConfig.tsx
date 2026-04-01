@@ -59,10 +59,13 @@ const ChecklistConfig = ({ houseId, isAdmin }: ChecklistConfigProps) => {
   const [submitting, setSubmitting] = useState(false);
 
   const fetchAll = useCallback(async () => {
-    const [{ data: cl }, { data: it }] = await Promise.all([
+    const [{ data: cl, error: clError }, { data: it }] = await Promise.all([
       supabase.from("house_checklists").select("*").eq("house_id", houseId).order("order_index"),
       supabase.from("checklist_items").select("*").order("order_index"),
     ]);
+    if (clError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les checklists.", variant: "destructive" });
+    }
     setChecklists((cl || []) as Checklist[]);
     setItems((it || []) as ChecklistItem[]);
     setLoading(false);

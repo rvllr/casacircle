@@ -63,7 +63,7 @@ const MaintenancePage = () => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error(error);
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les tickets de maintenance.", variant: "destructive" });
       setLoading(false);
       return;
     }

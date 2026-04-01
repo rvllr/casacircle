@@ -66,12 +66,15 @@ const NotificationBell = () => {
       return;
     }
     if (!user) return;
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from("notifications")
       .select("id, type, title, body, is_read, created_at, house_id, metadata")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(30);
+    if (fetchError) {
+      console.warn("Notifications fetch error:", fetchError.message);
+    }
     setNotifications((data as Notification[]) || []);
   }, [user, isDemo]);
 

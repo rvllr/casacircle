@@ -65,11 +65,14 @@ const PricingPeriodsManager = ({ houseId, isAdmin }: Props) => {
 
   const fetchPeriods = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from("pricing_periods")
       .select("*")
       .eq("house_id", houseId)
       .order("priority", { ascending: false });
+    if (fetchError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les périodes tarifaires.", variant: "destructive" });
+    }
     setPeriods((data as any as PricingPeriod[]) || []);
     setLoading(false);
   };

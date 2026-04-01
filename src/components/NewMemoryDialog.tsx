@@ -94,7 +94,7 @@ const NewMemoryDialog = ({ onCreated }: Props) => {
         .upload(path, photo);
 
       if (uploadError) {
-        console.error("Photo upload error:", uploadError);
+        toast({ title: "Erreur d'upload", description: `Impossible d'envoyer la photo ${photo.name}.`, variant: "destructive" });
         continue;
       }
 
