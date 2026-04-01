@@ -292,7 +292,7 @@ const VotesPage = () => {
               </div>
               <h3 className="font-display text-lg text-foreground">Aucun vote</h3>
               <p className="text-sm text-muted-foreground max-w-xs mx-auto">Créez un vote pour prendre des décisions ensemble.</p>
-              <Button onClick={() => setOpen(true)} className="rounded-xl mt-1">
+              <Button onClick={() => setDialogOpen(true)} className="rounded-xl mt-1">
                 <Plus className="h-4 w-4 mr-2" />
                 Proposer un premier vote
               </Button>
