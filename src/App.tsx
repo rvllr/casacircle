@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { HouseProvider } from "@/contexts/HouseContext";
 import { ActiveSpaceProvider } from "@/contexts/ActiveSpaceContext";
 import { DemoProvider, useDemo } from "@/contexts/DemoContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import LandingPage from "./pages/LandingPage";
 import HousesPage from "./pages/HousesPage";
 import HouseDetailPage from "./pages/HouseDetailPage";
