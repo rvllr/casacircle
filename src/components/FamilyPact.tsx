@@ -10,8 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { FileText, Plus, CheckCircle2, Clock, Loader2, PenLine, Users, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { formatDateLong } from "@/lib/dateFormatter";
 
 interface FamilyPactProps {
   houseId: string;

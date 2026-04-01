@@ -187,10 +187,10 @@ const JournalPage = () => {
                                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
                                   <CalendarDays className="h-3.5 w-3.5" />
                                   {m.visit_start && m.visit_end
-                                    ? `${formatShortDate(m.visit_start)} → ${formatShortDate(m.visit_end)}`
+                                    ? `${fmtShort(m.visit_start)} → ${fmtShort(m.visit_end)}`
                                     : m.visit_start
-                                    ? formatDate(m.visit_start)
-                                    : formatDate(m.visit_end!)}
+                                    ? fmtLong(m.visit_start)
+                                    : fmtLong(m.visit_end!)}
                                 </div>
                               )}
                             </div>
