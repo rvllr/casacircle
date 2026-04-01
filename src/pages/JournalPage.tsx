@@ -10,8 +10,7 @@ import NewMemoryDialog from "@/components/NewMemoryDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, CalendarDays, User, ImageIcon } from "lucide-react";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { formatDateLong, formatDate } from "@/lib/dateFormatter";
 
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
 interface MemoryPhoto { id: string; memory_id: string; image_url: string; }
@@ -90,15 +89,8 @@ const JournalPage = () => {
   const getPhotosForMemory = (memoryId: string) =>
     photos.filter((p) => p.memory_id === memoryId);
 
-  const formatDate = (d: string) => {
-    try { return format(new Date(d), "d MMMM yyyy", { locale: fr }); }
-    catch { return d; }
-  };
-
-  const formatShortDate = (d: string) => {
-    try { return format(new Date(d), "d MMM yyyy", { locale: fr }); }
-    catch { return d; }
-  };
+  const fmtLong = (d: string) => formatDateLong(d);
+  const fmtShort = (d: string) => formatDate(d);
 
   const grouped = filtered.reduce<Record<string, Memory[]>>((acc, m) => {
     const dateStr = m.visit_start || m.created_at;
@@ -195,10 +187,10 @@ const JournalPage = () => {
                                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
                                   <CalendarDays className="h-3.5 w-3.5" />
                                   {m.visit_start && m.visit_end
-                                    ? `${formatShortDate(m.visit_start)} → ${formatShortDate(m.visit_end)}`
+                                    ? `${fmtShort(m.visit_start)} → ${fmtShort(m.visit_end)}`
                                     : m.visit_start
-                                    ? formatDate(m.visit_start)
-                                    : formatDate(m.visit_end!)}
+                                    ? fmtLong(m.visit_start)
+                                    : fmtLong(m.visit_end!)}
                                 </div>
                               )}
                             </div>

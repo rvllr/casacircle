@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings, type BookingRow, type BlockedPeriod } from "@/hooks/useBookings";
+import { formatDate } from "@/lib/dateFormatter";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
@@ -159,10 +160,6 @@ const BookingsPage = () => {
     }
   };
 
-  const formatDate = (d: string) => {
-    try { return format(new Date(d), "d MMM yyyy", { locale: fr }); }
-    catch { return d; }
-  };
 
   const getUserName = (b: BookingRow) => {
     const p = b.users_profiles;

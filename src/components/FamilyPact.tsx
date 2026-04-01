@@ -10,8 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { FileText, Plus, CheckCircle2, Clock, Loader2, PenLine, Users, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { formatDateLong } from "@/lib/dateFormatter";
 
 interface FamilyPactProps {
   houseId: string;
@@ -243,7 +242,7 @@ const FamilyPact = ({ houseId, isAdmin, members }: FamilyPactProps) => {
                         {pact.title}
                       </h4>
                       <p className="text-xs text-muted-foreground">
-                        Mis à jour le {format(new Date(pact.updated_at), "d MMMM yyyy", { locale: fr })}
+                        Mis à jour le {formatDateLong(pact.updated_at)}
                       </p>
                     </div>
                     <Badge variant={pact.status === "active" ? "default" : "secondary"} className={`text-xs shrink-0 ${cfg.color}`}>

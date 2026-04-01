@@ -5,6 +5,7 @@ import { DEMO_PROFILES } from "@/lib/demoData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExpenses, type Expense, type ExpenseShare } from "@/hooks/useExpenses";
 import { useUserProfiles } from "@/hooks/useUserProfiles";
+import { formatDate } from "@/lib/dateFormatter";
 import { useHouseContext } from "@/contexts/HouseContext";
 import AppLayout from "@/components/AppLayout";
 import HouseSelector from "@/components/HouseSelector";
@@ -78,10 +79,6 @@ const ExpensesPage = () => {
     return result;
   }, [balances]);
 
-  const formatDate = (d: string) => {
-    try { return format(new Date(d), "d MMM yyyy", { locale: fr }); }
-    catch { return d; }
-  };
 
   if (loading || housesLoading) {
     return (

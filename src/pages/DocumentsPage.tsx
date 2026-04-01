@@ -15,8 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { FileText, Plus, Download, Trash2, Loader2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { formatDate } from "@/lib/dateFormatter";
 
 const docTypeLabels: Record<string, string> = {
   legal: "Juridique",
@@ -251,7 +250,7 @@ const DocumentsPage = () => {
                         <Badge variant="outline" className="text-xs">{docTypeLabels[doc.type] || doc.type}</Badge>
                         <span>{doc.house_name}</span>
                         <span>par {doc.uploader_name}</span>
-                        <span>{format(new Date(doc.created_at), "d MMM yyyy", { locale: fr })}</span>
+                        <span>{formatDate(doc.created_at)}</span>
                       </div>
                     </div>
                   </div>

@@ -43,6 +43,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { formatDate } from "@/lib/dateFormatter";
 
 interface House {
   id: string;
@@ -998,7 +999,7 @@ const TicketsTab = ({
                               <p className="text-xs text-muted-foreground line-clamp-2">{t.description}</p>
                             )}
                             <p className="text-xs text-muted-foreground">
-                              {t.authorName} · {format(new Date(t.created_at), "d MMM yyyy", { locale: fr })}
+                              {t.authorName} · {formatDate(t.created_at)}
                             </p>
                           </div>
                           {isAdmin && t.status !== "resolved" && (

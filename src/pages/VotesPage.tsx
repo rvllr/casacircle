@@ -19,6 +19,7 @@ import { Vote, Plus, ThumbsUp, ThumbsDown, Minus, Loader2, BookMarked, Scale } f
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { formatDate } from "@/lib/dateFormatter";
 
 interface VoteRow {
   id: string;
@@ -308,7 +309,7 @@ const VotesPage = () => {
                           <Badge variant="outline">{vote.house_name}</Badge>
                           {isWeighted && <Badge variant="secondary" className="text-xs gap-1"><Scale className="h-3 w-3" />Pondéré</Badge>}
                           <span>par {vote.creator_name}</span>
-                          <span>{format(new Date(vote.created_at), "d MMM yyyy", { locale: fr })}</span>
+                          <span>{formatDate(vote.created_at)}</span>
                         </div>
                       </div>
                       {isExpired && <Badge variant="secondary">Terminé</Badge>}
