@@ -293,7 +293,7 @@ const LandingPage = () => {
       </section>
 
       {/* Benefits */}
-      <section className="py-16 md:py-24">
+      <section id="benefits" className="py-16 md:py-24">
         <div className="container">
           <div className="max-w-2xl mx-auto space-y-4">
             {[
