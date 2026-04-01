@@ -28,6 +28,7 @@ import MentionsLegalesPage from "./pages/MentionsLegalesPage";
 import JoinHousePage from "./pages/JoinHousePage";
 import PatrimonySpacesPage from "./pages/PatrimonySpacesPage";
 import PatrimonySpaceDetailPage from "./pages/PatrimonySpaceDetailPage";
+import PricingPage from "./pages/PricingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -78,6 +79,7 @@ const App = () => (
             <Route path="/spaces" element={<ProtectedRoute><PatrimonySpacesPage /></ProtectedRoute>} />
             <Route path="/spaces/:id" element={<ProtectedRoute><PatrimonySpaceDetailPage /></ProtectedRoute>} />
             <Route path="/p/:id" element={<PublicHousePage />} />
+            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/cgu" element={<CGUPage />} />
             <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
             <Route path="*" element={<NotFound />} />

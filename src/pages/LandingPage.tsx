@@ -59,16 +59,27 @@ const LandingPage = () => {
               { label: "Fonctionnalités", href: "#solution" },
               { label: "Comment ça marche", href: "#how" },
               { label: "Avantages", href: "#benefits" },
+              { label: "Abonnement", href: "/pricing", isRoute: true },
               { label: "FAQ", href: "#faq" },
-            ].map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary/60"
-              >
-                {link.label}
-              </a>
-            ))}
+            ].map((link) =>
+              link.isRoute ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary/60"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary/60"
+                >
+                  {link.label}
+                </a>
+              )
+            )}
           </nav>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" className="hidden sm:inline-flex rounded-xl" asChild>

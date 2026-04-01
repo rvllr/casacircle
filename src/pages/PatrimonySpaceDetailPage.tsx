@@ -9,6 +9,7 @@ import CreateHouseDialog from "@/components/CreateHouseDialog";
 import InviteMemberDialog from "@/components/InviteMemberDialog";
 import SpaceDocuments from "@/components/SpaceDocuments";
 import SpaceVotes from "@/components/SpaceVotes";
+import SpaceSubscriptionTab from "@/components/SpaceSubscriptionTab";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Building2, Users, ArrowLeft, Crown, User, MapPin,
   Wallet, AlertTriangle, Scale,
-  ChevronRight, FileText, Vote,
+  ChevronRight, FileText, Vote, CreditCard,
 } from "lucide-react";
 
 const SPACE_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
@@ -262,6 +263,9 @@ const PatrimonySpaceDetailPage = () => {
             <TabsTrigger value="votes" className="gap-1.5">
               <Vote className="h-4 w-4" /> Votes
             </TabsTrigger>
+            <TabsTrigger value="subscription" className="gap-1.5">
+              <CreditCard className="h-4 w-4" /> Abonnement
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="houses" className="space-y-4">
@@ -345,6 +349,15 @@ const PatrimonySpaceDetailPage = () => {
 
           <TabsContent value="votes">
             <SpaceVotes spaceId={space.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="subscription">
+            <SpaceSubscriptionTab
+              spaceId={space.id}
+              isAdmin={isAdmin}
+              housesCount={houses.length}
+              membersCount={members.length}
+            />
           </TabsContent>
         </Tabs>
       </div>
