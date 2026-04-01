@@ -60,6 +60,7 @@ const App = () => (
         <DemoProvider>
         <AuthProvider>
           <HouseProvider>
+          <ActiveSpaceProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
