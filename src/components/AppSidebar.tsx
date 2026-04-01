@@ -101,7 +101,7 @@ export function AppSidebar() {
     }
   };
 
-  const renderItems = (items: typeof mainItems) =>
+  const renderItems = (items: typeof spaceMainItems) =>
     items.map((item) => (
       <SidebarMenuItem key={item.title}>
         <SidebarMenuButton asChild>
