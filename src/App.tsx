@@ -30,6 +30,7 @@ import JoinHousePage from "./pages/JoinHousePage";
 import PatrimonySpacesPage from "./pages/PatrimonySpacesPage";
 import PatrimonySpaceDetailPage from "./pages/PatrimonySpaceDetailPage";
 import PricingPage from "./pages/PricingPage";
+import SubscriptionPage from "./pages/SubscriptionPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -81,6 +82,7 @@ const App = () => (
             <Route path="/spaces" element={<ProtectedRoute><PatrimonySpacesPage /></ProtectedRoute>} />
             <Route path="/spaces/:id" element={<ProtectedRoute><PatrimonySpaceDetailPage /></ProtectedRoute>} />
             <Route path="/p/:id" element={<PublicHousePage />} />
+            <Route path="/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/cgu" element={<CGUPage />} />
             <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
