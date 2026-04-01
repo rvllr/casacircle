@@ -10,6 +10,7 @@ import NewMemoryDialog from "@/components/NewMemoryDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, CalendarDays, User, ImageIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateLong, formatDate } from "@/lib/dateFormatter";
 import { useToast } from "@/hooks/use-toast";
 
@@ -113,8 +114,32 @@ const JournalPage = () => {
   if (loading || housesLoading) {
     return (
       <AppLayout title="Journal">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-pulse text-muted-foreground">Chargement...</div>
+        <div className="space-y-6 max-w-3xl">
+          <div className="page-header">
+            <div>
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-4 w-64 mt-2" />
+            </div>
+            <Skeleton className="h-10 w-40" />
+          </div>
+          <Skeleton className="h-10 w-full" />
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardContent className="py-5 space-y-3">
+                <div className="flex justify-between">
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-5 w-48" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-5 w-20" />
+                      <Skeleton className="h-5 w-24" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <Skeleton className="h-16 w-full" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </AppLayout>
     );
