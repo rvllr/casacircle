@@ -25,34 +25,9 @@ import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_BOOKINGS_ENRICHED, DEMO_PROFILES } from "@/lib/demoData";
 import { BOOKING_STATUS_CONFIG, PAYMENT_STATUS_CONFIG } from "@/lib/constants";
 
-interface BookingRow {
-  id: string;
-  house_id: string;
-  unit_id: string | null;
-  user_id: string;
-  start_date: string;
-  end_date: string;
-  status: string;
-  created_at: string;
-  payment_status: string;
-  total_price: number | null;
-  amount_paid: number | null;
-  houses: { name: string; family_id: string | null } | null;
-  house_units: { name: string; type: string } | null;
-  users_profiles: { first_name: string | null; last_name: string | null } | null;
-}
-
 const paymentStatusConfig = PAYMENT_STATUS_CONFIG;
 
 const statusConfig = BOOKING_STATUS_CONFIG;
-
-interface BlockedPeriod {
-  id: string;
-  house_id: string;
-  start_date: string;
-  end_date: string;
-  reason: string | null;
-}
 
 const BookingsPage = () => {
   const { user } = useAuth();
