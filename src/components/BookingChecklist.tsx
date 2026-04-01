@@ -56,11 +56,14 @@ const BookingChecklist = ({ bookingId, houseId, members, onCreateTicket }: Booki
   }, [members]);
 
   const fetchAll = useCallback(async () => {
-    const [{ data: cl }, { data: it }, { data: st }] = await Promise.all([
+    const [{ data: cl, error: clError }, { data: it }, { data: st }] = await Promise.all([
       supabase.from("house_checklists").select("id, type, title").eq("house_id", houseId).order("order_index"),
       supabase.from("checklist_items").select("*").order("order_index"),
       supabase.from("reservation_checklist_status").select("*").eq("reservation_id", bookingId),
     ]);
+    if (clError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer la checklist.", variant: "destructive" });
+    }
     setChecklists((cl || []) as Checklist[]);
     setItems((it || []) as ChecklistItem[]);
     setStatuses((st || []) as CompletionStatus[]);

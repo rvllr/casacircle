@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookMarked, CheckCircle2, XCircle } from "lucide-react";
 import { formatDateLong } from "@/lib/dateFormatter";
+import { useToast } from "@/hooks/use-toast";
 
 interface DecisionRegisterProps {
   houseId: string;
@@ -28,12 +29,17 @@ const DecisionRegister = ({ houseId }: DecisionRegisterProps) => {
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { toast } = useToast();
+
   const fetchDecisions = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("decision_register")
       .select("*")
       .eq("house_id", houseId)
       .order("decided_at", { ascending: false });
+    if (error) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer le registre des décisions.", variant: "destructive" });
+    }
     setDecisions((data || []) as Decision[]);
     setLoading(false);
   }, [houseId]);

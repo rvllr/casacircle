@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, CalendarDays, User, ImageIcon } from "lucide-react";
 import { formatDateLong, formatDate } from "@/lib/dateFormatter";
+import { useToast } from "@/hooks/use-toast";
 
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
 interface MemoryPhoto { id: string; memory_id: string; image_url: string; }
@@ -23,6 +24,7 @@ interface Memory {
 }
 
 const JournalPage = () => {
+  const { toast } = useToast();
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
@@ -43,10 +45,16 @@ const JournalPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const { data: memData } = await supabase
+    const { data: memData, error: memError } = await supabase
       .from("house_memories")
       .select("id, house_id, created_by, title, description, visit_start, visit_end, created_at, houses(name)")
       .order("visit_start", { ascending: false, nullsFirst: false });
+
+    if (memError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les souvenirs.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
 
     const memList = (memData || []).map((m) => ({ ...m, houses: m.houses as Memory["houses"] }));
     setMemories(memList);

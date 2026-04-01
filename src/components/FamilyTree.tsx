@@ -39,11 +39,15 @@ const FamilyTree = ({ familyId, isAdmin }: FamilyTreeProps) => {
   const [parentId, setParentId] = useState<string>("none");
 
   const fetchNodes = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from("family_tree_nodes")
       .select("*")
       .eq("family_id", familyId)
       .order("birth_year", { ascending: true, nullsFirst: true });
+
+    if (fetchError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer l'arbre généalogique.", variant: "destructive" });
+    }
     
     const flat = (data || []) as any[];
     setFlatNodes(flat);

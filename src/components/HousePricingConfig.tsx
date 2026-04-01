@@ -54,11 +54,15 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
-      const { data } = await supabase
+      const { data, error: fetchError } = await supabase
         .from("house_pricing")
         .select("*")
         .eq("house_id", houseId)
         .maybeSingle();
+
+      if (fetchError) {
+        toast({ title: "Erreur de chargement", description: "Impossible de récupérer la tarification.", variant: "destructive" });
+      }
 
       if (data) {
         setPricingId(data.id);

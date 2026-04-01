@@ -68,10 +68,16 @@ const VotesPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const { data: votesData } = await supabase
+    const { data: votesData, error: votesError } = await supabase
       .from("votes")
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (votesError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les votes.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
 
     const votesList = votesData || [];
 

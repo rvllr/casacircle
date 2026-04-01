@@ -77,10 +77,13 @@ const FamilyPact = ({ houseId, isAdmin, members }: FamilyPactProps) => {
   }, [members]);
 
   const fetchPacts = useCallback(async () => {
-    const [{ data: pactData }, { data: sigData }] = await Promise.all([
+    const [{ data: pactData, error: pactError }, { data: sigData }] = await Promise.all([
       supabase.from("family_pacts").select("*").eq("house_id", houseId).order("created_at", { ascending: false }),
       supabase.from("pact_signatures").select("*"),
     ]);
+    if (pactError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les pactes.", variant: "destructive" });
+    }
     setPacts((pactData || []) as Pact[]);
     setSignatures((sigData || []) as Signature[]);
     setLoading(false);

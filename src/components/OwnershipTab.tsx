@@ -32,10 +32,13 @@ const OwnershipTab = ({ houseId, isAdmin, members }: OwnershipTabProps) => {
   const [draft, setDraft] = useState<Record<string, number>>({});
 
   const fetchData = useCallback(async () => {
-    const [{ data: sharesData }, { data: historyData }] = await Promise.all([
+    const [{ data: sharesData, error: sharesError }, { data: historyData }] = await Promise.all([
       supabase.from("ownership_shares").select("*").eq("house_id", houseId),
       supabase.from("ownership_history").select("*").eq("house_id", houseId).order("created_at", { ascending: false }).limit(20),
     ]);
+    if (sharesError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les parts de propriété.", variant: "destructive" });
+    }
 
     const profileMap: Record<string, any> = {};
     members.forEach((m) => { profileMap[m.user_id] = m.profile; });

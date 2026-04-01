@@ -59,10 +59,16 @@ const DocumentsPage = () => {
     }
     if (!user) return;
     setLoading(true);
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from("documents")
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (fetchError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les documents.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
 
     if (data && data.length > 0) {
       const houseIds = [...new Set(data.map((d) => d.house_id))];
