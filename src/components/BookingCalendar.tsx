@@ -152,6 +152,7 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
     return eachDayOfInterval({ start: periodRange.from, end });
   }, [periodRange]);
 
+  const filterDay = (date: Date): boolean => {
     if (dayFilter === "all") return true;
     if (dayFilter === "booked") return hasBooking(date);
     if (dayFilter === "available") return !hasBooking(date) && !isBlocked(date);
