@@ -109,6 +109,7 @@ const HouseDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [house, setHouse] = useState<House | null>(null);
   const [members, setMembers] = useState<HouseMember[]>([]);
   const [units, setUnits] = useState<HouseUnit[]>([]);
@@ -116,6 +117,8 @@ const HouseDetailPage = () => {
   const [tickets, setTickets] = useState<MaintenanceTicket[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userSpaces, setUserSpaces] = useState<{ id: string; name: string; type: string }[]>([]);
+  const [changingSpace, setChangingSpace] = useState(false);
 
   const fetchHouse = useCallback(async () => {
     if (!id || !user) return;
