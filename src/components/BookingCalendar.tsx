@@ -128,7 +128,30 @@ const BookingCalendar = ({ month, onMonthChange, bookings, blockedPeriods = [], 
     return bookingsByDate.has(format(date, "yyyy-MM-dd"));
   };
 
-  const filterDay = (date: Date): boolean => {
+  // Month view days
+  const monthDays = useMemo(() => {
+    const start = startOfMonth(month);
+    const end = endOfMonth(month);
+    const allDays = eachDayOfInterval({ start, end });
+    const startPad = (getDay(start) + 6) % 7;
+    const paddedStart: (Date | null)[] = Array(startPad).fill(null);
+    return [...paddedStart, ...allDays];
+  }, [month]);
+
+  // Week view days
+  const weekDays = useMemo(() => {
+    const ws = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const we = endOfWeek(currentDate, { weekStartsOn: 1 });
+    return eachDayOfInterval({ start: ws, end: we });
+  }, [currentDate]);
+
+  // Period view days
+  const periodDays = useMemo(() => {
+    if (!periodRange?.from) return [];
+    const end = periodRange.to || periodRange.from;
+    return eachDayOfInterval({ start: periodRange.from, end });
+  }, [periodRange]);
+
     if (dayFilter === "all") return true;
     if (dayFilter === "booked") return hasBooking(date);
     if (dayFilter === "available") return !hasBooking(date) && !isBlocked(date);
