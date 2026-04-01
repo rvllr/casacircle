@@ -12,7 +12,7 @@ import HouseSelector from "@/components/HouseSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, TrendingUp, AlertCircle, Wrench } from "lucide-react";
+import { Building2, CalendarDays, Wallet, Heart, Plus, ArrowRight, Megaphone, TrendingUp, AlertCircle, Wrench, Crown } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, differenceInCalendarDays, startOfYear, endOfYear, isWithinInterval } from "date-fns";
 import { fr } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -79,6 +79,7 @@ const DashboardPage = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [myProfile, setMyProfile] = useState<{ first_name: string | null } | null>(null);
   const [openTicketsCount, setOpenTicketsCount] = useState(0);
+  const [activePlanName, setActivePlanName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -204,6 +205,27 @@ const DashboardPage = () => {
     fetchData();
   }, [user, selectedHouseId, isDemo]);
 
+  const { activeType, activeSpaceId, activeLabel, activeIcon, spaces, directHouses, loading: contextLoading } = useActiveSpace();
+
+  // Fetch active plan for the selected space
+  useEffect(() => {
+    if (isDemo || !activeSpaceId || activeType !== "space") {
+      setActivePlanName(null);
+      return;
+    }
+    const fetchPlan = async () => {
+      const { data } = await supabase
+        .from("space_subscriptions")
+        .select("subscription_plans(name)")
+        .eq("space_id", activeSpaceId)
+        .eq("status", "active")
+        .maybeSingle();
+      const plan = data?.subscription_plans as { name: string } | null;
+      setActivePlanName(plan?.name || null);
+    };
+    fetchPlan();
+  }, [activeSpaceId, activeType, isDemo]);
+
   const getAuthorName = (userId: string) => {
     const p = profiles.find((pr) => pr.user_id === userId);
     return p?.first_name || "Membre";
@@ -273,7 +295,6 @@ const DashboardPage = () => {
     .filter((e) => isWithinInterval(new Date(e.created_at), { start: yearStart, end: yearEnd }))
     .reduce((sum, e) => sum + e.amount, 0);
 
-  const { activeType, activeSpaceId, activeLabel, activeIcon, spaces, directHouses, loading: contextLoading } = useActiveSpace();
   const needsContextPicker = !isDemo && !contextLoading && !activeType && (spaces.length + directHouses.length) > 1;
 
   if (loading && !needsContextPicker) {
@@ -328,6 +349,12 @@ const DashboardPage = () => {
               <span className="text-sm text-muted-foreground">
                 Contexte actif : <span className="font-semibold text-foreground">{activeLabel}</span>
               </span>
+              {activePlanName && (
+                <Badge variant="secondary" className="text-[10px] px-2 py-0.5 flex items-center gap-1">
+                  <Crown className="h-3 w-3" />
+                  {activePlanName}
+                </Badge>
+              )}
             </div>
             <div className="sm:ml-auto flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span>{filteredHouseCount} bien{filteredHouseCount > 1 ? "s" : ""}</span>
