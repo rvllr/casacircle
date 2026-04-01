@@ -30,6 +30,7 @@ import JoinHousePage from "./pages/JoinHousePage";
 import PatrimonySpacesPage from "./pages/PatrimonySpacesPage";
 import PatrimonySpaceDetailPage from "./pages/PatrimonySpaceDetailPage";
 import PricingPage from "./pages/PricingPage";
+import SubscriptionPage from "./pages/SubscriptionPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
