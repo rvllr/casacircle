@@ -85,11 +85,16 @@ const SubscriptionPage = () => {
         </div>
 
         {/* Plans grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
           {plans.map((plan, i) => {
             const isCurrent = plan.code === currentPlanCode;
             const popular = plan.code === "patrimoine";
             const price = yearly ? plan.yearly_price / 12 : plan.monthly_price;
+
+            const coreFeatures = Object.entries(FEATURE_LABELS).slice(0, 7);
+            const advancedFeatures = Object.entries(FEATURE_LABELS).slice(7);
+            const hasAnyAdvanced = advancedFeatures.some(([k]) => plan.features[k]);
+
             return (
               <motion.div
                 key={plan.id}
@@ -125,12 +130,24 @@ const SubscriptionPage = () => {
                     </div>
 
                     <div className="flex-1 space-y-1.5 mb-5">
-                      {Object.entries(FEATURE_LABELS).map(([k, l]) => (
+                      {coreFeatures.map(([k, l]) => (
                         <div key={k} className={`flex items-center gap-1.5 text-xs ${plan.features[k] ? "text-foreground" : "text-muted-foreground/40"}`}>
                           {plan.features[k] ? <CheckCircle2 className="h-3.5 w-3.5 text-accent shrink-0" /> : <XCircle className="h-3.5 w-3.5 shrink-0" />}
                           {l}
                         </div>
                       ))}
+
+                      {hasAnyAdvanced && (
+                        <div className="pt-1.5 border-t border-border/30 mt-2">
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 mb-1.5">Avancé</p>
+                          {advancedFeatures.map(([k, l]) => (
+                            <div key={k} className={`flex items-center gap-1.5 text-xs ${plan.features[k] ? "text-foreground" : "text-muted-foreground/40"}`}>
+                              {plan.features[k] ? <CheckCircle2 className="h-3.5 w-3.5 text-accent shrink-0" /> : <XCircle className="h-3.5 w-3.5 shrink-0" />}
+                              {l}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <Button
