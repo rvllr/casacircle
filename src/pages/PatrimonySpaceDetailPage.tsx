@@ -359,8 +359,6 @@ const PatrimonySpaceDetailPage = () => {
               membersCount={members.length}
             />
           </TabsContent>
-            <SpaceVotes spaceId={space.id} isAdmin={isAdmin} />
-          </TabsContent>
         </Tabs>
       </div>
     </AppLayout>
