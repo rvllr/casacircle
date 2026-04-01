@@ -116,23 +116,28 @@ export const ActiveSpaceProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    // Single parallel batch — family_members joins families to avoid waterfall
     const [familyMembersRes, housesRes] = await Promise.all([
-      supabase.from("family_members").select("family_id").eq("user_id", user.id),
+      supabase
+        .from("family_members")
+        .select("family_id, families(id, name, type)")
+        .eq("user_id", user.id),
       supabase.from("houses").select("id, name, location, family_id"),
     ]);
 
-    const familyIds = (familyMembersRes.data || []).map(m => m.family_id);
-    
-    if (familyIds.length > 0) {
-      const { data: familiesData } = await supabase
-        .from("families")
-        .select("id, name, type")
-        .in("id", familyIds);
-      setSpaces((familiesData || []).map(f => ({ id: f.id, name: f.name, type: f.type || "family" })));
-    } else {
-      setSpaces([]);
+    // Extract unique spaces from the joined data
+    const seenSpaceIds = new Set<string>();
+    const spacesList: SpaceOption[] = [];
+    for (const row of familyMembersRes.data || []) {
+      const f = row.families as { id: string; name: string; type: string } | null;
+      if (f && !seenSpaceIds.has(f.id)) {
+        seenSpaceIds.add(f.id);
+        spacesList.push({ id: f.id, name: f.name, type: f.type || "family" });
+      }
     }
+    setSpaces(spacesList);
 
+    const familyIds = [...seenSpaceIds];
     const houses = (housesRes.data || []) as HouseOption[];
     setAllHouses(houses);
 
