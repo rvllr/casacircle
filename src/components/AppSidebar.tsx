@@ -129,6 +129,17 @@ export function AppSidebar() {
             <SidebarMenu className="space-y-0.5">{renderItems(manageItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarSeparator className="mx-3 my-2" />
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-body font-semibold px-3 mb-1">
+            Réglages
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-0.5">{renderItems(settingsItems)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-2">
