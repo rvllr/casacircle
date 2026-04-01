@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
+import SpaceSelectorDropdown from "@/components/SpaceSelectorDropdown";
 import {
   Sidebar,
   SidebarContent,
@@ -108,6 +109,11 @@ export function AppSidebar() {
           ) : (
             <img src={logoCasaCircle} alt="CasaCircle" className="h-9 w-auto" />
           )}
+        </div>
+
+        {/* Space Selector */}
+        <div className={cn("mb-1", collapsed ? "px-1" : "px-3")}>
+          <SpaceSelectorDropdown />
         </div>
 
         <SidebarGroup>

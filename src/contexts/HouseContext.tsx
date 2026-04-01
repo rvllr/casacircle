@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDemo } from "@/contexts/DemoContext";
+import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
 import { DEMO_HOUSES } from "@/lib/demoData";
 
 interface House {
@@ -33,34 +34,46 @@ export const useHouseContext = () => useContext(HouseContext);
 export const HouseProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
-  const [houses, setHouses] = useState<House[]>([]);
+  const { getFilteredHouseIds, activeType, activeSpaceId, activeHouseId } = useActiveSpace();
+  const [allHouses, setAllHouses] = useState<House[]>([]);
   const [selectedHouseId, setSelectedHouseId] = useState("all");
   const [loading, setLoading] = useState(true);
 
   const fetchHouses = useCallback(async () => {
     if (isDemo) {
-      setHouses(DEMO_HOUSES);
+      setAllHouses(DEMO_HOUSES);
       setLoading(false);
       return;
     }
     if (!user) {
-      setHouses([]);
+      setAllHouses([]);
       setLoading(false);
       return;
     }
     const { data } = await supabase.from("houses").select("id, name, family_id");
-    const list = data || [];
-    setHouses(list);
-
-    if (list.length === 1 && selectedHouseId === "all") {
-      setSelectedHouseId(list[0].id);
-    }
+    setAllHouses(data || []);
     setLoading(false);
   }, [user, isDemo]);
 
   useEffect(() => {
     fetchHouses();
   }, [fetchHouses]);
+
+  // Filter houses based on active space context
+  const houses = (() => {
+    const filteredIds = getFilteredHouseIds();
+    if (!filteredIds) return allHouses;
+    return allHouses.filter(h => filteredIds.includes(h.id));
+  })();
+
+  // Reset selected house when context changes
+  useEffect(() => {
+    if (houses.length === 1) {
+      setSelectedHouseId(houses[0].id);
+    } else {
+      setSelectedHouseId("all");
+    }
+  }, [activeType, activeSpaceId, activeHouseId, houses.length]);
 
   const selectedHouse = selectedHouseId === "all"
     ? null

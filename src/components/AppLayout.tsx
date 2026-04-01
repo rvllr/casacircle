@@ -5,6 +5,7 @@ import NotificationBell from "@/components/NotificationBell";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Separator } from "@/components/ui/separator";
 import DemoBanner from "@/components/DemoBanner";
+import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children, title }: AppLayoutProps) => {
+  const { activeLabel, activeType } = useActiveSpace();
   return (
     <SidebarProvider>
       <div className="min-h-screen flex flex-col w-full bg-background">
@@ -24,7 +26,12 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
               {title && (
                 <>
                   <Separator orientation="vertical" className="h-5 mx-1" />
-                  <h1 className="font-display text-base text-foreground/80 truncate flex-1">{title}</h1>
+                  <h1 className="font-display text-base text-foreground/80 truncate flex-1">
+                    {title}
+                    {activeType && (
+                      <span className="text-muted-foreground font-normal text-sm ml-2">— {activeLabel}</span>
+                    )}
+                  </h1>
                 </>
               )}
               <div className="ml-auto flex items-center gap-1">
