@@ -7,6 +7,7 @@ import { useDemo } from "@/contexts/DemoContext";
 import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
 import { DEMO_BOOKINGS, DEMO_ALL_BOOKINGS, DEMO_EXPENSES, DEMO_ALL_EXPENSES, DEMO_MEMORIES, DEMO_NEWS, DEMO_PROFILES, DEMO_PROFILE } from "@/lib/demoData";
 import { BOOKING_STATUS_CONFIG, EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
+import { formatDate } from "@/lib/dateFormatter";
 import AppLayout from "@/components/AppLayout";
 import ContextPickerScreen from "@/components/ContextPickerScreen";
 import HouseSelector from "@/components/HouseSelector";
