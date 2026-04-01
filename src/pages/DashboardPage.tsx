@@ -295,7 +295,6 @@ const DashboardPage = () => {
     .filter((e) => isWithinInterval(new Date(e.created_at), { start: yearStart, end: yearEnd }))
     .reduce((sum, e) => sum + e.amount, 0);
 
-  const { activeType, activeSpaceId, activeLabel, activeIcon, spaces, directHouses, loading: contextLoading } = useActiveSpace();
   const needsContextPicker = !isDemo && !contextLoading && !activeType && (spaces.length + directHouses.length) > 1;
 
   if (loading && !needsContextPicker) {
