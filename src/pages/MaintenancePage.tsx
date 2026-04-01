@@ -191,8 +191,23 @@ const MaintenancePage = () => {
 
         {/* Tickets */}
         {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <Card key={i}>
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-5 w-20" />
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <div className="flex gap-3">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-3 w-28" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         ) : filtered.length === 0 ? (
           <Card className="border-border/50 shadow-soft">

@@ -155,8 +155,31 @@ const DocumentsPage = () => {
   if (loading || housesLoading) {
     return (
       <AppLayout title="Documents">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-pulse text-muted-foreground">Chargement...</div>
+        <div className="space-y-6 max-w-5xl">
+          <div className="page-header">
+            <div>
+              <Skeleton className="h-8 w-36" />
+              <Skeleton className="h-4 w-72 mt-2" />
+            </div>
+            <Skeleton className="h-10 w-44" />
+          </div>
+          <Skeleton className="h-10 w-full" />
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i}>
+              <CardContent className="py-4 flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-48" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </div>
+                <Skeleton className="h-8 w-20" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </AppLayout>
     );
