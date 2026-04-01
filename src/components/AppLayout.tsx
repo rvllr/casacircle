@@ -5,6 +5,7 @@ import NotificationBell from "@/components/NotificationBell";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Separator } from "@/components/ui/separator";
 import DemoBanner from "@/components/DemoBanner";
+import { useActiveSpace } from "@/contexts/ActiveSpaceContext";
 
 interface AppLayoutProps {
   children: ReactNode;
