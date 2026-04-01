@@ -136,6 +136,11 @@ const DashboardPage = () => {
         .order("created_at", { ascending: false })
         .limit(5);
 
+      let ticketsQuery = supabase
+        .from("maintenance_tickets")
+        .select("id, house_id", { count: "exact", head: true })
+        .in("status", ["open", "in_progress"]);
+
       if (selectedHouseId !== "all") {
         bookingsQuery = bookingsQuery.eq("house_id", selectedHouseId);
         allBookingsQuery = allBookingsQuery.eq("house_id", selectedHouseId);
@@ -143,9 +148,10 @@ const DashboardPage = () => {
         allExpensesQuery = allExpensesQuery.eq("house_id", selectedHouseId);
         memoriesQuery = memoriesQuery.eq("house_id", selectedHouseId);
         newsQuery = newsQuery.eq("house_id", selectedHouseId);
+        ticketsQuery = ticketsQuery.eq("house_id", selectedHouseId);
       }
 
-      const [profileRes, bookingsRes, allBookingsRes, expensesRes, allExpensesRes, memoriesRes, newsRes] = await Promise.all([
+      const [profileRes, bookingsRes, allBookingsRes, expensesRes, allExpensesRes, memoriesRes, newsRes, ticketsRes] = await Promise.all([
         supabase.from("users_profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
         bookingsQuery,
         allBookingsQuery,
@@ -153,6 +159,7 @@ const DashboardPage = () => {
         allExpensesQuery,
         memoriesQuery,
         newsQuery,
+        ticketsQuery,
       ]);
 
       if (profileRes.data) setMyProfile(profileRes.data);
