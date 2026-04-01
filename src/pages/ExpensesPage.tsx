@@ -58,7 +58,7 @@ const ExpensesPage = () => {
     return Array.from(map.entries()).map(([userId, { paid, owes }]) => ({
       userId, name: getName(userId), paid, owes, balance: paid - owes,
     })).sort((a, b) => b.balance - a.balance);
-  }, [filteredExpenses, filteredShares, profiles]);
+  }, [filteredExpenses, filteredShares, getName]);
 
   const settlements: Settlement[] = useMemo(() => {
     const debtors = balances.filter((b) => b.balance < 0).map((b) => ({ ...b, remaining: -b.balance }));
