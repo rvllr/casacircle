@@ -86,8 +86,8 @@ const App = () => (
             <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          </ActiveSpaceProvider>
           </HouseProvider>
+          </ActiveSpaceProvider>
         </AuthProvider>
         </DemoProvider>
       </BrowserRouter>
