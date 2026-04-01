@@ -62,12 +62,20 @@ const CreateSpaceWizard = ({ onCreated }: CreateSpaceWizardProps) => {
     if (!user || !name.trim()) return;
     setLoading(true);
 
+    // Ensure fresh session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({ title: "Erreur", description: "Vous devez être connecté.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+
     // 1. Create space
     const { data: space, error: spaceErr } = await supabase
       .from("families")
       .insert({
         name: name.trim(),
-        created_by: user.id,
+        created_by: session.user.id,
         type: type as any,
         description: description.trim() || null,
         ownership_enabled: ownershipEnabled,
