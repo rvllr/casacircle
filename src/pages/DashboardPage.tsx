@@ -182,6 +182,8 @@ const DashboardPage = () => {
       const newsList = (newsRes.data || []).map((n) => ({ ...n, houses: n.houses as NewsRow["houses"] }));
       setNews(newsList);
 
+      setOpenTicketsCount(ticketsRes.count || 0);
+
       const authorIds = [...new Set([
         ...expensesList.map((e) => e.paid_by),
         ...memList.map((m) => m.created_by),
