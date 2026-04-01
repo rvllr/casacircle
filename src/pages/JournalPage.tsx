@@ -77,8 +77,9 @@ const JournalPage = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const contextHouseIds = new Set(houses.map(h => h.id));
   const filtered = selectedHouseId === "all"
-    ? memories
+    ? memories.filter((m) => contextHouseIds.has(m.house_id))
     : memories.filter((m) => m.house_id === selectedHouseId);
 
   const getName = (userId: string) => {

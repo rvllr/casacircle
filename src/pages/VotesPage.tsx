@@ -107,8 +107,9 @@ const VotesPage = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const contextHouseIds = new Set(houses.map(h => h.id));
   const filtered = selectedHouseId === "all"
-    ? votes
+    ? votes.filter((v) => contextHouseIds.has(v.house_id))
     : votes.filter((v) => v.house_id === selectedHouseId);
 
   const handleCreate = async () => {

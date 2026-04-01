@@ -92,8 +92,9 @@ const DocumentsPage = () => {
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
 
+  const contextHouseIds = new Set(houses.map(h => h.id));
   const filtered = selectedHouseId === "all"
-    ? documents
+    ? documents.filter((d) => contextHouseIds.has(d.house_id))
     : documents.filter((d) => d.house_id === selectedHouseId);
 
   const handleUpload = async () => {

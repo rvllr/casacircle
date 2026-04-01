@@ -134,8 +134,9 @@ const BookingsPage = () => {
     fetchData();
   }, [fetchData]);
 
+  const contextHouseIds = new Set(houses.map(h => h.id));
   const filteredBookings = selectedHouseId === "all"
-    ? bookings
+    ? bookings.filter((b) => contextHouseIds.has(b.house_id))
     : bookings.filter((b) => b.house_id === selectedHouseId);
 
   const calendarBookings = filteredBookings.filter(

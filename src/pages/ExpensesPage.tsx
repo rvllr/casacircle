@@ -80,8 +80,9 @@ const ExpensesPage = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const contextHouseIds = new Set(houses.map(h => h.id));
   const filteredExpenses = selectedHouseId === "all"
-    ? expenses
+    ? expenses.filter((e) => contextHouseIds.has(e.house_id))
     : expenses.filter((e) => e.house_id === selectedHouseId);
 
   const filteredShares = useMemo(() => {

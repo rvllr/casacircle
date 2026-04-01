@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { useHouseContext } from "@/contexts/HouseContext";
+import HouseSelector from "@/components/HouseSelector";
 
 interface Ticket {
   id: string;
@@ -38,6 +40,7 @@ const MaintenancePage = () => {
   const { isDemo } = useDemo();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
@@ -132,13 +135,19 @@ const MaintenancePage = () => {
     }
   };
 
-  const filtered = filter === "all" ? tickets : tickets.filter((t) => t.status === filter);
+  // Filter by context houses first, then by status
+  const contextHouseIds = new Set(houses.map(h => h.id));
+  const contextTickets = selectedHouseId === "all"
+    ? tickets.filter((t) => contextHouseIds.has(t.house_id))
+    : tickets.filter((t) => t.house_id === selectedHouseId);
+
+  const filtered = filter === "all" ? contextTickets : contextTickets.filter((t) => t.status === filter);
 
   const counts = {
-    all: tickets.length,
-    open: tickets.filter((t) => t.status === "open").length,
-    in_progress: tickets.filter((t) => t.status === "in_progress").length,
-    resolved: tickets.filter((t) => t.status === "resolved").length,
+    all: contextTickets.length,
+    open: contextTickets.filter((t) => t.status === "open").length,
+    in_progress: contextTickets.filter((t) => t.status === "in_progress").length,
+    resolved: contextTickets.filter((t) => t.status === "resolved").length,
   };
 
   return (
@@ -153,6 +162,8 @@ const MaintenancePage = () => {
             <p className="page-header-subtitle">Suivez les problèmes et réparations.</p>
           </div>
         </div>
+
+        <HouseSelector />
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
