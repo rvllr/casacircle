@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Camera, Save, User } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProfilePage = () => {
   const { user } = useAuth();
