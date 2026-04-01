@@ -349,6 +349,12 @@ const DashboardPage = () => {
               <span className="text-sm text-muted-foreground">
                 Contexte actif : <span className="font-semibold text-foreground">{activeLabel}</span>
               </span>
+              {activePlanName && (
+                <Badge variant="secondary" className="text-[10px] px-2 py-0.5 flex items-center gap-1">
+                  <Crown className="h-3 w-3" />
+                  {activePlanName}
+                </Badge>
+              )}
             </div>
             <div className="sm:ml-auto flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span>{filteredHouseCount} bien{filteredHouseCount > 1 ? "s" : ""}</span>
