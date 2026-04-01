@@ -37,6 +37,9 @@ import {
   Eye, PieChart, BarChart3, Scale, Wallet, BookMarked,
   History, Camera, TreePine, Shield, Briefcase, ClipboardCheck,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+} from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
