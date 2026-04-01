@@ -135,7 +135,13 @@ const MaintenancePage = () => {
     }
   };
 
-  const filtered = filter === "all" ? tickets : tickets.filter((t) => t.status === filter);
+  // Filter by context houses first, then by status
+  const contextHouseIds = new Set(houses.map(h => h.id));
+  const contextTickets = selectedHouseId === "all"
+    ? tickets.filter((t) => contextHouseIds.has(t.house_id))
+    : tickets.filter((t) => t.house_id === selectedHouseId);
+
+  const filtered = filter === "all" ? contextTickets : contextTickets.filter((t) => t.status === filter);
 
   const counts = {
     all: tickets.length,
