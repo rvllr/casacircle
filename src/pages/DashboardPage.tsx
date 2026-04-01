@@ -263,7 +263,7 @@ const DashboardPage = () => {
     .filter((e) => isWithinInterval(new Date(e.created_at), { start: yearStart, end: yearEnd }))
     .reduce((sum, e) => sum + e.amount, 0);
 
-  const { activeType, spaces, directHouses, loading: contextLoading } = useActiveSpace();
+  const { activeType, activeSpaceId, activeLabel, activeIcon, spaces, directHouses, loading: contextLoading } = useActiveSpace();
   const needsContextPicker = !isDemo && !contextLoading && !activeType && (spaces.length + directHouses.length) > 1;
 
   if (loading && !needsContextPicker) {
@@ -309,6 +309,21 @@ const DashboardPage = () => {
         </div>
 
         <HouseSelector />
+
+        {/* Active context indicator */}
+        {activeType && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/5 border border-primary/10">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{activeIcon}</span>
+              <span className="text-sm text-muted-foreground">
+                Contexte actif : <span className="font-semibold text-foreground">{activeLabel}</span>
+              </span>
+            </div>
+            <span className="sm:ml-auto text-xs text-muted-foreground">
+              {filteredHouseCount} bien{filteredHouseCount > 1 ? "s" : ""} · {bookings.length} résa · {expenses.reduce((s, e) => s + Number(e.amount), 0).toFixed(0)}€ dépenses
+            </span>
+          </div>
+        )}
 
         {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
