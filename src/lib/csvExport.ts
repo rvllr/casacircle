@@ -36,12 +36,7 @@ export function exportBookingsCsv(
   }[]
 ) {
   const headers = ["Maison", "Unité", "Membre", "Début", "Fin", "Statut"];
-  const statusLabels: Record<string, string> = {
-    pending: "En attente",
-    approved: "Confirmée",
-    refused: "Refusée",
-    cancelled: "Annulée",
-  };
+  const statusLabels = BOOKING_STATUS_LABELS;
   const rows = bookings.map((b) => [
     b.houseName,
     b.unitName || "",

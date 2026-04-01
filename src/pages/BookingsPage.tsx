@@ -40,19 +40,9 @@ interface BookingRow {
   users_profiles: { first_name: string | null; last_name: string | null } | null;
 }
 
-const paymentStatusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  not_applicable: { label: "N/A", variant: "outline" },
-  unpaid: { label: "Non payé", variant: "destructive" },
-  partial: { label: "Partiel", variant: "secondary" },
-  paid: { label: "Payé", variant: "default" },
-};
+const paymentStatusConfig = PAYMENT_STATUS_CONFIG;
 
-const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  pending: { label: "En attente", variant: "secondary" },
-  approved: { label: "Confirmée", variant: "default" },
-  refused: { label: "Refusée", variant: "destructive" },
-  cancelled: { label: "Annulée", variant: "outline" },
-};
+const statusConfig = BOOKING_STATUS_CONFIG;
 
 interface BlockedPeriod {
   id: string;
