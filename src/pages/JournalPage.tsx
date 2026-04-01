@@ -12,7 +12,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDateLong, formatDate } from "@/lib/dateFormatter";
 import { useToast } from "@/hooks/use-toast";
 
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
