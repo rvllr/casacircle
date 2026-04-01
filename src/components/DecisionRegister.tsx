@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookMarked, CheckCircle2, XCircle } from "lucide-react";
 import { formatDateLong } from "@/lib/dateFormatter";
+import { useToast } from "@/hooks/use-toast";
 
 interface DecisionRegisterProps {
   houseId: string;
