@@ -192,8 +192,43 @@ const DashboardPage = () => {
   if (loading && !needsContextPicker) {
     return (
       <AppLayout title="Dashboard">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-pulse text-muted-foreground">Chargement...</div>
+        <div className="space-y-8 max-w-5xl animate-fade-in">
+          {/* Welcome banner skeleton */}
+          <div className="rounded-2xl border border-border/40 p-6 md:p-8">
+            <Skeleton className="h-8 w-64 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          {/* Stats cards skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="border-border/50">
+                <CardContent className="p-4 md:py-5 flex flex-col items-center text-center gap-2">
+                  <Skeleton className="h-10 w-10 rounded-xl" />
+                  <Skeleton className="h-7 w-12" />
+                  <Skeleton className="h-3 w-20" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          {/* Content skeleton */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <Card key={i} className="border-border/50">
+                <CardContent className="py-4 space-y-3">
+                  <Skeleton className="h-5 w-40" />
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <div key={j} className="flex items-center justify-between py-2">
+                      <div className="space-y-1.5">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </AppLayout>
     );

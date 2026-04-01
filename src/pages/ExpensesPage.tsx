@@ -83,8 +83,38 @@ const ExpensesPage = () => {
   if (loading || housesLoading) {
     return (
       <AppLayout title="Dépenses">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-pulse text-muted-foreground">Chargement...</div>
+        <div className="space-y-6 max-w-5xl animate-fade-in">
+          <div className="page-header">
+            <div>
+              <Skeleton className="h-7 w-36 mb-2" />
+              <Skeleton className="h-4 w-56" />
+            </div>
+            <Skeleton className="h-10 w-40 rounded-xl" />
+          </div>
+          <Card>
+            <CardContent className="py-6 text-center">
+              <Skeleton className="h-4 w-32 mx-auto mb-2" />
+              <Skeleton className="h-8 w-24 mx-auto" />
+            </CardContent>
+          </Card>
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-4 w-36" />
+                        <Skeleton className="h-5 w-16 rounded-full" />
+                      </div>
+                      <Skeleton className="h-3 w-48" />
+                    </div>
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </AppLayout>
     );
