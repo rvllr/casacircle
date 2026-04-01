@@ -9,6 +9,7 @@ import CreateHouseDialog from "@/components/CreateHouseDialog";
 import InviteMemberDialog from "@/components/InviteMemberDialog";
 import SpaceDocuments from "@/components/SpaceDocuments";
 import SpaceVotes from "@/components/SpaceVotes";
+import SpaceSubscriptionTab from "@/components/SpaceSubscriptionTab";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
