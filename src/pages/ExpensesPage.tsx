@@ -25,54 +25,10 @@ const ExpensesPage = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [shares, setShares] = useState<ExpenseShare[]>([]);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: expenses, shares, loading: expensesLoading, refetch: fetchData } = useExpenses();
+  const { getName, loading: profilesLoading } = useUserProfiles();
 
-  const fetchData = useCallback(async () => {
-    if (isDemo) {
-      setExpenses(DEMO_ALL_EXPENSES as any);
-      setShares(DEMO_EXPENSE_SHARES);
-      setProfiles(DEMO_PROFILES);
-      setLoading(false);
-      return;
-    }
-    if (!user) return;
-    setLoading(true);
-
-    const { data: expData } = await supabase
-      .from("expenses")
-      .select("id, house_id, paid_by, description, amount, created_at, category, expense_date, houses(name)")
-      .order("created_at", { ascending: false });
-
-    const expList = (expData || []).map((e) => ({ ...e, houses: e.houses as Expense["houses"] }));
-    setExpenses(expList);
-
-    const expIds = expList.map((e) => e.id);
-    if (expIds.length > 0) {
-      const { data: sharesData } = await supabase
-        .from("expense_shares")
-        .select("id, expense_id, user_id, amount")
-        .in("expense_id", expIds);
-      setShares(sharesData || []);
-    } else {
-      setShares([]);
-    }
-
-    const userIds = [...new Set(expList.map((e) => e.paid_by))];
-    if (userIds.length > 0) {
-      const { data: profs } = await supabase
-        .from("users_profiles")
-        .select("user_id, first_name, last_name")
-        .in("user_id", userIds);
-      setProfiles(profs || []);
-    }
-
-    setLoading(false);
-  }, [user, isDemo]);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
+  const loading = expensesLoading || profilesLoading;
 
   const contextHouseIds = new Set(houses.map(h => h.id));
   const filteredExpenses = selectedHouseId === "all"
