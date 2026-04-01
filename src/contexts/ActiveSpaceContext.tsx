@@ -136,13 +136,24 @@ export const ActiveSpaceProvider = ({ children }: { children: ReactNode }) => {
     const houses = (housesRes.data || []) as HouseOption[];
     setAllHouses(houses);
 
-    // Auto-select if only one space
-    if (familyIds.length === 1 && !activeType) {
-      const spaceId = familyIds[0];
-      setActiveType("space");
-      setActiveSpaceId(spaceId);
-      setActiveHouseId(null);
-      persist("space", spaceId, null);
+    // Auto-select context if user has exactly one access
+    if (!activeType) {
+      const directHousesList = houses.filter(h => !h.family_id || !familyIds.includes(h.family_id));
+      const totalAccess = familyIds.length + directHousesList.length;
+
+      if (totalAccess === 1) {
+        if (familyIds.length === 1) {
+          setActiveType("space");
+          setActiveSpaceId(familyIds[0]);
+          setActiveHouseId(null);
+          persist("space", familyIds[0], null);
+        } else if (directHousesList.length === 1) {
+          setActiveType("house");
+          setActiveSpaceId(null);
+          setActiveHouseId(directHousesList[0].id);
+          persist("house", null, directHousesList[0].id);
+        }
+      }
     }
 
     setLoading(false);
