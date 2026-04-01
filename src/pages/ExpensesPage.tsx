@@ -18,14 +18,6 @@ import { exportExpensesCsv } from "@/lib/csvExport";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
-interface Expense {
-  id: string; house_id: string; paid_by: string;
-  description: string; amount: number; created_at: string;
-  category?: string; expense_date?: string | null;
-  houses: { name: string } | null;
-}
-interface ExpenseShare { id: string; expense_id: string; user_id: string; amount: number; }
 interface BalanceEntry { userId: string; name: string; paid: number; owes: number; balance: number; }
 interface Settlement { from: string; to: string; amount: number; }
 
