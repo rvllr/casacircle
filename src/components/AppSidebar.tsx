@@ -135,7 +135,7 @@ export function AppSidebar() {
             Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">{renderItems(mainItems)}</SidebarMenu>
+            <SidebarMenu className="space-y-0.5">{renderItems(currentMainItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
@@ -146,7 +146,7 @@ export function AppSidebar() {
             Gestion
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">{renderItems(manageItems)}</SidebarMenu>
+            <SidebarMenu className="space-y-0.5">{renderItems(currentManageItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
