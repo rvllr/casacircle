@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDemo } from "@/contexts/DemoContext";
+import { useHouseContext } from "@/contexts/HouseContext";
 import { DEMO_NOTIFICATIONS } from "@/lib/demoData";
 import { Bell, Check, CalendarDays, X, AlertCircle, BanknoteIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -54,6 +55,7 @@ const getFilterCategory = (type: string): FilterType => {
 const NotificationBell = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
+  const { houses } = useHouseContext();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<FilterType>("all");
@@ -101,7 +103,14 @@ const NotificationBell = () => {
     };
   }, [user]);
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  // Filter notifications by active context
+  const contextHouseIds = useMemo(() => new Set(houses.map(h => h.id)), [houses]);
+  const contextNotifications = useMemo(() => 
+    notifications.filter(n => !n.house_id || contextHouseIds.has(n.house_id)),
+    [notifications, contextHouseIds]
+  );
+
+  const unreadCount = contextNotifications.filter((n) => !n.is_read).length;
 
   const markAsRead = async (id: string) => {
     await supabase.from("notifications").update({ is_read: true } as any).eq("id", id);
@@ -157,8 +166,8 @@ const NotificationBell = () => {
         <div className="flex gap-1 px-3 py-2 border-b border-border">
           {filterLabels.map((f) => {
             const count = f.value === "all"
-              ? notifications.filter((n) => !n.is_read).length
-              : notifications.filter((n) => !n.is_read && getFilterCategory(n.type) === f.value).length;
+              ? contextNotifications.filter((n) => !n.is_read).length
+              : contextNotifications.filter((n) => !n.is_read && getFilterCategory(n.type) === f.value).length;
             return (
               <Button
                 key={f.value}
@@ -180,8 +189,8 @@ const NotificationBell = () => {
         <ScrollArea className="max-h-72">
           {(() => {
             const filtered = filter === "all"
-              ? notifications
-              : notifications.filter((n) => getFilterCategory(n.type) === filter);
+              ? contextNotifications
+              : contextNotifications.filter((n) => getFilterCategory(n.type) === filter);
 
             if (filtered.length === 0) {
               return (
