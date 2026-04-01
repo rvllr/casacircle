@@ -1,4 +1,5 @@
 import { LayoutDashboard, Building2, CalendarDays, BookOpen, Receipt, User, LogOut, Wrench, FileText, Vote, Eye, KeyRound, Briefcase } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -97,9 +98,9 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent className="py-2">
         {/* Logo */}
-        <div className="px-4 py-4 flex items-center justify-center">
+        <div className={cn("py-4 flex items-center justify-center", collapsed ? "px-1" : "px-4")}>
           {collapsed ? (
-            <img src="/favicon.png" alt="CasaCircle" className="h-8 w-8" />
+            <img src="/favicon.png" alt="CasaCircle" className="h-7 w-7 object-contain" />
           ) : (
             <img src={logoCasaCircle} alt="CasaCircle" className="h-9 w-auto" />
           )}
