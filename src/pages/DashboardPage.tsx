@@ -79,6 +79,7 @@ const DashboardPage = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [myProfile, setMyProfile] = useState<{ first_name: string | null } | null>(null);
   const [openTicketsCount, setOpenTicketsCount] = useState(0);
+  const [activePlanName, setActivePlanName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
