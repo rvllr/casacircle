@@ -310,6 +310,19 @@ const DashboardPage = () => {
 
         <HouseSelector />
 
+        {/* Active context indicator */}
+        {activeType && (
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/5 border border-primary/10">
+            <span className="text-lg">{activeType === "space" ? (spaces.find(s => s.id === useActiveSpace().activeSpaceId)?.type === "sci" ? "🏢" : "👨‍👩‍👧") : "🏠"}</span>
+            <span className="text-sm text-muted-foreground">
+              Contexte actif : <span className="font-semibold text-foreground">{useActiveSpace().activeLabel}</span>
+            </span>
+            <span className="ml-auto text-xs text-muted-foreground">
+              {filteredHouseCount} bien{filteredHouseCount > 1 ? "s" : ""} · {bookings.length} résa · {expenses.reduce((s, e) => s + Number(e.amount), 0).toFixed(0)}€ dépenses
+            </span>
+          </div>
+        )}
+
         {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {[
