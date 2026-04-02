@@ -6,6 +6,7 @@ import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_FAMILY, DEMO_HOUSES_FULL, DEMO_FAMILY_MEMBERS, DEMO_ALL_EXPENSES, DEMO_ALL_BOOKINGS } from "@/lib/demoData";
 import AppLayout from "@/components/AppLayout";
 import CreateHouseDialog from "@/components/CreateHouseDialog";
+import EditSpaceDialog from "@/components/EditSpaceDialog";
 import InviteMemberDialog from "@/components/InviteMemberDialog";
 import SpaceDocuments from "@/components/SpaceDocuments";
 import SpaceVotes from "@/components/SpaceVotes";
@@ -208,7 +209,8 @@ const PatrimonySpaceDetailPage = () => {
               )}
             </div>
             {isAdmin && (
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                <EditSpaceDialog spaceId={space.id} currentName={space.name} currentDescription={space.description} onUpdated={fetchData} />
                 <CreateHouseDialog familyId={space.id} familyName={space.name} onCreated={fetchData} />
                 <InviteMemberDialog familyId={space.id} familyName={space.name} onInvited={fetchData} />
               </div>
