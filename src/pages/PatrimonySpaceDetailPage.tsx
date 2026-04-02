@@ -6,6 +6,7 @@ import { useDemo } from "@/contexts/DemoContext";
 import { DEMO_FAMILY, DEMO_HOUSES_FULL, DEMO_FAMILY_MEMBERS, DEMO_ALL_EXPENSES, DEMO_ALL_BOOKINGS } from "@/lib/demoData";
 import AppLayout from "@/components/AppLayout";
 import CreateHouseDialog from "@/components/CreateHouseDialog";
+import EditSpaceDialog from "@/components/EditSpaceDialog";
 import InviteMemberDialog from "@/components/InviteMemberDialog";
 import SpaceDocuments from "@/components/SpaceDocuments";
 import SpaceVotes from "@/components/SpaceVotes";
