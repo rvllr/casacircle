@@ -209,7 +209,8 @@ const PatrimonySpaceDetailPage = () => {
               )}
             </div>
             {isAdmin && (
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                <EditSpaceDialog spaceId={space.id} currentName={space.name} currentDescription={space.description} onUpdated={fetchData} />
                 <CreateHouseDialog familyId={space.id} familyName={space.name} onCreated={fetchData} />
                 <InviteMemberDialog familyId={space.id} familyName={space.name} onInvited={fetchData} />
               </div>
