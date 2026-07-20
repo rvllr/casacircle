@@ -101,7 +101,9 @@ const JournalPage = () => {
   };
 
   const getPhotosForMemory = (memoryId: string) =>
-    photos.filter((p) => p.memory_id === memoryId);
+    photos
+      .filter((p) => p.memory_id === memoryId)
+      .map((p) => ({ ...p, image_url: resolveMemoryPhotoUrl(p.image_url, signedMap) }));
 
   const grouped = filtered.reduce<Record<string, Memory[]>>((acc, m) => {
     const dateStr = m.visit_start || m.created_at;
