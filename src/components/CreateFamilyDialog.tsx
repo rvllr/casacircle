@@ -64,9 +64,15 @@ const CreateFamilyDialog = ({ onCreated }: CreateFamilyDialogProps) => {
       return;
     }
 
+    // Le créateur est déjà ajouté comme admin par le trigger
+    // trigger_auto_add_family_creator ; on garde cet appel en filet de sécurité,
+    // en ignorant le doublon.
     const { error: memberError } = await supabase
       .from("family_members")
-      .insert({ family_id: family.id, user_id: user.id, role: "admin" });
+      .upsert(
+        { family_id: family.id, user_id: user.id, role: "admin" },
+        { onConflict: "family_id,user_id", ignoreDuplicates: true }
+      );
 
     if (memberError) {
       toast({ title: "Erreur", description: memberError.message, variant: "destructive" });
