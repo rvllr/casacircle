@@ -97,7 +97,7 @@ const OwnershipTab = ({ houseId, isAdmin, members }: OwnershipTabProps) => {
     }
 
     setSaving(true);
-    const { error } = await supabase.rpc("save_ownership_shares", {
+    const { error } = await (supabase.rpc as any)("save_ownership_shares", {
       _house_id: houseId,
       _shares: Object.entries(draft).map(([userId, percentage]) => ({ user_id: userId, percentage })),
     });
