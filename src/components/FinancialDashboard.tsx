@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, Users, Moon, PieChart, TrendingUp, Calculator } from "lucide-react";
+import { Wallet, Users, Moon, PieChart, TrendingUp, Calculator, AlertTriangle } from "lucide-react";
+import { splitExpense, eurosToCents, centsToEuros } from "@/lib/expenseSplit";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -25,10 +26,17 @@ const PIE_COLORS = [
   "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))",
 ];
 
+interface ExpenseShareRow {
+  expense_id: string;
+  user_id: string;
+  amount: number;
+}
+
 const FinancialDashboard = ({ houseId, members }: FinancialDashboardProps) => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [shares, setShares] = useState<Record<string, number>>({});
+  const [expenseShares, setExpenseShares] = useState<ExpenseShareRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [simAmount, setSimAmount] = useState("");
   const [simMode, setSimMode] = useState("ownership");
@@ -57,6 +65,23 @@ const FinancialDashboard = ({ houseId, members }: FinancialDashboardProps) => {
       const map: Record<string, number> = {};
       (sharesData || []).forEach((s: any) => { map[s.user_id] = s.percentage; });
       setShares(map);
+
+      // Le dû de chacun n'est PAS recalculé ici : on lit les lignes de répartition
+      // réellement écrites au moment de la saisie de la dépense (expense_shares).
+      // Quel que soit le mode de répartition retenu dépense par dépense (égalitaire,
+      // prorata, manuel), la réconciliation « somme des dus = total des dépenses »
+      // est alors garantie par construction.
+      const expenseIds = (expData || []).map((e) => e.id);
+      if (expenseIds.length > 0) {
+        const { data: shareRows } = await supabase
+          .from("expense_shares")
+          .select("expense_id, user_id, amount")
+          .in("expense_id", expenseIds);
+        setExpenseShares((shareRows || []) as ExpenseShareRow[]);
+      } else {
+        setExpenseShares([]);
+      }
+
       setLoading(false);
     };
     fetchData();
@@ -97,20 +122,56 @@ const FinancialDashboard = ({ houseId, members }: FinancialDashboardProps) => {
     return { month: format(month, "MMM", { locale: fr }), montant: Math.round(amount) };
   });
 
-  // Cost per ownership share
-  const costByShare = Object.entries(shares).map(([userId, pct]) => ({
-    name: getName(userId),
-    share: pct,
-    cost: Math.round(totalExpenses * (pct / 100)),
-    paid: Math.round(expenses.filter((e) => e.paid_by === userId).reduce((s, e) => s + Number(e.amount), 0)),
-  }));
+  // ── Soldes : lus depuis les répartitions réelles, jamais recalculés ──────────
+  //
+  // « Dû » = somme des lignes expense_shares de la personne.
+  // « Payé » = somme des dépenses dont elle est le payeur.
+  // Solde = payé − dû.
 
-  // Simulator
-  const simResult = simAmount ? Object.entries(shares).map(([userId, pct]) => {
+  const dueByUser = new Map<string, number>();
+  expenseShares.forEach((s) => {
+    dueByUser.set(s.user_id, (dueByUser.get(s.user_id) || 0) + Number(s.amount));
+  });
+
+  const paidByUser = new Map<string, number>();
+  expenses.forEach((e) => {
+    paidByUser.set(e.paid_by, (paidByUser.get(e.paid_by) || 0) + Number(e.amount));
+  });
+
+  // Dépenses historiques sans aucune ligne de répartition (créées avant la
+  // généralisation d'expense_shares, ou dont l'insertion des parts a échoué).
+  // Choix explicite : on les EXCLUT du dû — les inventer au prorata reproduirait
+  // exactement le bug qu'on corrige — mais on les signale, car elles restent
+  // comptées dans le total et dans le « payé », donc les soldes sont incomplets.
+  const expensesWithShares = new Set(expenseShares.map((s) => s.expense_id));
+  const unallocatedExpenses = expenses.filter((e) => !expensesWithShares.has(e.id));
+  const unallocatedTotal = unallocatedExpenses.reduce((s, e) => s + Number(e.amount), 0);
+
+  const balanceRows = Array.from(
+    new Set([...members.map((m) => m.user_id), ...dueByUser.keys(), ...paidByUser.keys()])
+  )
+    .map((userId) => ({
+      userId,
+      name: getName(userId),
+      share: shares[userId] ?? null,
+      cost: Math.round(dueByUser.get(userId) || 0),
+      paid: Math.round(paidByUser.get(userId) || 0),
+    }))
+    .filter((r) => r.cost > 0 || r.paid > 0 || r.share !== null)
+    .sort((a, b) => b.paid - b.cost - (a.paid - a.cost));
+
+  // ── Simulateur ──────────────────────────────────────────────────────────────
+  // Utilise la même fonction de répartition que la saisie d'une dépense : la somme
+  // des parts simulées est donc exactement égale au montant simulé (avant, chaque
+  // part était arrondie séparément et le total pouvait ne pas retomber juste).
+  const simResult = (() => {
     const amount = Number(simAmount);
-    if (simMode === "ownership") return { name: getName(userId), part: Math.round(amount * pct / 100) };
-    if (simMode === "equal") return { name: getName(userId), part: Math.round(amount / memberCount) };
-    // hybrid
+    if (!simAmount || !Number.isFinite(amount) || amount <= 0) return [];
+
+    const userIds = Object.keys(shares);
+    if (userIds.length === 0) return [];
+
+    // Nuits consommées par personne, pour le mode hybride.
     const nightsMap: Record<string, number> = {};
     let totalN = 0;
     bookings.forEach((b: any) => {
@@ -118,10 +179,29 @@ const FinancialDashboard = ({ houseId, members }: FinancialDashboardProps) => {
       nightsMap[b.user_id] = (nightsMap[b.user_id] || 0) + n;
       totalN += n;
     });
-    const usagePct = totalN > 0 ? ((nightsMap[userId] || 0) / totalN) * 100 : pct;
-    const hybridPct = (pct + usagePct) / 2;
-    return { name: getName(userId), part: Math.round(amount * hybridPct / 100) };
-  }) : [];
+
+    const participants = userIds.map((userId) => {
+      const pct = Number(shares[userId]) || 0;
+      if (simMode === "hybrid") {
+        const usagePct = totalN > 0 ? ((nightsMap[userId] || 0) / totalN) * 100 : pct;
+        return { userId, percentage: (pct + usagePct) / 2 };
+      }
+      return { userId, percentage: pct };
+    });
+
+    // 'equal' et 'hybrid' passent par des poids ; 'ownership' par les quotes-parts.
+    const result = splitExpense(
+      eurosToCents(amount),
+      simMode === "equal" ? participants.map((p) => ({ userId: p.userId })) : participants,
+      simMode === "equal" ? "equal" : "ownership"
+    );
+    if (result.status === "error") return [];
+
+    return result.shares.map((s) => ({
+      name: getName(s.userId),
+      part: centsToEuros(s.amountCents),
+    }));
+  })();
 
   return (
     <div className="space-y-6">
@@ -190,21 +270,33 @@ const FinancialDashboard = ({ houseId, members }: FinancialDashboardProps) => {
         )}
       </div>
 
-      {/* Cost per ownership share */}
-      {costByShare.length > 0 && (
+      {/* Soldes issus des répartitions réellement enregistrées */}
+      {balanceRows.length > 0 && (
         <Card className="border-border/50 shadow-soft">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-display">Coût par quote-part</CardTitle>
+            <CardTitle className="text-sm font-display">Soldes par membre</CardTitle>
           </CardHeader>
           <CardContent>
+            {unallocatedTotal > 0 && (
+              <div className="flex items-start gap-2 mb-3 rounded-lg bg-destructive/10 p-2.5 text-xs text-destructive">
+                <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <span>
+                  {unallocatedExpenses.length} dépense{unallocatedExpenses.length > 1 ? "s" : ""} sans
+                  répartition enregistrée ({Math.round(unallocatedTotal)} €) : ce montant est compté dans
+                  le total annuel mais n'est imputé à personne, les soldes ci-dessous sont donc incomplets.
+                </span>
+              </div>
+            )}
             <div className="space-y-2">
-              {costByShare.map((m) => {
+              {balanceRows.map((m) => {
                 const balance = m.paid - m.cost;
                 return (
-                  <div key={m.name} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
+                  <div key={m.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
                     <div>
                       <p className="text-sm font-medium text-foreground">{m.name}</p>
-                      <p className="text-xs text-muted-foreground">{m.share}% · Dû: {m.cost} € · Payé: {m.paid} €</p>
+                      <p className="text-xs text-muted-foreground">
+                        {m.share !== null && `${m.share}% · `}Dû: {m.cost} € · Payé: {m.paid} €
+                      </p>
                     </div>
                     <Badge variant={balance >= 0 ? "secondary" : "destructive"} className="text-xs">
                       {balance >= 0 ? `+${balance} €` : `${balance} €`}
@@ -245,10 +337,10 @@ const FinancialDashboard = ({ houseId, members }: FinancialDashboardProps) => {
           </div>
           {simResult.length > 0 && (
             <div className="space-y-1.5">
-              {simResult.map((r) => (
-                <div key={r.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 text-sm">
+              {simResult.map((r, i) => (
+                <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 text-sm">
                   <span className="text-foreground font-medium">{r.name}</span>
-                  <span className="text-foreground font-bold">{r.part} €</span>
+                  <span className="text-foreground font-bold">{r.part.toFixed(2)} €</span>
                 </div>
               ))}
             </div>

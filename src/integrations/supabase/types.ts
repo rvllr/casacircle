@@ -362,6 +362,7 @@ export type Database = {
           house_id: string
           id: string
           paid_by: string
+          split_mode: Database["public"]["Enums"]["expense_split_mode"]
         }
         Insert: {
           amount: number
@@ -372,6 +373,7 @@ export type Database = {
           house_id: string
           id?: string
           paid_by: string
+          split_mode?: Database["public"]["Enums"]["expense_split_mode"]
         }
         Update: {
           amount?: number
@@ -382,6 +384,7 @@ export type Database = {
           house_id?: string
           id?: string
           paid_by?: string
+          split_mode?: Database["public"]["Enums"]["expense_split_mode"]
         }
         Relationships: [
           {
@@ -1794,6 +1797,10 @@ export type Database = {
         Args: { _join_code: string }
         Returns: string
       }
+      save_ownership_shares: {
+        Args: { _house_id: string; _shares: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       booking_status: "pending" | "approved" | "refused" | "cancelled"
@@ -1808,6 +1815,7 @@ export type Database = {
         | "taxes"
         | "menage"
         | "autre"
+      expense_split_mode: "equal" | "ownership" | "manual"
       family_role: "admin" | "member" | "legal_representative"
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
@@ -1967,6 +1975,7 @@ export const Constants = {
         "menage",
         "autre",
       ],
+      expense_split_mode: ["equal", "ownership", "manual"],
       family_role: ["admin", "member", "legal_representative"],
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],

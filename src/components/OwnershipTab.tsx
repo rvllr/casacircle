@@ -8,6 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { PieChart, Plus, Save, Trash2, AlertTriangle, CheckCircle2, History } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { isOwnershipTotalValid } from "@/lib/expenseSplit";
+
+/** Affiche un pourcentage sans traîne flottante (99.99000000000001 → 99.99). */
+const formatPct = (value: number) => Number(value.toFixed(2)).toString();
 
 interface OwnershipShare {
   id: string;
@@ -29,6 +33,7 @@ const OwnershipTab = ({ houseId, isAdmin, members }: OwnershipTabProps) => {
   const [history, setHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState<Record<string, number>>({});
 
   const fetchData = useCallback(async () => {
@@ -57,7 +62,11 @@ const OwnershipTab = ({ houseId, isAdmin, members }: OwnershipTabProps) => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const total = Object.values(editing ? draft : shares.reduce((acc, s) => { acc[s.user_id] = s.percentage; return acc; }, {} as Record<string, number>)).reduce((a, b) => a + b, 0);
+  const currentPercentages = Object.values(
+    editing ? draft : shares.reduce((acc, s) => { acc[s.user_id] = s.percentage; return acc; }, {} as Record<string, number>)
+  );
+  const total = currentPercentages.reduce((a, b) => a + b, 0);
+  const isCurrentTotalValid = isOwnershipTotalValid(currentPercentages);
 
   const startEditing = () => {
     const d: Record<string, number> = {};
@@ -68,27 +77,36 @@ const OwnershipTab = ({ houseId, isAdmin, members }: OwnershipTabProps) => {
     setEditing(true);
   };
 
+  /**
+   * Enregistrement ATOMIQUE de toutes les quotes-parts via la RPC dédiée.
+   *
+   * L'ancienne version écrivait ligne par ligne : une part mise à 0 n'était jamais
+   * supprimée (on ne pouvait donc pas retirer un copropriétaire), et un échec en cours
+   * de boucle laissait la maison dans un état incohérent. La RPC fait le remplacement
+   * complet en une transaction et valide la somme à 100 % côté base.
+   */
   const saveDraft = async () => {
-    for (const [userId, pct] of Object.entries(draft)) {
-      const existing = shares.find((s) => s.user_id === userId);
-      if (existing) {
-        if (existing.percentage !== pct) {
-          await supabase.from("ownership_shares").update({ percentage: pct } as any).eq("id", existing.id);
-          await supabase.from("ownership_history").insert({
-            house_id: houseId, user_id: userId, old_percentage: existing.percentage,
-            new_percentage: pct, changed_by: user?.id,
-          } as any);
-        }
-      } else if (pct > 0) {
-        await supabase.from("ownership_shares").insert({
-          house_id: houseId, user_id: userId, percentage: pct,
-        } as any);
-        await supabase.from("ownership_history").insert({
-          house_id: houseId, user_id: userId, old_percentage: 0,
-          new_percentage: pct, changed_by: user?.id,
-        } as any);
-      }
+    if (!isTotalValid) {
+      toast({
+        title: "Répartition incomplète",
+        description: `La somme des quotes-parts doit valoir exactement 100 % (actuellement ${formatPct(draftTotal)} %).`,
+        variant: "destructive",
+      });
+      return;
     }
+
+    setSaving(true);
+    const { error } = await supabase.rpc("save_ownership_shares", {
+      _house_id: houseId,
+      _shares: Object.entries(draft).map(([userId, percentage]) => ({ user_id: userId, percentage })),
+    });
+    setSaving(false);
+
+    if (error) {
+      toast({ title: "Erreur d'enregistrement", description: error.message, variant: "destructive" });
+      return;
+    }
+
     toast({ title: "Quotes-parts mises à jour !" });
     setEditing(false);
     fetchData();
@@ -101,6 +119,9 @@ const OwnershipTab = ({ houseId, isAdmin, members }: OwnershipTabProps) => {
   };
 
   const draftTotal = Object.values(draft).reduce((a, b) => a + b, 0);
+  // Validation stricte : la somme doit valoir 100 %, à la tolérance décimale près
+  // (les parts sont en numeric, 33.33 × 3 = 99.99 doit rester acceptable).
+  const isTotalValid = isOwnershipTotalValid(Object.values(draft));
 
   return (
     <div className="space-y-4">
@@ -109,15 +130,15 @@ const OwnershipTab = ({ houseId, isAdmin, members }: OwnershipTabProps) => {
         <Card className="border-border/50 shadow-soft">
           <CardContent className="p-4 text-center">
             <p className="text-xs text-muted-foreground mb-1">Total réparti</p>
-            <p className={`text-2xl font-display ${total === 100 ? "text-accent" : "text-destructive"}`}>
-              {total}%
+            <p className={`text-2xl font-display ${isCurrentTotalValid ? "text-accent" : "text-destructive"}`}>
+              {formatPct(total)}%
             </p>
-            {total !== 100 && (
+            {!isCurrentTotalValid && (
               <div className="flex items-center justify-center gap-1 mt-1 text-xs text-destructive">
-                <AlertTriangle className="h-3 w-3" /> {total < 100 ? `${100 - total}% non attribué` : `${total - 100}% en trop`}
+                <AlertTriangle className="h-3 w-3" /> {total < 100 ? `${formatPct(100 - total)}% non attribué` : `${formatPct(total - 100)}% en trop`}
               </div>
             )}
-            {total === 100 && (
+            {isCurrentTotalValid && (
               <div className="flex items-center justify-center gap-1 mt-1 text-xs text-accent">
                 <CheckCircle2 className="h-3 w-3" /> Répartition complète
               </div>
@@ -219,16 +240,30 @@ const OwnershipTab = ({ houseId, isAdmin, members }: OwnershipTabProps) => {
                   </div>
                 </div>
               ))}
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <span className={`text-sm font-medium ${draftTotal === 100 ? "text-accent" : "text-destructive"}`}>
-                  Total : {draftTotal}%
-                </span>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>Annuler</Button>
-                  <Button size="sm" onClick={saveDraft} disabled={draftTotal > 100}>
-                    <Save className="h-3.5 w-3.5 mr-1" /> Enregistrer
-                  </Button>
+              <div className="space-y-2 pt-2 border-t border-border">
+                <div className="flex items-center justify-between">
+                  <span className={`text-sm font-medium ${isTotalValid ? "text-accent" : "text-destructive"}`}>
+                    Total : {formatPct(draftTotal)}%
+                  </span>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>Annuler</Button>
+                    <Button size="sm" onClick={saveDraft} disabled={!isTotalValid || saving}>
+                      <Save className="h-3.5 w-3.5 mr-1" /> {saving ? "Enregistrement..." : "Enregistrer"}
+                    </Button>
+                  </div>
                 </div>
+                {!isTotalValid && (
+                  <p className="flex items-start gap-1.5 text-xs text-destructive">
+                    <AlertTriangle className="h-3.5 w-3.5 mt-px shrink-0" />
+                    <span>
+                      La répartition doit totaliser exactement 100 %
+                      {draftTotal < 100
+                        ? ` — il manque ${formatPct(100 - draftTotal)} %.`
+                        : ` — ${formatPct(draftTotal - 100)} % en trop.`}
+                      {" "}Mettez une part à 0 pour retirer un copropriétaire.
+                    </span>
+                  </p>
+                )}
               </div>
             </div>
           ) : shares.length === 0 ? (
