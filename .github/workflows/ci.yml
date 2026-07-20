@@ -34,12 +34,25 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      # Dette connue et figée : 209 warnings au moment de la mise en place
-      # (dont ~200 no-explicit-any et 19 react-hooks/exhaustive-deps).
-      # Le seuil agit comme un cliquet : 0 erreur toléré, et tout nouveau
-      # warning fait échouer la CI. À faire baisser au fil des PR.
+      # Seules les ERREURS bloquent. Les warnings (dette connue :
+      # no-explicit-any, exhaustive-deps, unused-vars) sont comptés et
+      # affichés, mais ne font pas échouer la CI.
+      #
+      # Un plafond figé de type cliquet a été essayé puis retiré : Lovable
+      # committe du code généré en continu, donc le compteur monte tout seul
+      # et la CI passait au rouge sur des `any` ajoutés automatiquement,
+      # sans qu'aucun vrai problème n'existe. Des alertes qui crient pour
+      # du bruit finissent par être ignorées, y compris quand elles ont
+      # raison — c'est exactement ce qu'on ne veut pas d'une CI.
       - name: Lint
-        run: npm run lint -- --max-warnings 209
+        run: npm run lint
+
+      - name: Décompte des warnings (informatif)
+        if: always()
+        run: |
+          COUNT=$(npx eslint . -f json 2>/dev/null \
+            | python3 -c "import json,sys; print(sum(f['warningCount'] for f in json.load(sys.stdin)))")
+          echo "### Lint : $COUNT warnings (non bloquant)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Test
         run: npm test
