@@ -99,11 +99,10 @@ const NewMemoryDialog = ({ onCreated }: Props) => {
         continue;
       }
 
-      const { data: urlData } = supabase.storage.from("memories").getPublicUrl(path);
-
+      // Bucket is private — store the storage path, resolve to a signed URL on read.
       await supabase.from("memory_photos").insert({
         memory_id: memory.id,
-        image_url: urlData.publicUrl,
+        image_url: path,
       });
     }
 
