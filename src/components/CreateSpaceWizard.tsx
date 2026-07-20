@@ -89,8 +89,14 @@ const CreateSpaceWizard = ({ onCreated }: CreateSpaceWizardProps) => {
       return;
     }
 
-    // 2. Add creator as admin
-    await supabase.from("family_members").insert({ family_id: space.id, user_id: user.id, role: "admin" });
+    // 2. Add creator as admin (déjà fait par le trigger
+    //    trigger_auto_add_family_creator ; conservé en filet de sécurité)
+    await supabase
+      .from("family_members")
+      .upsert(
+        { family_id: space.id, user_id: user.id, role: "admin" },
+        { onConflict: "family_id,user_id", ignoreDuplicates: true }
+      );
 
     // 3. Create first house if provided
     if (!skipHouse && houseName.trim()) {

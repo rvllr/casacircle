@@ -1709,7 +1709,6 @@ export type Database = {
           capacity: number | null
           created_at: string | null
           description: string | null
-          family_id: string | null
           id: string | null
           is_public: boolean | null
           location: string | null
@@ -1721,7 +1720,6 @@ export type Database = {
           capacity?: number | null
           created_at?: string | null
           description?: string | null
-          family_id?: string | null
           id?: string | null
           is_public?: boolean | null
           location?: string | null
@@ -1733,22 +1731,13 @@ export type Database = {
           capacity?: number | null
           created_at?: string | null
           description?: string | null
-          family_id?: string | null
           id?: string | null
           is_public?: boolean | null
           location?: string | null
           name?: string | null
           photo_url?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "houses_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Functions: {
@@ -1802,7 +1791,7 @@ export type Database = {
         Returns: boolean
       }
       join_house_by_code: {
-        Args: { _join_code: string; _user_id: string }
+        Args: { _join_code: string }
         Returns: string
       }
     }
