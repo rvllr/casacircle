@@ -60,7 +60,10 @@ const SmartAlbum = ({ houseId, members }: SmartAlbumProps) => {
       ]);
 
       const memories = (memData || []) as Memory[];
-      const photos = (photoData || []) as MemoryPhoto[];
+      const rawPhotos = (photoData || []) as MemoryPhoto[];
+      const signed = await signMemoryPhotoUrls(rawPhotos.map((p) => p.image_url));
+      const photos = rawPhotos.map((p) => ({ ...p, image_url: resolveMemoryPhotoUrl(p.image_url, signed) }));
+
 
       // Group memories by overlapping or close visit dates (within 3 days)
       const grouped: StayGroup[] = [];
