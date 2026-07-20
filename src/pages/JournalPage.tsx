@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { signMemoryPhotoUrls, resolveMemoryPhotoUrl } from "@/lib/memoryStorage";
 
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
 interface MemoryPhoto { id: string; memory_id: string; image_url: string; }
