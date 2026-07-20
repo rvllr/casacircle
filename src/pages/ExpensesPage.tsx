@@ -143,11 +143,11 @@ const ExpensesPage = () => {
             </CardContent>
           </Card>
         ) : (
-          <Tabs defaultValue="summary" className="space-y-4">
+          <Tabs defaultValue="list" className="space-y-4">
             <div className="flex items-center justify-between">
               <TabsList>
-                <TabsTrigger value="summary">Résumé</TabsTrigger>
                 <TabsTrigger value="list">Historique</TabsTrigger>
+                <TabsTrigger value="summary">Résumé</TabsTrigger>
               </TabsList>
               <Button
                 variant="outline"
