@@ -6,6 +6,7 @@ import { Camera, CalendarDays, User, ImageIcon, ChevronDown, ChevronUp } from "l
 import { Button } from "@/components/ui/button";
 import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
+import { signMemoryPhotoUrls, resolveMemoryPhotoUrl } from "@/lib/memoryStorage";
 
 interface SmartAlbumProps {
   houseId: string;
