@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PieChart, Plus, Save, Trash2, AlertTriangle, CheckCircle2, History } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { isOwnershipTotalValid } from "@/lib/expenseSplit";
+import { friendlyError } from "@/lib/errorMessages";
 
 /** Affiche un pourcentage sans traîne flottante (99.99000000000001 → 99.99). */
 const formatPct = (value: number) => Number(value.toFixed(2)).toString();
@@ -103,7 +104,7 @@ const OwnershipTab = ({ houseId, isAdmin, members }: OwnershipTabProps) => {
     setSaving(false);
 
     if (error) {
-      toast({ title: "Erreur d'enregistrement", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur d'enregistrement", description: friendlyError(error), variant: "destructive" });
       return;
     }
 

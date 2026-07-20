@@ -21,6 +21,7 @@ import { exportBookingsCsv } from "@/lib/csvExport";
 import { differenceInCalendarDays } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useDemo } from "@/contexts/DemoContext";
+import { friendlyError } from "@/lib/errorMessages";
 
 const BookingsPage = () => {
   const { user } = useAuth();
@@ -113,7 +114,7 @@ const BookingsPage = () => {
   const updateBookingStatus = async (bookingId: string, status: "approved" | "refused" | "cancelled") => {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", bookingId);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       const messages = { approved: "Réservation confirmée !", refused: "Réservation refusée.", cancelled: "Réservation annulée." };
       toast({ title: messages[status] });
@@ -133,7 +134,7 @@ const BookingsPage = () => {
     }
     const { error } = await supabase.from("bookings").update(updateData).eq("id", bookingId);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Paiement mis à jour" });
       fetchData();

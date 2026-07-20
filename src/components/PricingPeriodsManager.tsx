@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CalendarRange, Plus, Trash2, Loader2, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface Props {
   houseId: string;
@@ -119,7 +120,7 @@ const PricingPeriodsManager = ({ houseId, isAdmin }: Props) => {
 
     const { error } = await supabase.from("pricing_periods").insert(payload as any);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Période ajoutée !" });
       resetForm();
@@ -131,7 +132,7 @@ const PricingPeriodsManager = ({ houseId, isAdmin }: Props) => {
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("pricing_periods").delete().eq("id", id);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       setPeriods((prev) => prev.filter((p) => p.id !== id));
       toast({ title: "Période supprimée" });

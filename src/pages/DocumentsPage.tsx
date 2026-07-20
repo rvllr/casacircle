@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { formatDate } from "@/lib/dateFormatter";
 import { createDocumentSignedUrl, resolveStoragePath } from "@/lib/documentStorage";
+import { friendlyError } from "@/lib/errorMessages";
 
 const docTypeLabels: Record<string, string> = {
   legal: "Juridique",
@@ -138,7 +139,7 @@ const DocumentsPage = () => {
       // L'insert a échoué : on retire le fichier déjà uploadé pour ne pas
       // laisser d'orphelin dans le bucket.
       await supabase.storage.from("documents").remove([path]);
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Document ajouté !" });
       setTitle("");

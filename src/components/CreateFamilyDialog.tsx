@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Users, Building2, Landmark, User, Network } from "lucide-react";
+import { friendlyError } from "@/lib/errorMessages";
 
 const SPACE_TYPES = [
   { value: "family", label: "Famille", icon: Users, description: "Regrouper les biens d'une famille" },
@@ -59,7 +60,7 @@ const CreateFamilyDialog = ({ onCreated }: CreateFamilyDialogProps) => {
       .single();
 
     if (familyError) {
-      toast({ title: "Erreur", description: familyError.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(familyError), variant: "destructive" });
       setLoading(false);
       return;
     }
@@ -75,7 +76,7 @@ const CreateFamilyDialog = ({ onCreated }: CreateFamilyDialogProps) => {
       );
 
     if (memberError) {
-      toast({ title: "Erreur", description: memberError.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(memberError), variant: "destructive" });
       setLoading(false);
       return;
     }

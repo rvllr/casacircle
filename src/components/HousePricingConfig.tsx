@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Euro, Loader2, Save, CreditCard, Banknote, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface Props {
   houseId: string;
@@ -119,7 +120,7 @@ const HousePricingConfig = ({ houseId, isAdmin }: Props) => {
     }
 
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Tarification enregistrée !" });
     }

@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { formatDate } from "@/lib/dateFormatter";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface VoteRow {
   id: string;
@@ -132,7 +133,7 @@ const VotesPage = () => {
       majority_rule: majorityRule,
     } as any);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Vote créé !" });
       setTitle("");
@@ -204,7 +205,7 @@ const VotesPage = () => {
     } as any);
 
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: isApproved ? "Vote validé ✓" : "Vote rejeté ✗", description: "La décision a été enregistrée." });
     }

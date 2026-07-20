@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus } from "lucide-react";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface InviteToHouseDialogProps {
   houseId: string;
@@ -55,7 +56,7 @@ const InviteToHouseDialog = ({ houseId, houseName, familyId, onInvited }: Invite
       .maybeSingle();
 
     if (profileError) {
-      toast({ title: "Erreur", description: profileError.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(profileError), variant: "destructive" });
       setLoading(false);
       return;
     }
@@ -101,7 +102,7 @@ const InviteToHouseDialog = ({ houseId, houseName, familyId, onInvited }: Invite
       } as any));
 
     if (insertError) {
-      toast({ title: "Erreur", description: insertError.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(insertError), variant: "destructive" });
       setLoading(false);
       return;
     }

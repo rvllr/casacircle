@@ -11,6 +11,18 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Authorization: require a shared secret. This function is a scheduled/cron
+  // job — no anonymous or user-triggered calls should be accepted.
+  const expected = Deno.env.get("CHECK_LATE_PAYMENTS_SECRET");
+  const auth = req.headers.get("Authorization") ?? "";
+  const provided = auth.replace(/^Bearer\s+/i, "").trim();
+  if (!expected || provided !== expected) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

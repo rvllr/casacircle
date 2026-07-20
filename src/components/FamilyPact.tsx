@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { FileText, Plus, CheckCircle2, Clock, Loader2, PenLine, Users, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateLong } from "@/lib/dateFormatter";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface FamilyPactProps {
   houseId: string;
@@ -102,7 +103,7 @@ const FamilyPact = ({ houseId, isAdmin, members }: FamilyPactProps) => {
       status: "draft",
     } as any);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Pacte créé !" });
       setTitle(""); setContent(""); setDialogOpen(false);
@@ -131,7 +132,7 @@ const FamilyPact = ({ houseId, isAdmin, members }: FamilyPactProps) => {
     } as any);
     if (error) {
       if (error.code === "23505") toast({ title: "Vous avez déjà signé ce pacte" });
-      else toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      else toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Pacte signé ✓" });
       fetchPacts();

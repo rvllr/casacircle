@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Plus, Trash2, GripVertical, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface HouseGuideEditorProps {
   houseId: string;
@@ -151,7 +152,7 @@ const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorPro
         .update({ title: title.trim(), content })
         .eq("id", guide.id);
       if (error) {
-        toast({ title: "Erreur", description: error.message, variant: "destructive" });
+        toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
         setLoading(false);
         return;
       }
@@ -160,7 +161,7 @@ const HouseGuideEditor = ({ houseId, type, guide, onSaved }: HouseGuideEditorPro
         .from("house_guides")
         .insert({ house_id: houseId, type, title: title.trim(), content });
       if (error) {
-        toast({ title: "Erreur", description: error.message, variant: "destructive" });
+        toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
         setLoading(false);
         return;
       }

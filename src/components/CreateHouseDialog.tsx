@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface Family {
   id: string;
@@ -65,7 +66,7 @@ const CreateHouseDialog = ({ families, familyId, familyName, onCreated }: Create
     }).select("id").single();
 
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
       setLoading(false);
       return;
     }

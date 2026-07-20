@@ -45,6 +45,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { formatDate } from "@/lib/dateFormatter";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface House {
   id: string;
@@ -912,7 +913,7 @@ const TicketsTab = ({
     } as any);
     setSubmitting(false);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Signalement créé !" });
       setTitle("");
@@ -926,7 +927,7 @@ const TicketsTab = ({
   const updateStatus = async (ticketId: string, status: "open" | "in_progress" | "resolved") => {
     const { error } = await supabase.from("maintenance_tickets").update({ status }).eq("id", ticketId);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       onRefresh();
     }

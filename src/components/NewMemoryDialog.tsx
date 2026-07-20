@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, ImagePlus, X } from "lucide-react";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface House { id: string; name: string; }
 interface Props { onCreated: () => void; }
@@ -79,7 +80,7 @@ const NewMemoryDialog = ({ onCreated }: Props) => {
     }).select("id").single();
 
     if (error || !memory) {
-      toast({ title: "Erreur", description: error?.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
       setLoading(false);
       return;
     }

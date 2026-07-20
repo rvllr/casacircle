@@ -32,6 +32,7 @@ import {
 import { CalendarDays, User, ImageIcon, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { formatDateLong, formatDate } from "@/lib/dateFormatter";
 import { useToast } from "@/hooks/use-toast";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface MemoryPhoto {
   id: string;
@@ -90,7 +91,7 @@ const MemoryCard = ({ memory, photos, authorName, onLightbox, onRefresh }: Memor
       .eq("id", m.id);
 
     if (error) {
-      toast({ title: "Erreur de mise à jour", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur de mise à jour", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Souvenir mis à jour !" });
       setEditOpen(false);
@@ -102,7 +103,7 @@ const MemoryCard = ({ memory, photos, authorName, onLightbox, onRefresh }: Memor
   const handleDelete = async () => {
     const { error } = await supabase.from("house_memories").delete().eq("id", m.id);
     if (error) {
-      toast({ title: "Erreur de suppression", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur de suppression", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Souvenir supprimé." });
       onRefresh();

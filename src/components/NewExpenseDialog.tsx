@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { normalizeRelation } from "@/lib/supabaseHelpers";
 import { Plus, AlertTriangle } from "lucide-react";
+import { friendlyError } from "@/lib/errorMessages";
 import {
   splitExpense,
   eurosToCents,
@@ -245,7 +246,7 @@ const NewExpenseDialog = ({ onCreated }: Props) => {
       .single();
 
     if (error || !expense) {
-      toast({ title: "Erreur", description: error?.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
       setLoading(false);
       return;
     }

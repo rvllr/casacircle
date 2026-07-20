@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { TreePine, Plus, Loader2, Trash2, User, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface FamilyTreeProps {
   familyId: string;
@@ -83,7 +84,7 @@ const FamilyTree = ({ familyId, isAdmin }: FamilyTreeProps) => {
       parent_node_id: parentId === "none" ? null : parentId,
     } as any);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Membre ajouté !" });
       setName(""); setBirthYear(""); setDeathYear(""); setParentId("none");

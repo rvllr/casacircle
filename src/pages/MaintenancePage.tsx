@@ -16,6 +16,7 @@ import { fr } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { useHouseContext } from "@/contexts/HouseContext";
 import HouseSelector from "@/components/HouseSelector";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface Ticket {
   id: string;
@@ -129,7 +130,7 @@ const MaintenancePage = () => {
       .eq("id", ticketId);
 
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Statut mis à jour" });
       fetchTickets();

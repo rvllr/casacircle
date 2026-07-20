@@ -30,13 +30,14 @@ const JoinHousePage = () => {
     });
 
     if (error) {
+      const msg = error.message || "";
       toast({
         title: "Impossible de rejoindre",
-        description: error.message.includes("Code invalide")
+        description: msg.includes("Code invalide")
           ? "Code invalide. Vérifiez le code et réessayez."
-          : error.message.includes("déjà membre")
+          : msg.includes("déjà membre")
           ? "Vous êtes déjà membre de cette maison."
-          : error.message,
+          : "Impossible de rejoindre cette maison.",
         variant: "destructive",
       });
     } else {
