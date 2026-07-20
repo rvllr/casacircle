@@ -9,13 +9,15 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    hmr: {
-      overlay: false,
-    },
   },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
+    // Volontairement NON conditionné au mode : mcpPlugin n'injecte rien dans le
+    // bundle client. C'est un générateur de code qui compile src/lib/mcp/ vers
+    // l'edge function Deno supabase/functions/mcp/ (hook buildStart). Le gater
+    // sur `mode === "development"` ferait diverger silencieusement la fonction
+    // déployée de ses sources lors d'un build de production.
     mcpPlugin(),
   ].filter(Boolean),
   resolve: {

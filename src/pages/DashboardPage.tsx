@@ -126,7 +126,7 @@ const DashboardPage = () => {
         .select("id, house_id", { count: "exact", head: true })
         .in("status", ["open", "in_progress"]);
 
-      let profilesQuery = supabase
+      const profilesQuery = supabase
         .from("users_profiles")
         .select("user_id, first_name, last_name");
 
