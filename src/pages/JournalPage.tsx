@@ -32,6 +32,7 @@ const JournalPage = () => {
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [memories, setMemories] = useState<Memory[]>([]);
   const [photos, setPhotos] = useState<MemoryPhoto[]>([]);
+  const [signedMap, setSignedMap] = useState<Record<string, string>>({});
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
