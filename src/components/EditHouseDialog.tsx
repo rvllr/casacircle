@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Settings, Upload, X, Loader2, ImageIcon, Globe, Copy, Check, ShieldCheck, KeyRound, RefreshCw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface EditHouseDialogProps {
   house: {
@@ -106,7 +107,7 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       .upload(filePath, file, { upsert: true });
 
     if (error) {
-      toast({ title: "Erreur d'upload", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur d'upload", description: friendlyError(error), variant: "destructive" });
       setUploading(false);
       return;
     }
@@ -131,7 +132,7 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       .update({ join_code: newCode } as any)
       .eq("id", house.id);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       setJoinCode(newCode);
       toast({ title: "Code d'invitation régénéré !" });
@@ -162,7 +163,7 @@ const EditHouseDialog = ({ house, onSaved }: EditHouseDialogProps) => {
       .eq("id", house.id);
 
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Maison mise à jour !" });
       setOpen(false);

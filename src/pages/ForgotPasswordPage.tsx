@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
+import { friendlyError } from "@/lib/errorMessages";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ const ForgotPasswordPage = () => {
     });
     setLoading(false);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       setSent(true);
     }

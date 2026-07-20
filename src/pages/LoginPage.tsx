@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
+import { friendlyError } from "@/lib/errorMessages";
 
 // Validate that `next` is a same-origin relative path (starts with a single "/").
 function safeNext(next: string | null): string | null {
@@ -31,7 +32,7 @@ const LoginPage = () => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      toast({ title: "Erreur de connexion", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur de connexion", description: friendlyError(error), variant: "destructive" });
     } else {
       navigate(nextParam ?? "/dashboard");
     }

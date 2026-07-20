@@ -13,6 +13,7 @@ import { FileText, Plus, Trash2, ExternalLink, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { createDocumentSignedUrl, resolveStoragePath } from "@/lib/documentStorage";
+import { friendlyError } from "@/lib/errorMessages";
 
 const DOC_TYPES: Record<string, string> = {
   statuts_sci: "Statuts SCI",
@@ -92,7 +93,7 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
     const { error: uploadError } = await supabase.storage.from("documents").upload(path, file);
 
     if (uploadError) {
-      toast({ title: "Erreur upload", description: uploadError.message, variant: "destructive" });
+      toast({ title: "Erreur upload", description: friendlyError(uploadError), variant: "destructive" });
       setUploading(false);
       return;
     }
@@ -111,7 +112,7 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
       // L'insert a échoué : on retire le fichier déjà uploadé pour ne pas
       // laisser d'orphelin dans le bucket.
       await supabase.storage.from("documents").remove([path]);
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Document ajouté" });
       setTitle("");

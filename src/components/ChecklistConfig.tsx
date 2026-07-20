@@ -10,6 +10,7 @@ import {
   ClipboardCheck, Plus, Trash2, GripVertical, LogIn, LogOut, Loader2, AlertCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface ChecklistConfigProps {
   houseId: string;
@@ -85,7 +86,7 @@ const ChecklistConfig = ({ houseId, isAdmin }: ChecklistConfigProps) => {
       .single();
 
     if (error || !cl) {
-      toast({ title: "Erreur", description: error?.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
       setSubmitting(false);
       return;
     }

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface AddUnitDialogProps {
   houseId: string;
@@ -55,7 +56,7 @@ const AddUnitDialog = ({ houseId, houseName, existingBuildings = [], onCreated }
     });
 
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
       setLoading(false);
       return;
     }

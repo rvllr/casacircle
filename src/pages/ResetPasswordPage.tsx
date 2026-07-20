@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
+import { friendlyError } from "@/lib/errorMessages";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
@@ -32,7 +33,7 @@ const ResetPasswordPage = () => {
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Mot de passe mis à jour !" });
       navigate("/dashboard");

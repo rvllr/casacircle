@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Camera, Save, User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { friendlyError } from "@/lib/errorMessages";
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -65,7 +66,7 @@ const ProfilePage = () => {
       .upload(path, file, { upsert: true });
 
     if (uploadError) {
-      toast({ title: "Erreur upload", description: uploadError.message, variant: "destructive" });
+      toast({ title: "Erreur upload", description: friendlyError(uploadError), variant: "destructive" });
       setUploading(false);
       return;
     }
@@ -79,7 +80,7 @@ const ProfilePage = () => {
       .eq("user_id", user.id);
 
     if (updateError) {
-      toast({ title: "Erreur", description: updateError.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(updateError), variant: "destructive" });
     } else {
       setAvatarUrl(newUrl);
       toast({ title: "Avatar mis à jour !" });
@@ -101,7 +102,7 @@ const ProfilePage = () => {
       .eq("user_id", user.id);
 
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Profil mis à jour !" });
     }

@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Vote, Plus, CheckCircle2, XCircle, MinusCircle, Clock } from "lucide-react";
 import { format, isPast } from "date-fns";
 import { fr } from "date-fns/locale";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface SpaceVote {
   id: string;
@@ -100,7 +101,7 @@ const SpaceVotes = ({ spaceId, isAdmin }: SpaceVotesProps) => {
     });
 
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Vote créé" });
       setTitle("");

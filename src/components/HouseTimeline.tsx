@@ -13,6 +13,7 @@ import { History, Plus, Home, Wrench, ArrowRightLeft, Heart, Star, Loader2, Tras
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { friendlyError } from "@/lib/errorMessages";
 
 interface HouseTimelineProps {
   houseId: string;
@@ -77,7 +78,7 @@ const HouseTimeline = ({ houseId, isAdmin }: HouseTimelineProps) => {
       event_type: eventType,
     } as any);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Événement ajouté !" });
       setTitle(""); setDescription(""); setEventDate(""); setEventType("other");

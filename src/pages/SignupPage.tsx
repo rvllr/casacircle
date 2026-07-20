@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
+import { friendlyError } from "@/lib/errorMessages";
 
 function safeNext(next: string | null): string | null {
   if (!next) return null;
@@ -40,7 +41,7 @@ const SignupPage = () => {
     });
     setLoading(false);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Compte créé !", description: "Vérifiez votre email pour confirmer votre compte." });
       navigate(nextParam ? `/login?next=${encodeURIComponent(nextParam)}` : "/login");
