@@ -229,9 +229,13 @@ const DocumentsPage = () => {
     if (path) {
       const { error: storageError } = await supabase.storage.from("documents").remove([path]);
       if (storageError) {
+        const msg = storageError.message?.toLowerCase() ?? "";
+        const isDenied = msg.includes("row-level security") || msg.includes("permission") || msg.includes("unauthorized") || msg.includes("policy");
         toast({
-          title: "Erreur de suppression",
-          description: `Le fichier n'a pas pu être supprimé : ${storageError.message}`,
+          title: isDenied ? "Suppression refusée" : "Erreur de suppression",
+          description: isDenied
+            ? "Seuls les administrateurs de la maison peuvent supprimer un document."
+            : `Le fichier n'a pas pu être supprimé : ${storageError.message}`,
           variant: "destructive",
         });
         return;
@@ -240,11 +244,13 @@ const DocumentsPage = () => {
 
     const { error } = await supabase.from("documents").delete().eq("id", doc.id);
     if (error) {
-      // Le fichier est parti mais la ligne demeure : état visible et réessayable
-      // (un second `remove` sur un objet absent est sans effet).
+      const msg = error.message?.toLowerCase() ?? "";
+      const isDenied = msg.includes("row-level security") || msg.includes("permission denied");
       toast({
-        title: "Erreur",
-        description: `Le fichier a été supprimé mais l'entrée subsiste : ${error.message}`,
+        title: isDenied ? "Suppression refusée" : "Erreur",
+        description: isDenied
+          ? "Seuls les administrateurs de la maison peuvent supprimer un document."
+          : `Le fichier a été supprimé mais l'entrée subsiste : ${error.message}`,
         variant: "destructive",
       });
     } else {
@@ -252,6 +258,7 @@ const DocumentsPage = () => {
       fetchDocs();
     }
   };
+
 
   if (loading || housesLoading) {
     return (
