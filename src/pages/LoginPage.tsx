@@ -127,7 +127,7 @@ const LoginPage = () => {
 
           <p className="text-center text-sm text-muted-foreground">
             Pas encore de compte ?{" "}
-            <Link to="/signup" className="text-primary hover:underline font-medium">Créer un compte</Link>
+            <Link to={nextParam ? `/signup?next=${encodeURIComponent(nextParam)}` : "/signup"} className="text-primary hover:underline font-medium">Créer un compte</Link>
           </p>
         </div>
       </div>
