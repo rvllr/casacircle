@@ -68,9 +68,12 @@ const JournalPage = () => {
         .from("memory_photos")
         .select("id, memory_id, image_url")
         .in("memory_id", memIds);
-      setPhotos(photosData || []);
+      const list = photosData || [];
+      setPhotos(list);
+      setSignedMap(await signMemoryPhotoUrls(list.map((p) => p.image_url)));
     } else {
       setPhotos([]);
+      setSignedMap({});
     }
 
     const userIds = [...new Set(memList.map((m) => m.created_by))];
