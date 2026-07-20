@@ -103,6 +103,21 @@ const DocumentsPage = () => {
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
 
+  // Pré-sélectionne automatiquement la maison à l'ouverture du dialogue :
+  // - si le contexte actif cible une maison précise, on la choisit ;
+  // - sinon, s'il n'y a qu'une seule maison accessible, on la choisit.
+  // Évite de laisser l'utilisateur face à un select qui semble vide alors qu'il
+  // n'a qu'une seule option (rendue en surbrillance et confondue avec un bouton).
+  useEffect(() => {
+    if (!dialogOpen) return;
+    if (selectedHouse) return;
+    if (selectedHouseId && selectedHouseId !== "all") {
+      setSelectedHouse(selectedHouseId);
+    } else if (houses.length === 1) {
+      setSelectedHouse(houses[0].id);
+    }
+  }, [dialogOpen, houses, selectedHouseId, selectedHouse]);
+
   const contextHouseIds = new Set(houses.map(h => h.id));
   const filtered = selectedHouseId === "all"
     ? documents.filter((d) => contextHouseIds.has(d.house_id))
