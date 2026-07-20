@@ -32,6 +32,7 @@ import PatrimonySpacesPage from "./pages/PatrimonySpacesPage";
 import PatrimonySpaceDetailPage from "./pages/PatrimonySpaceDetailPage";
 import PricingPage from "./pages/PricingPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
+import OAuthConsentPage from "./pages/OAuthConsentPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,7 +49,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) {
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get("next");
+    const safe = next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+    return <Navigate to={safe} replace />;
+  }
   return <>{children}</>;
 };
 
@@ -88,6 +94,7 @@ const App = () => (
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/cgu" element={<CGUPage />} />
             <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsentPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </ErrorBoundary>

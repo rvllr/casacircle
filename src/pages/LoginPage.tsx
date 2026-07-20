@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,21 @@ import { ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
 
+// Validate that `next` is a same-origin relative path (starts with a single "/").
+function safeNext(next: string | null): string | null {
+  if (!next) return null;
+  if (!next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { toast } = useToast();
+  const nextParam = safeNext(params.get("next"));
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +33,7 @@ const LoginPage = () => {
     if (error) {
       toast({ title: "Erreur de connexion", description: error.message, variant: "destructive" });
     } else {
-      navigate("/dashboard");
+      navigate(nextParam ?? "/dashboard");
     }
   };
 
@@ -118,7 +127,7 @@ const LoginPage = () => {
 
           <p className="text-center text-sm text-muted-foreground">
             Pas encore de compte ?{" "}
-            <Link to="/signup" className="text-primary hover:underline font-medium">Créer un compte</Link>
+            <Link to={nextParam ? `/signup?next=${encodeURIComponent(nextParam)}` : "/signup"} className="text-primary hover:underline font-medium">Créer un compte</Link>
           </p>
         </div>
       </div>

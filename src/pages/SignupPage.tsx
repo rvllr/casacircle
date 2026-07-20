@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,12 @@ import { ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import logoCasaCircle from "@/assets/logo-casacircle.png";
 
+function safeNext(next: string | null): string | null {
+  if (!next) return null;
+  if (!next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,16 +22,19 @@ const SignupPage = () => {
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { toast } = useToast();
+  const nextParam = safeNext(params.get("next"));
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const redirectTo = nextParam ? `${window.location.origin}${nextParam}` : window.location.origin;
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: redirectTo,
         data: { first_name: firstName, last_name: lastName }
       }
     });
@@ -34,7 +43,7 @@ const SignupPage = () => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Compte créé !", description: "Vérifiez votre email pour confirmer votre compte." });
-      navigate("/login");
+      navigate(nextParam ? `/login?next=${encodeURIComponent(nextParam)}` : "/login");
     }
   };
 
@@ -118,7 +127,7 @@ const SignupPage = () => {
 
           <p className="text-center text-sm text-muted-foreground">
             Déjà un compte ?{" "}
-            <Link to="/login" className="text-primary hover:underline font-medium">Se connecter</Link>
+            <Link to={nextParam ? `/login?next=${encodeURIComponent(nextParam)}` : "/login"} className="text-primary hover:underline font-medium">Se connecter</Link>
           </p>
         </div>
       </div>
