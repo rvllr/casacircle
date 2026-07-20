@@ -135,7 +135,15 @@ const DocumentsPage = () => {
       .upload(path, file);
 
     if (uploadErr) {
-      toast({ title: "Erreur d'upload", description: uploadErr.message, variant: "destructive" });
+      const msg = uploadErr.message?.toLowerCase() ?? "";
+      const isDenied = msg.includes("row-level security") || msg.includes("permission") || msg.includes("unauthorized") || msg.includes("policy");
+      toast({
+        title: isDenied ? "Ajout refusé" : "Erreur d'upload",
+        description: isDenied
+          ? "Seuls les administrateurs de la maison peuvent ajouter un document."
+          : friendlyError(uploadErr),
+        variant: "destructive",
+      });
       setUploading(false);
       return;
     }
@@ -154,7 +162,15 @@ const DocumentsPage = () => {
       // L'insert a échoué : on retire le fichier déjà uploadé pour ne pas
       // laisser d'orphelin dans le bucket.
       await supabase.storage.from("documents").remove([path]);
-      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
+      const msg = error.message?.toLowerCase() ?? "";
+      const isDenied = msg.includes("row-level security") || msg.includes("permission denied");
+      toast({
+        title: isDenied ? "Ajout refusé" : "Erreur",
+        description: isDenied
+          ? "Seuls les administrateurs de la maison peuvent ajouter un document."
+          : friendlyError(error),
+        variant: "destructive",
+      });
     } else {
       toast({ title: "Document ajouté !" });
       setTitle("");
@@ -165,6 +181,7 @@ const DocumentsPage = () => {
     }
     setUploading(false);
   };
+
 
   const handleOpen = async (doc: Doc) => {
     if (isDemo) {
