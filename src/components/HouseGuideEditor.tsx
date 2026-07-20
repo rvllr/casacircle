@@ -53,7 +53,7 @@ function parseContent(content: string | null | undefined): GuideItem[] {
     const match = line.match(/^\[(.+?)\]\s*•?\s*(.+)$/);
     if (match) return { category: match[1], text: match[2].trim() };
     // Legacy format: plain bullet
-    const text = line.replace(/^[\s•\-\*·]+/, "").trim();
+    const text = line.replace(/^[\s•\-*·]+/, "").trim();
     if (text) return { category: "📋 Autre", text };
     return null;
   }).filter(Boolean) as GuideItem[];

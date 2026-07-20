@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Annule les runs obsolètes sur une même branche/PR.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: typecheck / lint / test / build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `tsc --noEmit` seul ne vérifie RIEN : la racine tsconfig.json a
+      # "files": [] et ne fait que référencer les sous-projets. Il faut cibler
+      # explicitement tsconfig.app.json (src/) et tsconfig.node.json (vite.config).
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Dette connue et figée : 209 warnings au moment de la mise en place
+      # (dont ~200 no-explicit-any et 19 react-hooks/exhaustive-deps).
+      # Le seuil agit comme un cliquet : 0 erreur toléré, et tout nouveau
+      # warning fait échouer la CI. À faire baisser au fil des PR.
+      - name: Lint
+        run: npm run lint -- --max-warnings 209
+
+      - name: Test
+        run: npm test
+
+      # Le build régénère aussi supabase/functions/mcp/ via le plugin Vite
+      # @lovable.dev/mcp-js (voir vite.config.ts).
+      - name: Build
+        run: npm run build
+
+      # Le code de l'edge function MCP est généré à partir de src/lib/mcp/.
+      # Si le build produit un diff, c'est que la version commitée est périmée.
+      - name: Vérifier que l'edge function MCP générée est à jour
+        run: git diff --exit-code -- supabase/functions/mcp

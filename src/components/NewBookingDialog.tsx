@@ -132,7 +132,7 @@ const NewBookingDialog = ({ onCreated, preselectedHouseId, externalOpen, onExter
       const sd = format(startDate, "yyyy-MM-dd");
       const ed = format(endDate, "yyyy-MM-dd");
 
-      let query = supabase
+      const query = supabase
         .from("bookings")
         .select("id, start_date, end_date, unit_id, status")
         .eq("house_id", houseId)

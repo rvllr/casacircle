@@ -91,7 +91,9 @@ export const ActiveSpaceProvider = ({ children }: { children: ReactNode }) => {
         setActiveSpaceId(parsed.activeSpaceId || null);
         setActiveHouseId(parsed.activeHouseId || null);
       }
-    } catch {}
+    } catch {
+      // localStorage indisponible ou JSON corrompu : on garde l'état par défaut.
+    }
   }, []);
 
   // Persist to localStorage
