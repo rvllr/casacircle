@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { signMemoryPhotoUrls, resolveMemoryPhotoUrl } from "@/lib/memoryStorage";
 
 interface Profile { user_id: string; first_name: string | null; last_name: string | null; }
 interface MemoryPhoto { id: string; memory_id: string; image_url: string; }
@@ -31,6 +32,7 @@ const JournalPage = () => {
   const { houses, selectedHouseId, loading: housesLoading } = useHouseContext();
   const [memories, setMemories] = useState<Memory[]>([]);
   const [photos, setPhotos] = useState<MemoryPhoto[]>([]);
+  const [signedMap, setSignedMap] = useState<Record<string, string>>({});
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
@@ -66,9 +68,12 @@ const JournalPage = () => {
         .from("memory_photos")
         .select("id, memory_id, image_url")
         .in("memory_id", memIds);
-      setPhotos(photosData || []);
+      const list = photosData || [];
+      setPhotos(list);
+      setSignedMap(await signMemoryPhotoUrls(list.map((p) => p.image_url)));
     } else {
       setPhotos([]);
+      setSignedMap({});
     }
 
     const userIds = [...new Set(memList.map((m) => m.created_by))];
@@ -96,7 +101,9 @@ const JournalPage = () => {
   };
 
   const getPhotosForMemory = (memoryId: string) =>
-    photos.filter((p) => p.memory_id === memoryId);
+    photos
+      .filter((p) => p.memory_id === memoryId)
+      .map((p) => ({ ...p, image_url: resolveMemoryPhotoUrl(p.image_url, signedMap) }));
 
   const grouped = filtered.reduce<Record<string, Memory[]>>((acc, m) => {
     const dateStr = m.visit_start || m.created_at;

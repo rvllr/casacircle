@@ -106,7 +106,7 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
       file_path: path,
       type: type as any,
       uploaded_by: user.id,
-    });
+    } as any);
 
     if (error) {
       // L'insert a échoué : on retire le fichier déjà uploadé pour ne pas

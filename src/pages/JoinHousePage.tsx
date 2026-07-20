@@ -25,7 +25,7 @@ const JoinHousePage = () => {
 
     setLoading(true);
     // L'identité de l'appelant est désormais résolue côté serveur via auth.uid().
-    const { data, error } = await supabase.rpc("join_house_by_code", {
+    const { data, error } = await (supabase.rpc as any)("join_house_by_code", {
       _join_code: trimmed,
     });
 
