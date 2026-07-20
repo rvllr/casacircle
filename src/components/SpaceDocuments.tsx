@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FileText, Plus, Trash2, ExternalLink, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { createDocumentSignedUrl, resolveStoragePath } from "@/lib/documentStorage";
 
 const DOC_TYPES: Record<string, string> = {
   statuts_sci: "Statuts SCI",
@@ -25,7 +26,10 @@ const DOC_TYPES: Record<string, string> = {
 interface SpaceDocument {
   id: string;
   title: string;
-  file_url: string;
+  /** Chemin dans le bucket privé `documents`. Source de vérité depuis 20260720150000. */
+  file_path?: string | null;
+  /** LEGACY — ancienne URL publique, inopérante (bucket privé). Sert de repli pour les lignes historiques. */
+  file_url?: string | null;
   type: string;
   uploaded_by: string;
   created_at: string;
@@ -49,11 +53,17 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
   const [uploading, setUploading] = useState(false);
 
   const fetchDocs = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from("space_documents")
       .select("*")
       .eq("space_id", spaceId)
       .order("created_at", { ascending: false });
+
+    if (fetchError) {
+      toast({ title: "Erreur de chargement", description: "Impossible de récupérer les documents.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
 
     if (data && data.length > 0) {
       const userIds = [...new Set(data.map((d) => d.uploaded_by))];
@@ -68,7 +78,7 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
       setDocs([]);
     }
     setLoading(false);
-  }, [spaceId]);
+  }, [spaceId, toast]);
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
 
@@ -87,17 +97,20 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
       return;
     }
 
-    const { data: urlData } = supabase.storage.from("documents").getPublicUrl(path);
-
+    // Le bucket est privé : on persiste le CHEMIN, pas une URL. L'URL signée
+    // est générée à l'ouverture (cf. handleOpen) car elle expire.
     const { error } = await supabase.from("space_documents").insert({
       space_id: spaceId,
       title: title.trim(),
-      file_url: urlData.publicUrl,
+      file_path: path,
       type: type as any,
       uploaded_by: user.id,
     });
 
     if (error) {
+      // L'insert a échoué : on retire le fichier déjà uploadé pour ne pas
+      // laisser d'orphelin dans le bucket.
+      await supabase.storage.from("documents").remove([path]);
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Document ajouté" });
@@ -110,9 +123,66 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
     setUploading(false);
   };
 
-  const handleDelete = async (docId: string) => {
-    const { error } = await supabase.from("space_documents").delete().eq("id", docId);
-    if (!error) {
+  const handleOpen = async (doc: SpaceDocument) => {
+    const path = resolveStoragePath(doc);
+    if (!path) {
+      toast({
+        title: "Fichier indisponible",
+        description: "Ce document n'a pas de fichier associé exploitable.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // La fenêtre doit être ouverte de façon synchrone (dans le geste de clic),
+    // sinon les bloqueurs de pop-up la rejettent après l'await.
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+
+    const { url, error } = await createDocumentSignedUrl(path);
+
+    if (error || !url) {
+      popup?.close();
+      toast({ title: "Erreur d'ouverture", description: error ?? "URL indisponible.", variant: "destructive" });
+      return;
+    }
+
+    if (popup) {
+      popup.location.href = url;
+    } else {
+      // Pop-up bloquée : repli sur la navigation courante.
+      window.location.href = url;
+    }
+  };
+
+  const handleDelete = async (doc: SpaceDocument) => {
+    // On supprime le fichier AVANT la ligne : si le storage échoue, on
+    // interrompt et la ligne reste, donc le document reste visible et
+    // supprimable. L'ordre inverse laisserait un fichier orphelin introuvable
+    // à vie dans le bucket.
+    const path = resolveStoragePath(doc);
+
+    if (path) {
+      const { error: storageError } = await supabase.storage.from("documents").remove([path]);
+      if (storageError) {
+        toast({
+          title: "Erreur de suppression",
+          description: `Le fichier n'a pas pu être supprimé : ${storageError.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    const { error } = await supabase.from("space_documents").delete().eq("id", doc.id);
+    if (error) {
+      // Le fichier est parti mais la ligne demeure : état visible et réessayable
+      // (un second `remove` sur un objet absent est sans effet).
+      toast({
+        title: "Erreur",
+        description: `Le fichier a été supprimé mais l'entrée subsiste : ${error.message}`,
+        variant: "destructive",
+      });
+    } else {
       toast({ title: "Document supprimé" });
       fetchDocs();
     }
@@ -184,13 +254,11 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                    <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpen(doc)}>
+                    <ExternalLink className="h-4 w-4" />
                   </Button>
                   {isAdmin && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(doc.id)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(doc)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   )}

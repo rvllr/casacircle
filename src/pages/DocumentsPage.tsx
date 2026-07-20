@@ -17,6 +17,7 @@ import { FileText, Plus, Download, Trash2, Loader2, Upload } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { formatDate } from "@/lib/dateFormatter";
+import { createDocumentSignedUrl, resolveStoragePath } from "@/lib/documentStorage";
 
 const docTypeLabels: Record<string, string> = {
   legal: "Juridique",
@@ -28,7 +29,10 @@ const docTypeLabels: Record<string, string> = {
 interface Doc {
   id: string;
   title: string;
-  file_url: string;
+  /** Chemin dans le bucket privé `documents`. Source de vérité depuis 20260720150000. */
+  file_path?: string | null;
+  /** LEGACY — ancienne URL publique, inopérante (bucket privé). Sert de repli pour les lignes historiques. */
+  file_url?: string | null;
   type: string;
   house_id: string;
   uploaded_by: string;
@@ -120,17 +124,20 @@ const DocumentsPage = () => {
       return;
     }
 
-    const { data: urlData } = supabase.storage.from("documents").getPublicUrl(path);
-
+    // Le bucket est privé : on persiste le CHEMIN, pas une URL. L'URL signée
+    // est générée à l'ouverture (cf. handleOpen) car elle expire.
     const { error } = await supabase.from("documents").insert({
       title: title.trim(),
       type: docType as any,
-      file_url: urlData.publicUrl,
+      file_path: path,
       house_id: selectedHouse,
       uploaded_by: user.id,
     });
 
     if (error) {
+      // L'insert a échoué : on retire le fichier déjà uploadé pour ne pas
+      // laisser d'orphelin dans le bucket.
+      await supabase.storage.from("documents").remove([path]);
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Document ajouté !" });
@@ -143,10 +150,70 @@ const DocumentsPage = () => {
     setUploading(false);
   };
 
+  const handleOpen = async (doc: Doc) => {
+    if (isDemo) {
+      toast({ title: "Mode démo", description: "Les documents de démonstration ne sont pas consultables." });
+      return;
+    }
+
+    const path = resolveStoragePath(doc);
+    if (!path) {
+      toast({
+        title: "Fichier indisponible",
+        description: "Ce document n'a pas de fichier associé exploitable.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // La fenêtre doit être ouverte de façon synchrone (dans le geste de clic),
+    // sinon les bloqueurs de pop-up la rejettent après l'await.
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+
+    const { url, error } = await createDocumentSignedUrl(path);
+
+    if (error || !url) {
+      popup?.close();
+      toast({ title: "Erreur d'ouverture", description: error ?? "URL indisponible.", variant: "destructive" });
+      return;
+    }
+
+    if (popup) {
+      popup.location.href = url;
+    } else {
+      // Pop-up bloquée : repli sur la navigation courante.
+      window.location.href = url;
+    }
+  };
+
   const handleDelete = async (doc: Doc) => {
+    // On supprime le fichier AVANT la ligne : si le storage échoue, on
+    // interrompt et la ligne reste, donc le document reste visible et
+    // supprimable. L'ordre inverse laisserait un fichier orphelin introuvable
+    // à vie dans le bucket.
+    const path = resolveStoragePath(doc);
+
+    if (path) {
+      const { error: storageError } = await supabase.storage.from("documents").remove([path]);
+      if (storageError) {
+        toast({
+          title: "Erreur de suppression",
+          description: `Le fichier n'a pas pu être supprimé : ${storageError.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     const { error } = await supabase.from("documents").delete().eq("id", doc.id);
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      // Le fichier est parti mais la ligne demeure : état visible et réessayable
+      // (un second `remove` sur un objet absent est sans effet).
+      toast({
+        title: "Erreur",
+        description: `Le fichier a été supprimé mais l'entrée subsiste : ${error.message}`,
+        variant: "destructive",
+      });
     } else {
       toast({ title: "Document supprimé" });
       fetchDocs();
@@ -291,11 +358,9 @@ const DocumentsPage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
-                        <Download className="h-3.5 w-3.5 mr-1" />
-                        Ouvrir
-                      </a>
+                    <Button variant="outline" size="sm" onClick={() => handleOpen(doc)}>
+                      <Download className="h-3.5 w-3.5 mr-1" />
+                      Ouvrir
                     </Button>
                     <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(doc)}>
                       <Trash2 className="h-3.5 w-3.5" />
