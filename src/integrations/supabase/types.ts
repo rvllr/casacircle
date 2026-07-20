@@ -281,7 +281,8 @@ export type Database = {
       documents: {
         Row: {
           created_at: string
-          file_url: string
+          file_path: string | null
+          file_url: string | null
           house_id: string
           id: string
           title: string
@@ -290,7 +291,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          file_url: string
+          file_path?: string | null
+          file_url?: string | null
           house_id: string
           id?: string
           title: string
@@ -299,7 +301,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          file_url?: string
+          file_path?: string | null
+          file_url?: string | null
           house_id?: string
           id?: string
           title?: string
@@ -1414,7 +1417,8 @@ export type Database = {
       space_documents: {
         Row: {
           created_at: string
-          file_url: string
+          file_path: string | null
+          file_url: string | null
           id: string
           space_id: string
           title: string
@@ -1423,7 +1427,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          file_url: string
+          file_path?: string | null
+          file_url?: string | null
           id?: string
           space_id: string
           title: string
@@ -1432,7 +1437,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          file_url?: string
+          file_path?: string | null
+          file_url?: string | null
           id?: string
           space_id?: string
           title?: string
