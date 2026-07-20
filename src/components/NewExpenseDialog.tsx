@@ -10,8 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { normalizeRelation } from "@/lib/supabaseHelpers";
 import { Plus, AlertTriangle } from "lucide-react";
-import {
 import { friendlyError } from "@/lib/errorMessages";
+import {
   splitExpense,
   eurosToCents,
   centsToEuros,
