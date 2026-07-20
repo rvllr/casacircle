@@ -281,7 +281,8 @@ export type Database = {
       documents: {
         Row: {
           created_at: string
-          file_url: string
+          file_path: string | null
+          file_url: string | null
           house_id: string
           id: string
           title: string
@@ -290,7 +291,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          file_url: string
+          file_path?: string | null
+          file_url?: string | null
           house_id: string
           id?: string
           title: string
@@ -299,7 +301,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          file_url?: string
+          file_path?: string | null
+          file_url?: string | null
           house_id?: string
           id?: string
           title?: string
@@ -362,6 +365,7 @@ export type Database = {
           house_id: string
           id: string
           paid_by: string
+          split_mode: Database["public"]["Enums"]["expense_split_mode"]
         }
         Insert: {
           amount: number
@@ -372,6 +376,7 @@ export type Database = {
           house_id: string
           id?: string
           paid_by: string
+          split_mode?: Database["public"]["Enums"]["expense_split_mode"]
         }
         Update: {
           amount?: number
@@ -382,6 +387,7 @@ export type Database = {
           house_id?: string
           id?: string
           paid_by?: string
+          split_mode?: Database["public"]["Enums"]["expense_split_mode"]
         }
         Relationships: [
           {
@@ -1411,7 +1417,8 @@ export type Database = {
       space_documents: {
         Row: {
           created_at: string
-          file_url: string
+          file_path: string | null
+          file_url: string | null
           id: string
           space_id: string
           title: string
@@ -1420,7 +1427,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          file_url: string
+          file_path?: string | null
+          file_url?: string | null
           id?: string
           space_id: string
           title: string
@@ -1429,7 +1437,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          file_url?: string
+          file_path?: string | null
+          file_url?: string | null
           id?: string
           space_id?: string
           title?: string
@@ -1709,7 +1718,6 @@ export type Database = {
           capacity: number | null
           created_at: string | null
           description: string | null
-          family_id: string | null
           id: string | null
           is_public: boolean | null
           location: string | null
@@ -1721,7 +1729,6 @@ export type Database = {
           capacity?: number | null
           created_at?: string | null
           description?: string | null
-          family_id?: string | null
           id?: string | null
           is_public?: boolean | null
           location?: string | null
@@ -1733,25 +1740,20 @@ export type Database = {
           capacity?: number | null
           created_at?: string | null
           description?: string | null
-          family_id?: string | null
           id?: string | null
           is_public?: boolean | null
           location?: string | null
           name?: string | null
           photo_url?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "houses_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Functions: {
+      extract_documents_storage_path: {
+        Args: { _url: string }
+        Returns: string
+      }
       get_family_id_from_house: { Args: { _house_id: string }; Returns: string }
       get_house_id_from_booking: {
         Args: { _booking_id: string }
@@ -1801,9 +1803,12 @@ export type Database = {
         Args: { _house_id: string; _user_id: string }
         Returns: boolean
       }
-      join_house_by_code: {
-        Args: { _join_code: string; _user_id: string }
-        Returns: string
+      is_public_house: { Args: { _house_id: string }; Returns: boolean }
+      join_house_by_code: { Args: { _join_code: string }; Returns: string }
+      safe_uuid: { Args: { _value: string }; Returns: string }
+      save_ownership_shares: {
+        Args: { _house_id: string; _shares: Json }
+        Returns: undefined
       }
     }
     Enums: {
@@ -1819,6 +1824,7 @@ export type Database = {
         | "taxes"
         | "menage"
         | "autre"
+      expense_split_mode: "equal" | "ownership" | "manual"
       family_role: "admin" | "member" | "legal_representative"
       guest_type: "family" | "friend"
       guide_type: "arrival" | "departure" | "rules" | "practical_info"
@@ -1978,6 +1984,7 @@ export const Constants = {
         "menage",
         "autre",
       ],
+      expense_split_mode: ["equal", "ownership", "manual"],
       family_role: ["admin", "member", "legal_representative"],
       guest_type: ["family", "friend"],
       guide_type: ["arrival", "departure", "rules", "practical_info"],
