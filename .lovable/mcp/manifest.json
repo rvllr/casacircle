@@ -1,0 +1,168 @@
+{
+  "version": 1,
+  "sdk_version": "0.23.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://rvibaxrzubrsjummeggh.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "casacircle-mcp",
+      "version": "0.1.0",
+      "title": "CasaCircle"
+    },
+    "tools": [
+      {
+        "name": "list_houses",
+        "title": "Lister mes biens",
+        "description": "List all houses the signed-in user has access to across CasaCircle.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_bookings",
+        "title": "Lister les réservations",
+        "description": "List bookings visible to the signed-in user. Optionally filter by house_id, status, or date range.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "house_id": {
+              "description": "Filter to a specific house.",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "status": {
+              "description": "Filter by booking status.",
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "refused",
+                "cancelled"
+              ]
+            },
+            "from": {
+              "description": "ISO date; only bookings ending on/after this date.",
+              "type": "string"
+            },
+            "to": {
+              "description": "ISO date; only bookings starting on/before this date.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_booking",
+        "title": "Créer une réservation",
+        "description": "Request a booking on a house for the signed-in user. Status starts as 'pending' and awaits admin approval.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "house_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The house to book."
+            },
+            "start_date": {
+              "type": "string",
+              "description": "Start date (YYYY-MM-DD)."
+            },
+            "end_date": {
+              "type": "string",
+              "description": "End date (YYYY-MM-DD), exclusive check-out."
+            }
+          },
+          "required": [
+            "house_id",
+            "start_date",
+            "end_date"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_expenses",
+        "title": "Lister les dépenses",
+        "description": "List expenses visible to the signed-in user, optionally filtered by house.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "house_id": {
+              "description": "Filter to a specific house.",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_maintenance_tickets",
+        "title": "Lister les tickets de maintenance",
+        "description": "List maintenance tickets visible to the signed-in user, optionally filtered by house or status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "house_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "open",
+                "in_progress",
+                "resolved",
+                "closed"
+              ]
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
