@@ -93,7 +93,15 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
     const { error: uploadError } = await supabase.storage.from("documents").upload(path, file);
 
     if (uploadError) {
-      toast({ title: "Erreur upload", description: friendlyError(uploadError), variant: "destructive" });
+      const msg = uploadError.message?.toLowerCase() ?? "";
+      const isDenied = msg.includes("row-level security") || msg.includes("permission") || msg.includes("unauthorized") || msg.includes("policy");
+      toast({
+        title: isDenied ? "Ajout refusé" : "Erreur upload",
+        description: isDenied
+          ? "Seuls les administrateurs de l'espace peuvent ajouter un document."
+          : friendlyError(uploadError),
+        variant: "destructive",
+      });
       setUploading(false);
       return;
     }
@@ -112,7 +120,15 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
       // L'insert a échoué : on retire le fichier déjà uploadé pour ne pas
       // laisser d'orphelin dans le bucket.
       await supabase.storage.from("documents").remove([path]);
-      toast({ title: "Erreur", description: friendlyError(error), variant: "destructive" });
+      const msg = error.message?.toLowerCase() ?? "";
+      const isDenied = msg.includes("row-level security") || msg.includes("permission denied");
+      toast({
+        title: isDenied ? "Ajout refusé" : "Erreur",
+        description: isDenied
+          ? "Seuls les administrateurs de l'espace peuvent ajouter un document."
+          : friendlyError(error),
+        variant: "destructive",
+      });
     } else {
       toast({ title: "Document ajouté" });
       setTitle("");
@@ -123,6 +139,7 @@ const SpaceDocuments = ({ spaceId, isAdmin }: SpaceDocumentsProps) => {
     }
     setUploading(false);
   };
+
 
   const handleOpen = async (doc: SpaceDocument) => {
     const path = resolveStoragePath(doc);
